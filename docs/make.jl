@@ -1,7 +1,7 @@
-using Documenter, QuadraticModels
+using Documenter, ChainedNLPModel
 
 makedocs(
-  modules = [QuadraticModels],
+  modules = [ChainedNLPModel],
   doctest = true,
   # linkcheck = true,
   strict = true,
@@ -9,8 +9,8 @@ makedocs(
     assets = ["assets/style.css"],
     prettyurls = get(ENV, "CI", nothing) == "true",
   ),
-  sitename = "QuadraticModels.jl",
+  sitename = "ChainedNLPModel.jl",
   pages = Any["Home" => "index.md", "Tutorial" => "tutorial.md", "Reference" => "reference.md"],
 )
 
-deploydocs(repo = "github.com/JuliaSmoothOptimizers/QuadraticModels.jl.git", devbranch = "main")
+deploydocs(repo = "github.com/paraynaud/ChainedNLPModel.jl.git", devbranch = "main")
