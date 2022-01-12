@@ -34,6 +34,8 @@ module ChainedNLPModel
 		n = length(x0)
 		meta = NLPModelMeta(n,x0=x0) #32Lio les 3 lignes
 		
+		xtrn = data_train[1]; ytrn = data_train[2]
+		xtst = data_test[1]; ytst = data_test[2]
 		minbatch_train = create_minibatch(xtrn, ytrn, size_minbatch)	 	 	
 		minbatch_test = create_minibatch(xtst, ytst, size_minbatch)
 
