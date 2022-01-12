@@ -11,8 +11,10 @@ end
 
 xtrn,ytrn = MNIST.traindata(Float32); ytrn[ytrn.==0] .= 10
 xtst,ytst = MNIST.testdata(Float32);  ytst[ytst.==0] .= 10
-
+@show typeof(xtrn)
 @testset "first test" begin
+	@show typeof(xtrn)
+	
 	# définition des couches 
 	struct Conv; w; b; f; end
 	(c::Conv)(x) = c.f.(pool(conv4(c.w, x) .+ c.b))
