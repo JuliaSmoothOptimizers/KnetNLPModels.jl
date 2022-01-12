@@ -17,12 +17,6 @@ function set_vars!(model::ChainNLPModel, new_w :: Vector)
 	model.w .= new_w
 end 
 
-# p = map(i -> rand(i) ,1:10000)
-# r = map(i -> rand(i) ,1:10000)
-# @benchmark map(i -> p[i] .= r[i], 1:10000)
-# @benchmark map(i -> p[i] .= r[i], [1:10000;])
-
-
 """
 		build_nested_array_from_vec(model, v)
 Builds a vector of KnetArrays corresponding to the chain's shape of model.
