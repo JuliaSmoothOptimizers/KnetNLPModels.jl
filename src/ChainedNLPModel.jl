@@ -6,10 +6,10 @@ using NLPModels
 abstract type Chain end 
 
 """ 
-		ChainNLPModel
+		ChainedNLPModel
 Data structure that interface neural network define with Knet.jl feature to a NLPModel.
 """
-mutable struct ChainNLPModel{T,S,C<:Chain} <: NLPModels.AbstractNLPModel{T,S}
+mutable struct ChainedNLPModel{T,S,C<:Chain} <: NLPModels.AbstractNLPModel{T,S}
 	meta :: NLPModelMeta{T,S}
 	chain :: C
 	counters :: Counters
@@ -24,7 +24,7 @@ mutable struct ChainNLPModel{T,S,C<:Chain} <: NLPModels.AbstractNLPModel{T,S}
 end
 
 # The Data base is MNIST by default
-function ChainNLPModel(chain::Chain;
+function ChainedNLPModel(chain::Chain;
 					 size_minbatch=100,
 					 data_train = begin (xtrn,ytrn)=MNIST.traindata(Float32); ytrn[ytrn.==0] .= 10 end,
 					 data_test = begin (xtst,ytst)=MNIST.testdata(Float32);  ytst[ytst.==0] .= 10 end
@@ -40,10 +40,11 @@ function ChainNLPModel(chain::Chain;
 	nested_array = build_nested_array_from_vec(chain,w)
 	layers_g = similar(params(chain)) # create un Vector of layer variables
 
-	return ChainNLPModel(meta, chain, Counters(), data_train, data_test, size_minbatch, minbatch_train, minbatch_test, w, layers_g, nested_array)
+	return ChainedNLPModel(meta, chain, Counters(), data_train, data_test, size_minbatch, minbatch_train, minbatch_test, w, layers_g, nested_array)
 end
+
+export ChainedNLPModel, Chain
 
 Base.MainInclude.include("utils.jl")
 Base.MainInclude.include("ChainedNLPModel_methods.jl")
 
-export ChainNLPModel, Chain

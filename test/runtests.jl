@@ -35,7 +35,7 @@ end
 	dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst,1),size(xtst,2),1,:))
 	
 	LeNet = Chainnll(Conv(5,5,1,20), Conv(5,5,20,50), Dense(800,500), Dense(500,10,identity))
-	LeNetNLPModel = ChainNLPModel(LeNet; data_train=(xtrn,ytrn), data_test=(xtst,ytst))
+	LeNetNLPModel = ChainedNLPModel(LeNet; data_train=(xtrn,ytrn), data_test=(xtst,ytst))
 	
 	x1 = copy(LeNetNLPModel.w)
 	x2 = (x -> x+50).(Array(LeNetNLPModel.w))
