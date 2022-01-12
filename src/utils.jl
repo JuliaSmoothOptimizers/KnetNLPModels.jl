@@ -1,4 +1,4 @@
-
+using Knet.KnetArray
 """
 		create_minibatch(X,Y,minibatch_size)
 create a minibatch of the data (X,Y) of minibatch_size's size
@@ -35,18 +35,13 @@ function build_array!(v::Vector{T}, var_layer::KnetArray{T,N}, index::Int, kneta
 	product_dims = length([i for i in eachindex(var_layer)])
 	# map(i -> knetarray[i] = v[index+i] ,[1:length(var_layer);])
 	# product_dims = length(var_layer)
-	# var_layer .= reshape(v[index:index+product_dims-1], size(var_layer))
-	
+	# var_layer .= reshape(v[index:index+product_dims-1], size(var_layer))	
 	# for i in eachindex(var_layer)
 		# knetarray[i] = v[index+i]
 	# end	
 	# product_dims = mapreduce(identity,*,size(var_layer)) # compute the consumed index by the layer
 	return product_dims
 end 
-A = rand(4,5)
-v = [1.0:1:10;]
-map(i -> A[i], [1:length(eachindex(A));])
-
 
 """
 		build_nested_array_from_vec(chain, v)
