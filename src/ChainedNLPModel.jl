@@ -43,7 +43,7 @@ function ChainNLPModel(chain::Chain;
 	return ChainNLPModel(meta, chain, Counters(), data_train, data_test, size_minbatch, minbatch_train, minbatch_test, w, layers_g, nested_array)
 end
 
-include("utils.jl")
-include("ChainedNLPModel_methods.jl")
+Base.include("utils.jl")
+Base.include("ChainedNLPModel_methods.jl")
 
 export ChainNLPModel, Chain
