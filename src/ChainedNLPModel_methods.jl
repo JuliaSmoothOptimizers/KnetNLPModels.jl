@@ -1,3 +1,6 @@
+import Knet.KnetArray
+import ChainNLPModel.Chain
+
 """
 		set_vars!(model, new_w)
 Set the variables of the model to new_w.
