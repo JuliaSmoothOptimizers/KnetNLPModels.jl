@@ -1,6 +1,10 @@
 using Test
 using ChainedNLPModel
 
+using Knet, MLDatasets, IterTools
+using Statistics: mean
+using NLPModels
+
 @testset "first round" begin
 	@test 2==2
 end 
