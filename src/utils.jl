@@ -1,4 +1,6 @@
 import Knet.KnetArray
+import ChainedNLPModel.Chain
+
 """
 		create_minibatch(X,Y,minibatch_size)
 create a minibatch of the data (X,Y) of minibatch_size's size
