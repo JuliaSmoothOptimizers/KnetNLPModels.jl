@@ -6,10 +6,7 @@ Set the variables of the model to new_w.
 There are variants based on model.chain and new_w, or the nested_array
 """
 set_vars!(vars, new_w :: Vector) = map(i -> vars[i].value .= new_w[i], [1:length(vars);] )
-# set_vars!(vars, new_w :: Vector) = (par -> par.value).(vars) .= new_w
-# set_vars!(vars, new_w :: Vector) = map(i -> ((x,y)-> x.=y).(vars[i].value,new_w[i]), [1:length(vars);] )
 set_vars!(vars, new_w :: Vector{KnetArray}) = map(i -> vars[i].value .= new_w[i], [1:length(vars);] )
-# set_vars!(vars, new_w :: Vector{KnetArray}) = map(i -> ((x,y)-> x=y).(vars[i].value,new_w[i]), [1:length(vars);] )
 set_vars!(chain::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain), build_nested_array_from_vec!(chain, new_w) ) 
 function set_vars!(model::ChainNLPModel, new_w :: Vector) 
 	param = build_nested_array_from_vec!(model, new_w)	

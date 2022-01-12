@@ -62,9 +62,9 @@ end
 
 end 
 
-using BenchmarkTools
-@benchmark obj_x2 = obj(LeNetNLPModel, x2) # Memory estimate: 193.96 MiB, allocs estimate: 423864.
-@benchmark build_nested_array_from_vec(LeNetNLPModel, LeNetNLPModel.w) # Memory estimate: 85.51 MiB, allocs estimate: 3448386.
-@benchmark build_nested_array_from_vec!(LeNetNLPModel, LeNetNLPModel.w) # Memory estimate: 85.51 MiB, allocs estimate: 3448386.
+# using BenchmarkTools
+# @benchmark obj_x2 = obj(LeNetNLPModel, x2) # Memory estimate: 193.96 MiB, allocs estimate: 423864.
+# @benchmark build_nested_array_from_vec(LeNetNLPModel, LeNetNLPModel.w) # Memory estimate: 85.51 MiB, allocs estimate: 3448386.
+# @benchmark build_nested_array_from_vec!(LeNetNLPModel, LeNetNLPModel.w) # Memory estimate: 85.51 MiB, allocs estimate: 3448386.
 
 
