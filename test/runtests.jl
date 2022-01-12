@@ -9,6 +9,9 @@ using NLPModels
 	@test 2==2
 end 
 
+xtrn,ytrn = MNIST.traindata(Float32); ytrn[ytrn.==0] .= 10
+xtst,ytst = MNIST.testdata(Float32);  ytst[ytst.==0] .= 10
+
 @testset "first test" begin
 	# définition des couches 
 	struct Conv; w; b; f; end
@@ -24,6 +27,7 @@ end
 	# Son evaluation contient également la fonction de perte negative log likehood
 	# Elle est également utilisé afin de précompilé la structure PS d'un réseau
 	struct Chainnll <: ChainedNLPModel.Chain	
+	# struct Chainnll <: Chain	
 		layers
 		Chainnll(layers...) = new(layers)
 	end
@@ -32,10 +36,8 @@ end
 	(c::Chainnll)(d::Knet.Data) = Knet.nll(c; data=d, average=true)
 	
 	# La base de donnée, base de test
-	xtrn,ytrn = MNIST.traindata(Float32); ytrn[ytrn.==0] .= 10
-	xtst,ytst = MNIST.testdata(Float32);  ytst[ytst.==0] .= 10
-	dtrn = minibatch($xtrn, $ytrn, 100; xsize=(size($xtrn,1),size($xtrn,2),1,:))
-	dtst = minibatch($xtst, $ytst, 100; xsize=(size($xtst,1),size($xtst,2),1,:))
+	dtrn = minibatch($xtrn, ytrn, 100; xsize=(size(xtrn,1),size(xtrn,2),1,:))
+	dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst,1),size(xtst,2),1,:))
 	
 	LeNet = Chainnll(Conv(5,5,1,20), Conv(5,5,20,50), Dense(800,500), Dense(500,10,identity))
 	LeNetNLPModel = ChainNLPModel(LeNet; data_train=(xtrn,ytrn), data_test=(xtst,ytst))
