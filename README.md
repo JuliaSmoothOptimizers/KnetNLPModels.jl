@@ -8,8 +8,8 @@ FreeBSD: [![Build Status](https://api.cirrus-ci.com/github/JuliaSmoothOptimizers
 
 
 
+[![Coverage Status](https://coveralls.io/repos/github/paraynaud/ChainedNLPModel.jl/badge.svg?branch=main)](https://coveralls.io/github/paraynaud/ChainedNLPModel.jl?branch=main)
 
-
-
+[![Build Status](https://app.travis-ci.com/paraynaud/ChainedNLPModel.jl.svg?branch=main)](https://app.travis-ci.com/paraynaud/ChainedNLPModel.jl)
 
 
