@@ -1,5 +1,5 @@
 import Knet.KnetArray
-
+import ChainedNLPModel.Chain
 """
 		set_vars!(model, new_w)
 Set the variables of the model to new_w.
@@ -17,10 +17,10 @@ function set_vars!(model::ChainedNLPModel, new_w :: Vector)
 	model.w .= new_w
 end 
 
-p = map(i -> rand(i) ,1:10000)
-r = map(i -> rand(i) ,1:10000)
-@benchmark map(i -> p[i] .= r[i], 1:10000)
-@benchmark map(i -> p[i] .= r[i], [1:10000;])
+# p = map(i -> rand(i) ,1:10000)
+# r = map(i -> rand(i) ,1:10000)
+# @benchmark map(i -> p[i] .= r[i], 1:10000)
+# @benchmark map(i -> p[i] .= r[i], [1:10000;])
 
 
 """

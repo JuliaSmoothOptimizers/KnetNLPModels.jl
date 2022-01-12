@@ -1,5 +1,5 @@
 import Knet.KnetArray
-import ChainedNLPModel.Chain
+
 
 """
 		create_minibatch(X,Y,minibatch_size)
