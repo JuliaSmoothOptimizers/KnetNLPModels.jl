@@ -39,11 +39,12 @@ function build_array!(v::Vector{T}, var_layer::KnetArray{T,N}, index::Int, kneta
 end 
 # same performance alternative:
 # map(i -> knetarray[i] = v[index+i] ,[1:length(var_layer);])
-# product_dims = length(var_layer)
+
 # var_layer .= reshape(v[index:index+product_dims-1], size(var_layer))	
 # for i in eachindex(var_layer)
 	# knetarray[i] = v[index+i]
 # end	
+
 # product_dims = mapreduce(identity,*,size(var_layer)) # compute the consumed index by the layer
 
 """
