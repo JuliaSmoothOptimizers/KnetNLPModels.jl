@@ -1,1 +1,1 @@
-# ChainedNLPModel.jl
+# KnetNLPModels.jl

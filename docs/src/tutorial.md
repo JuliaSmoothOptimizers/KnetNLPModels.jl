@@ -1,1 +1,1 @@
-# ChainedNLPModel.jl Tutorial
+# KnetNLPModels.jl Tutorial

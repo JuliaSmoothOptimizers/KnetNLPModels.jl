@@ -1,6 +1,6 @@
 Copyright (c) 2018-2021: Paul Raynaud
 
-ChainedNLPModel.jl is licensed under the [MPL version 2.0](https://www.mozilla.org/MPL/2.0/).
+KnetNLPModel.jl is licensed under the [MPL version 2.0](https://www.mozilla.org/MPL/2.0/).
 
 ## License
 

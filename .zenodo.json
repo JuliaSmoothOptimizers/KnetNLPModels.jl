@@ -1,6 +1,6 @@
 {
-  "description": "A package ChainedNLPModel.jl",
-  "title": "ChainedNLPModel.jl",
+  "description": "A package KnetNLPModel.jl",
+  "title": "KnetNLPModel.jl",
   "upload_type": "software",
   "publication_date": "2019-02-07",
   "creators": [

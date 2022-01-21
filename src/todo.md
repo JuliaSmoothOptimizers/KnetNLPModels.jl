@@ -1,1 +1,0 @@
-Allouer dans la structure un vecteur de tableau pour éviter des allocations intempestives.

@@ -1,4 +1,4 @@
-name = "ChainedNLPModel"
+name = "KnetNLPModel"
 uuid = "f468eda6-eac5-11e8-05a5-ff9e497bcd19"
 authors = ["Paul Raynaud <paul.raynaud@polymtl.ca>"]
 version = "0.0.1"

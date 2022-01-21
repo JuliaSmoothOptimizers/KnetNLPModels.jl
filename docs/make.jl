@@ -1,7 +1,7 @@
-using Documenter, ChainedNLPModel
+using Documenter, KnetNLPModels
 
 makedocs(
-  modules = [ChainedNLPModel],
+  modules = [KnetNLPModels],
   doctest = true,
   # linkcheck = true,
   strict = true,
@@ -9,8 +9,8 @@ makedocs(
     assets = ["assets/style.css"],
     prettyurls = get(ENV, "CI", nothing) == "true",
   ),
-  sitename = "ChainedNLPModel.jl",
+  sitename = "KnetNLPModel.jl",
   pages = Any["Home" => "index.md", "Tutorial" => "tutorial.md", "Reference" => "reference.md"],
 )
 
-deploydocs(repo = "github.com/paraynaud/ChainedNLPModel.jl.git", devbranch = "main")
+deploydocs(repo = "github.com/paraynaud/KnetNLPModel.jl.git", devbranch = "main")
