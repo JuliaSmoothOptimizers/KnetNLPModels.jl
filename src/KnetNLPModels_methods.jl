@@ -48,9 +48,9 @@ end
 
 Evaluate ``f(x)``, the objective function of `nlp` at `x`.
 """
-function NLPModels.obj(nlp :: KnetNLPModel, w :: AbstractVector{Y}) where Y <: Number
-  increment!(nlp, :neval_obj)
+function NLPModels.obj(nlp :: KnetNLPModel{T,S,C}, w :: AbstractVector{T}) where T <: Number
   w != nlp.w && set_vars!(nlp, w)
+	increment!(nlp, :neval_obj)  
   f_w = nlp.chain(nlp.minbatch_train)
   return f_w
 end
@@ -60,7 +60,7 @@ end
 
 Evaluate ``∇f(x)``, the gradient of the objective function at `x` in place.
 """
-function NLPModels.grad!(nlp :: KnetNLPModel, w :: AbstractVector{Y}, g :: AbstractVector{Y}) where Y <: Number
+function NLPModels.grad!(nlp :: KnetNLPModel{T,S,C}, w :: AbstractVector{T}, g :: AbstractVector{T}) where T <: Number
   length(w) != length(g) && error("different size vector: w, g: NLPModels.grad!")
   increment!(nlp, :neval_grad)
   w != nlp.w && set_vars!(nlp, w)

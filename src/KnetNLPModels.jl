@@ -4,6 +4,7 @@ module KnetNLPModels
   using NLPModels
 
   export KnetNLPModel, Chain
+	export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!
 
   abstract type Chain end 
 
@@ -34,12 +35,12 @@ module KnetNLPModels
             )
     x0 = vector_params(chain)
     n = length(x0)
-    meta = NLPModelMeta(n,x0=x0) #32Lio les 3 lignes
+    meta = NLPModelMeta(n,x0=x0)
     
     xtrn = data_train[1]
     ytrn = data_train[2]
     xtst = data_test[1]
-      ytst = data_test[2]
+    ytst = data_test[2]
     minibatch_train = create_minibatch(xtrn, ytrn, size_minibatch)	 	 	
     minibatch_test = create_minibatch(xtst, ytst, size_minibatch)
 

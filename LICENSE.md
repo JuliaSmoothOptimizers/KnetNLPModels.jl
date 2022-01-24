@@ -1,6 +1,6 @@
 Copyright (c) 2018-2021: Paul Raynaud
 
-KnetNLPModel.jl is licensed under the [MPL version 2.0](https://www.mozilla.org/MPL/2.0/).
+KnetNLPModels.jl is licensed under the [MPL version 2.0](https://www.mozilla.org/MPL/2.0/).
 
 ## License
 

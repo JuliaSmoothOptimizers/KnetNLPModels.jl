@@ -9,8 +9,8 @@ makedocs(
     assets = ["assets/style.css"],
     prettyurls = get(ENV, "CI", nothing) == "true",
   ),
-  sitename = "KnetNLPModel.jl",
+  sitename = "KnetNLPModels.jl",
   pages = Any["Home" => "index.md", "Tutorial" => "tutorial.md", "Reference" => "reference.md"],
 )
 
-deploydocs(repo = "github.com/paraynaud/KnetNLPModel.jl.git", devbranch = "main")
+deploydocs(repo = "github.com/paraynaud/KnetNLPModels.jl.git", devbranch = "main")

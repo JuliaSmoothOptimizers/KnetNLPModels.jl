@@ -23,7 +23,7 @@ end
 	# La structure Chainnll, utilisée pour faire le lien entre les différents layers.
 	# Son evaluation contient également la fonction de perte negative log likehood
 	# Elle est également utilisé afin de précompilé la structure PS d'un réseau
-	struct Chainnll <: KnetNLPModel.Chain	
+	struct Chainnll <: KnetNLPModels.Chain	
 	# struct Chainnll <: Chain	
 		layers
 		Chainnll(layers...) = new(layers)
