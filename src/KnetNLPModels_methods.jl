@@ -29,8 +29,6 @@ build_nested_array_from_vec(model::KnetNLPModel{T,S,C}, v::Vector{T}) where {T,S
 function build_nested_array_from_vec!(model::KnetNLPModel{T,S,C}, v::Vector{T}) where {T,S,C}
   param = params(model.chain)
   size_param = mapreduce((var_layer -> reduce(*,size(var_layer))), +, param)
-  # flatten_params = vcat_arrays_vector(param)
-  # size(flatten_params) == size(v) || error("Dimension of Vector v mismatch, function rebuild_nested_array $(size(flatten_params)) != $(size(v))")
   size_param == length(v) || error("Dimension of Vector v mismatch, function rebuild_nested_array $(size_param) != $(length(v))")
   index = 0
   
