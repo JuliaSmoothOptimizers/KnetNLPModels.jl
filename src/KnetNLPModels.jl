@@ -22,7 +22,7 @@ module KnetNLPModels
     size_minibatch :: Int
     minibatch_train
     minibatch_test
-    w :: Vector
+    w :: Vector{T}
     layers_g :: Vector{Param}
     nested_knet_array :: Vector{KnetArray{T}}
   end
