@@ -1,6 +1,6 @@
 {
-  "description": "A package KnetNLPModel.jl",
-  "title": "KnetNLPModel.jl",
+  "description": "A package KnetNLPModels.jl",
+  "title": "KnetNLPModels.jl",
   "upload_type": "software",
   "publication_date": "2019-02-07",
   "creators": [
@@ -13,7 +13,7 @@
   "related_identifiers": [
     {
       "scheme": "url",
-      "identifier": "https://github.com/JuliaSmoothOptimizers/QuadraticModels.jl/releases/latest",
+      "identifier": "https://github.com/paraynaud/KnetNLPModels.jl/",
       "relation": "isSupplementTo"
     }
   ]
