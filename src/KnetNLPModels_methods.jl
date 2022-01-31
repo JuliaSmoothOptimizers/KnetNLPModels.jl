@@ -48,7 +48,7 @@ Evaluate ``f(x)``, the objective function of `nlp` at `x`.
 """
 function NLPModels.obj(nlp :: KnetNLPModel{T,S,C}, w :: AbstractVector{T}) where {T,S,C}
   w != nlp.w && set_vars!(nlp, w)
-	increment!(nlp, :neval_obj)  
+  increment!(nlp, :neval_obj)  
   f_w = nlp.chain(nlp.minibatch_train)
   return f_w
 end

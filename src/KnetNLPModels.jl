@@ -4,7 +4,7 @@ module KnetNLPModels
   using NLPModels
 
   export KnetNLPModel, Chain
-	export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!
+  export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!
 
   abstract type Chain end 
 
