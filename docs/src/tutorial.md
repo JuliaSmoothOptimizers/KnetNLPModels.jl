@@ -3,7 +3,7 @@
 This tutoriel suppose a prior knowledge about julia and Knet.jl.
 The tutorial about [Knet.jl](https://github.com/denizyuret/Knet.jl/tree/master/tutorial)
 
-## Define the layers of interest (using Knet.jl)
+## Define the layers of interest
 ```julia
   using Knet
 

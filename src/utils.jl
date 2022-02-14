@@ -64,12 +64,13 @@ function build_nested_array_from_vec(chain_ANN :: C, v::Vector{T}) where {C <: C
   return vec_CuArray
 end
 
-function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}}, v::Vector{T}) where {T <: Number, N}  
+function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}) where {T <: Number, N}  
 	# vec_CuArray = Vector{CuArray{T,N,CUDA.Mem.DeviceBuffer}}( map(i-> similar(nested_array[i]), 1:length(nested_array)) )
 	vec_CuArray = map(i-> similar(nested_array[i]), 1:length(nested_array))
   build_nested_array_from_vec!(nested_array, v, vec_CuArray)
   return vec_CuArray
 end
+
 
 # function build_nested_array_from_vec(nested_array::Array{CuArray{T, N, CUDA.Mem.DeviceBuffer},1}, v::Vector{T}) where {T <: Number, N}
 	# vec_CuArray = map(i-> similar(nested_array[i]), 1:length(nested_array))
