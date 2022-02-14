@@ -29,18 +29,18 @@ module KnetNLPModels
   end
 
   """
-      KnetNLPModel(chain, size_minibatch; data_train=data_train, data_test=data_test)
+      KnetNLPModel(chain_ANN, size_minibatch; data_train=data_train, data_test=data_test)
 
-  Build a KnetNLPModel from the neural network represented by `chain`.
+  Build a KnetNLPModel from the neural network represented by `chain_ANN`.
   `chain` is build Knet, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
 
   """
-  function KnetNLPModel(chain :: Chain;
+  function KnetNLPModel(chain_ANN :: T;
             size_minibatch :: Int=100,
             data_train = begin (xtrn, ytrn) = MNIST.traindata(Float32); ytrn[ytrn.==0] .= 10; (xtrn, ytrn) end,
             data_test = begin (xtst, ytst) = MNIST.testdata(Float32); ytst[ytst.==0] .= 10; (xtst, ytst) end
-            )
-    x0 = vector_params(chain)
+            ) where T <: Chain
+    x0 = vector_params(chain_ANN)
     n = length(x0)
     meta = NLPModelMeta(n, x0=x0)
     
@@ -51,10 +51,10 @@ module KnetNLPModels
     minibatch_train = create_minibatch(xtrn, ytrn, size_minibatch)	 	 	
     minibatch_test = create_minibatch(xtst, ytst, size_minibatch)
 
-    nested_array = build_nested_array_from_vec(chain, x0)
-    layers_g = similar(params(chain)) # create a Vector of layer variables
+    nested_array = build_nested_array_from_vec(chain_ANN, x0)
+    layers_g = similar(params(chain_ANN)) # create a Vector of layer variables
 
-    return KnetNLPModel(meta, chain, Counters(), data_train, data_test, size_minibatch, minibatch_train, minibatch_test, x0, layers_g, nested_array)
+    return KnetNLPModel(meta, chain_ANN, Counters(), data_train, data_test, size_minibatch, minibatch_train, minibatch_test, x0, layers_g, nested_array)
   end
 
   include("utils.jl")

@@ -61,7 +61,7 @@ function build_nested_array_from_vec(chain, v::Vector{T}) where T <: Number
 end
 
 function build_nested_array_from_vec(nested_array::Vector{KnetArray{T}}, v::Vector{T}) where T <: Number
-  vec_KnetArray = Vector{KnetArray{T}}(map(i-> similar(nested_array[i]), [1:length(nested_array);]))
+  vec_KnetArray = Vector{KnetArray{T}}( map(i-> similar(nested_array[i]), 1:length(nested_array)) )
   build_nested_array_from_vec!(nested_array, v, vec_KnetArray)
   return vec_KnetArray
 end
