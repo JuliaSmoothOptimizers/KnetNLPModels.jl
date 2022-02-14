@@ -25,7 +25,7 @@ module KnetNLPModels
     minibatch_test
     w :: S # == Vector{T}
     layers_g :: Vector{Param}
-    nested_knet_array :: Vector{KnetArray{T}}
+    nested_knet_array :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}
   end
 
   """

@@ -4,6 +4,7 @@ authors = ["Paul Raynaud <paul.raynaud@polymtl.ca>"]
 version = "0.0.1"
 
 [deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
 Knet = "1902f260-5fb4-5aff-8c31-6271790ab950"
 MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
