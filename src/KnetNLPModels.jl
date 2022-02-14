@@ -1,7 +1,6 @@
 module KnetNLPModels
-  using Knet, MLDatasets, IterTools
   using Statistics: mean
-  using NLPModels
+  using CUDA, IterTools, Knet, MLDatasets, NLPModels
 
   export KnetNLPModel, Chain
   export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!

@@ -1,9 +1,7 @@
 using Test
 using KnetNLPModels
-
-using Knet, MLDatasets, IterTools
 using Statistics: mean
-using NLPModels
+using CUDA, IterTools, Knet, MLDatasets, NLPModels
 
 @testset "KnetNLPModels tests" begin	
   struct Conv; w; b; f; end
