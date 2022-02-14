@@ -59,6 +59,7 @@ function build_nested_array_from_vec(chain_ANN :: C, v::Vector{T}) where {C <: C
   size_param == length(v) || error("Dimension of Vector v mismatch, function rebuild_nested_array $(size_param) != $(length(v))")
 
   param_value = (x -> x.value).(param_chain) # :: Vector{KnetArrays}
+	@show typeof(param_value)
   vec_CuArray = build_nested_array_from_vec(param_value, v) 
   return vec_CuArray
 end
