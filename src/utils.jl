@@ -44,14 +44,14 @@ function build_array!(v::Vector{T}, var_layer::KnetArray{T, N}, index::Int, knet
 end 
 
 """
-    build_nested_array_from_vec(chain, v)
+    build_nested_array_from_vec(chain_ANN, v)
     
-Build a vector of KnetArrays similar to `chain` of value `v`.
+Build a vector of KnetArrays similar to `chain_ANN` of value `v`.
 It calls iteratively build_array to build each intermediary KnetArrays.
 This method is not optimised, it consumes memory.
 """
-function build_nested_array_from_vec(chain, v::Vector{T}) where T <: Number
-  param = params(chain) # :: Param
+function build_nested_array_from_vec(chain_ANN, v::Vector{T}) where T <: Number
+  param = params(chain_ANN) # :: Param
   size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param)
   size_param == length(v) || error("Dimension of Vector v mismatch, function rebuild_nested_array $(size_param) != $(length(v))")
 
@@ -83,24 +83,24 @@ This methods is not optimised, it consumes memory.
 """
 build_nested_array_from_vec(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = begin build_nested_array_from_vec!(model, v); model.nested_knet_array end 
 function build_nested_array_from_vec!(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C}
-  param = params(model.chain)
-  size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param)
+  param_chain = params(model.chain)
+  size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
   size_param == length(v) || error("Dimension of Vector v mismatch, function rebuild_nested_array $(size_param) != $(length(v))")
   index = 0
   
-  for (i, variable_layer) in enumerate(param)
+  for (i, variable_layer) in enumerate(param_chain)
     vl = variable_layer.value #passe de Param{KnetArray} à KnetArray
     consumed_index = build_array!(v, vl, index, model.nested_knet_array[i])		
     index += consumed_index
   end
   
-  return param
+  return param_chain
 end
 
 """
     set_vars!(model, new_w)
 
-    set_vars!(chain, new_w)
+    set_vars!(chain_ANN, new_w)
 
 Set the variables of `model` or `chain` to new_w.
 Build a vector of KnetArrays from v similar to Knet.params(model.chain).
@@ -108,9 +108,9 @@ Then it sets these variables to the nested array.
 """
 set_vars!(vars, new_w :: Vector) = map(i -> vars[i].value .= new_w[i], 1:length(vars))
 set_vars!(vars, new_w :: Vector{KnetArray}) = map(i -> vars[i].value .= new_w[i], 1:length(vars))
-set_vars!(chain::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain), build_nested_array_from_vec!(chain, new_w) ) 
+set_vars!(chain_ANN::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain_ANN), build_nested_array_from_vec!(chain_ANN, new_w) ) 
 function set_vars!(model::KnetNLPModel{T, S, C}, new_w :: Vector) where {T, S, C}
-  param = build_nested_array_from_vec!(model, new_w)	
-  set_vars!(param, model.nested_knet_array)
+  param_model = build_nested_array_from_vec!(model, new_w)	
+  set_vars!(param_model, model.nested_knet_array)
   model.w .= new_w
 end 
