@@ -119,10 +119,9 @@ Build a vector of KnetArrays from v similar to Knet.params(model.chain).
 Then it sets these variables to the nested array.
 """
 set_vars!(vars, new_w :: Vector) = map(i -> vars[i].value .= new_w[i], 1:length(vars))
-# set_vars!(vars, new_w :: Vector{KnetArray}) = map(i -> vars[i].value .= new_w[i], 1:length(vars))
 set_vars!(chain_ANN::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain_ANN), build_nested_array_from_vec!(chain_ANN, new_w) ) 
 function set_vars!(model::KnetNLPModel{T, S, C}, new_w :: Vector) where {T, S, C}
-  param_model = build_nested_array_from_vec!(model, new_w)	
+  param_model = build_nested_array_from_vec(model, new_w)	
   set_vars!(param_model, model.nested_knet_array)
   model.w .= new_w
 end 
