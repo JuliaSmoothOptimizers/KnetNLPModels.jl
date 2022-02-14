@@ -81,7 +81,7 @@ Build a vector of KnetArrays from `v` similar to Knet.params(model.chain).
 Call build_array iteratively to build each intermediary KnetArrays.
 This methods is not optimised, it consumes memory.
 """
-build_nested_array_from_vec(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = build_nested_array_from_vec!(model.chain, v)
+build_nested_array_from_vec(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = build_nested_array_from_vec(model.chain, v)
 # function build_nested_array_from_vec!(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = 
   # param_chain = params(model.chain)
   # size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
