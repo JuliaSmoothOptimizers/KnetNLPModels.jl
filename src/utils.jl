@@ -87,8 +87,8 @@ Set the variables of `model` or `chain` to new_w.
 Build a vector of KnetArrays from v similar to Knet.params(model.chain).
 Then it sets these variables to the nested array.
 """
-set_vars!(vars::Vector, new_w :: Vector) = map(i -> vars[i].value .= new_w[i], 1:length(vars))
-set_vars!(chain_ANN::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain_ANN), build_nested_array_from_vec(chain_ANN, new_w) ) 
+set_vars!(vars::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, new_w :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}) where {T<: Number} = map(i -> vars[i].value .= new_w[i], 1:length(vars))
+set_vars!(chain_ANN::C, nested_w :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w) 
 function set_vars!(model::KnetNLPModel{T, S, C}, new_w :: Vector) where {T, S, C}
 	build_nested_array_from_vec!(model, new_w)	
   set_vars!(model.chain, model.nested_cuArray)
