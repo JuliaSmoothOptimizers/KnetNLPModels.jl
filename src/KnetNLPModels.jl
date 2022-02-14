@@ -4,15 +4,14 @@ module KnetNLPModels
 
   export KnetNLPModel, Chain
   export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!
-  export build_nested_array_from_vec
+  export build_nested_array_from_vec, build_nested_array_from_vec!
 
   abstract type Chain end 
 
   """ 
-  KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
+      KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
   Data structure that interfaces neural networks defined with Knet.jl as an NLPModel.
-  
   """
   mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
     meta :: NLPModelMeta{T, S}
@@ -32,8 +31,8 @@ module KnetNLPModels
       KnetNLPModel(chain_ANN, size_minibatch; data_train=data_train, data_test=data_test)
 
   Build a KnetNLPModel from the neural network represented by `chain_ANN`.
-  `chain` is build Knet, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
-
+  `chain` is build by Knet, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
+  The other mandatory data are the dataset `data_train`, `data_test` and the size of the minibatch `size_minibatch`
   """
   function KnetNLPModel(chain_ANN :: T;
             size_minibatch :: Int=100,
