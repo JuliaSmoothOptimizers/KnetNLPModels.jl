@@ -32,13 +32,13 @@ function build_from_array(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.Device
   dims = ndims(var_layer)
   size_var_layer = size(var_layer)
   tmp_array = Array{T, dims}(undef, size_var_layer)	
-  cuArray = KnetArray(tmp_array)
+  cuArray = CuArray(tmp_array)
   product_dims = build_from_array!(cuArray, v, index)
   return (cuArray, product_dims)
 end
 
 function build_from_array!(cuArray::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N, v::Vector{T}, index::Int) where {T <: Number}
-	size = reduce(*, size(var_layer))
+	size = reduce(*, size(cuArray))
 	copyto!(cuArray, v[index+1:index+size])
   return size  
 end 
