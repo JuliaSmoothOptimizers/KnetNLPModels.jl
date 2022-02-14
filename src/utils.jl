@@ -45,11 +45,14 @@ end
 
 """
     build_nested_array_from_vec(chain_ANN, v)
+
+		build_nested_array_from_vec(model, v)
     
-Build a vector of KnetArrays similar to `chain_ANN` of value `v`.
+Build a vector of KnetArrays from `v` similar to Knet.params(model.chain) or Knet.params(`chain_ANN`).
 It calls iteratively build_array to build each intermediary KnetArrays.
 This method is not optimised, it consumes memory.
 """
+build_nested_array_from_vec(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = build_nested_array_from_vec(model.chain, v)
 function build_nested_array_from_vec(chain_ANN :: C, v::Vector{T}) where {C <: Chain, T <: Number}
   param_chain = params(chain_ANN) # :: Param
   size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
@@ -60,13 +63,14 @@ function build_nested_array_from_vec(chain_ANN :: C, v::Vector{T}) where {C <: C
   return vec_CuArray
 end
 
-function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}) where {T <: Number, N}  
-	vec_CuArray = Vector{CuArray{Float32,N,CUDA.Mem.DeviceBuffer} where N}( map(i-> similar(nested_array[i]), 1:length(nested_array)) )
+function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}}, v::Vector{T}) where {T <: Number, N}  
+	# vec_CuArray = Vector{CuArray{T,N,CUDA.Mem.DeviceBuffer}}( map(i-> similar(nested_array[i]), 1:length(nested_array)) )
+	vec_CuArray = map(i-> similar(nested_array[i]), 1:length(nested_array))
   build_nested_array_from_vec!(nested_array, v, vec_CuArray)
   return vec_CuArray
 end
 
-function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}, vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N} ) where {T <: Number, N}
+function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}}, v::Vector{T}, vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}} ) where {T <: Number, N}
   index = 0
   for (i, variable_layer) in enumerate(nested_array)		
     consumed_indices = build_array!(v, variable_layer, index, vec_CuArray[i])		
@@ -74,14 +78,14 @@ function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Me
   end	
 end
 
-"""
-    build_nested_array_from_vec(model, v)
+# """
+    # build_nested_array_from_vec(model, v)
 
-Build a vector of KnetArrays from `v` similar to Knet.params(model.chain).
-Call build_array iteratively to build each intermediary KnetArrays.
-This methods is not optimised, it consumes memory.
-"""
-build_nested_array_from_vec(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = build_nested_array_from_vec(model.chain, v)
+# Build a vector of KnetArrays from `v` similar to Knet.params(model.chain).
+# Call build_array iteratively to build each intermediary KnetArrays.
+# This methods is not optimised, it consumes memory.
+# """
+# build_nested_array_from_vec(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = build_nested_array_from_vec(model.chain, v)
 # function build_nested_array_from_vec!(model::KnetNLPModel{T, S, C}, v::Vector{T}) where {T, S, C} = 
   # param_chain = params(model.chain)
   # size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
