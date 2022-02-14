@@ -37,8 +37,8 @@ function build_array(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffe
   return (knetArray, product_dims)
 end
 
-function build_array!(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N, index::Int, knetarray::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N) where {T <: Number}
-  map(i -> knetarray[i] = v[index+i], [i for i in eachindex(var_layer)])
+function build_array!(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N, index::Int, cuarray::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N) where {T <: Number}
+  @allowscalar map(i -> cuarray[i] = v[index+i], [i for i in eachindex(var_layer)])
   product_dims = length([i for i in eachindex(var_layer)])
   return product_dims
 end 
@@ -119,9 +119,9 @@ Build a vector of KnetArrays from v similar to Knet.params(model.chain).
 Then it sets these variables to the nested array.
 """
 set_vars!(vars, new_w :: Vector) = map(i -> vars[i].value .= new_w[i], 1:length(vars))
-set_vars!(chain_ANN::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain_ANN), build_nested_array_from_vec!(chain_ANN, new_w) ) 
+set_vars!(chain_ANN::T, new_w :: Vector) where T <: Chain = set_vars!(params(chain_ANN), build_nested_array_from_vec(chain_ANN, new_w) ) 
 function set_vars!(model::KnetNLPModel{T, S, C}, new_w :: Vector) where {T, S, C}
   param_model = build_nested_array_from_vec(model, new_w)	
-  set_vars!(param_model, model.nested_knet_array)
+  set_vars!(param_model, model.nested_cu_array)
   model.w .= new_w
 end 
