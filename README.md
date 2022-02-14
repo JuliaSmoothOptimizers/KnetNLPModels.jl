@@ -17,9 +17,10 @@
 [doi-img]: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.822073-blue.svg
 [doi-url]: https://doi.org/10.5281/zenodo.822073
 
-KnetNLPModels define a NLPModel from a chained neural network using Knet.jl operations.
+KnetNLPModels allows the user to define a NLPModel from a chained neural network using Knet.jl operations.
 
-This module can be install with the following command:
-]add https://github.com/paraynaud/KnetNLPModels.jl.git
-
-See the docs/src/tutorial.md for a step-by-step example. 
+This module can be installed with the following command:
+``` julia
+] add https://github.com/paraynaud/KnetNLPModels.jl.git
+```
+See the [tutorial](docs/src/tutorial.md) for a step-by-step example. 

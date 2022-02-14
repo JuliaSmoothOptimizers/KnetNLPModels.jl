@@ -26,7 +26,7 @@ The tutorial about [Knet.jl](https://github.com/denizyuret/Knet.jl/tree/master/t
     Chainnll(layers...) = new(layers)
   end
   (c::Chainnll)(x) = (for l in c.layers; x = l(x); end; x) # evaluates the network for a given input
-  (c::Chainnll)(x, y) = Knet.nll(c(x),y) # computes the loss function given the input x and the expected result y
+  (c::Chainnll)(x, y) = Knet.nll(c(x), y) # computes the loss function given the input x and the expected result y
   (c::Chainnll)(d::Knet.Data) = Knet.nll(c; data=d, average=true) # computes the loss function for a minibatch
 ```
 
@@ -43,14 +43,13 @@ The chained structure that defines the neural network **must be a subtype** of K
 
 ## Neural network definition and KnetNLPModel
 ```julia
-  DenseNet = Chainnll(Dense(784,200), Dense(200,50), Dense(50,10)) 
+  DenseNet = Chainnll(Dense(784, 200), Dense(200, 50), Dense(50, 10)) 
 
-  DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn,ytrn), data_test=(xtst,ytst)) # define the KnetNLPModel
+  DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst)) # define the KnetNLPModel
 ```
 Define the neural network from the chained structure defined previously.
 Then you can define the KnetNLPModel from the neural network.
 By default the size of the minibatch is 100 and the dataset used is MNIST.
-
 
 ## Uses of a KnetNLPModel
 Get the dimension of the problem:
@@ -83,8 +82,6 @@ The accuracy of the network can be evaluate with:
 ```julia
 accuracy(DenseNetNLPModel)
 ```
-
-
 
 ## Default behaviour
 By default neither the training or testing minibatch that evaluates the neural network change between evaluations.
