@@ -60,13 +60,13 @@ function build_nested_array_from_vec(chain_ANN :: C, v::Vector{T}) where {C <: C
   return vec_CuArray
 end
 
-function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}}, v::Vector{T}) where {T <: Number, N}  
+function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}) where {T <: Number, N}  
 	vec_CuArray = Vector{CuArray{Float32,N,CUDA.Mem.DeviceBuffer} where N}( map(i-> similar(nested_array[i]), 1:length(nested_array)) )
   build_nested_array_from_vec!(nested_array, v, vec_CuArray)
   return vec_CuArray
 end
 
-function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}}, v::Vector{T}, vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}} ) where {T <: Number, N}
+function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}, vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N} ) where {T <: Number, N}
   index = 0
   for (i, variable_layer) in enumerate(nested_array)		
     consumed_indices = build_array!(v, variable_layer, index, vec_CuArray[i])		
