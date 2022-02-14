@@ -28,7 +28,7 @@ Inverse of the function Knet.cat1d, it generates a KnetArray similar to `var_lay
 The values are those of the vector in the range of index to index+consumed_index.
 This method is not optimised, it consumes memory.
 """
-function build_array(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffer}, index::Int) where {T <: Number, N}
+function build_array(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N, index::Int) where {T <: Number}
   dims = ndims(var_layer)
   size_var_layer = size(var_layer)
   tmp_array = Array{T, dims}(undef, size_var_layer)	
@@ -37,7 +37,7 @@ function build_array(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffe
   return (knetArray, product_dims)
 end
 
-function build_array!(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffer}, index::Int, knetarray::CuArray{T, N, CUDA.Mem.DeviceBuffer}) where {T <: Number, N}
+function build_array!(v::Vector{T}, var_layer::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N, index::Int, knetarray::CuArray{T, N, CUDA.Mem.DeviceBuffer} where N) where {T <: Number}
   map(i -> knetarray[i] = v[index+i], [i for i in eachindex(var_layer)])
   product_dims = length([i for i in eachindex(var_layer)])
   return product_dims
@@ -64,7 +64,7 @@ function build_nested_array_from_vec(chain_ANN :: C, v::Vector{T}) where {C <: C
   return vec_CuArray
 end
 
-function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}) where {T <: Number, N}  
+function build_nested_array_from_vec(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v::Vector{T}) where {T <: Number}  
 	# vec_CuArray = Vector{CuArray{T,N,CUDA.Mem.DeviceBuffer}}( map(i-> similar(nested_array[i]), 1:length(nested_array)) )
 	vec_CuArray = map(i-> similar(nested_array[i]), 1:length(nested_array))
   build_nested_array_from_vec!(nested_array, v, vec_CuArray)
@@ -78,7 +78,7 @@ end
   # return vec_CuArray
 # end
 
-function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}}, v::Vector{T}, vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}} ) where {T <: Number, N}
+function build_nested_array_from_vec!(nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer}  where N}, v::Vector{T}, vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}) where {T <: Number}
   index = 0
   for (i, variable_layer) in enumerate(nested_array)		
     consumed_indices = build_array!(v, variable_layer, index, vec_CuArray[i])		
