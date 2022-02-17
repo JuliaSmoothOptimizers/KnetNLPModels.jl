@@ -16,7 +16,7 @@ end
 Evaluate `∇f(x)`, the gradient of the objective function at `x` in place.
 """
 function NLPModels.grad!(nlp :: KnetNLPModel{T, S, C}, w :: AbstractVector{T}, g :: AbstractVector{T}) where {T, S, C}
-	@lencheck length(w) w g
+	@lencheck nlp.meta.nvar w g
 	increment!(nlp, :neval_grad)
 	set_vars!(nlp, w)  
   L = Knet.@diff nlp.chain(nlp.minibatch_train)	

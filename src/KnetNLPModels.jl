@@ -11,7 +11,7 @@ module KnetNLPModels
   """ 
       KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
-  Data structure that interfaces neural networks defined with Knet.jl as an NLPModel.
+  Data structure that makes the interfaces between neural networks defined with Knet.jl and NLPModels.
   """
   mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
     meta :: NLPModelMeta{T, S}
@@ -31,8 +31,9 @@ module KnetNLPModels
       KnetNLPModel(chain_ANN, size_minibatch; data_train=data_train, data_test=data_test)
 
   Build a KnetNLPModel from the neural network represented by `chain_ANN`.
-  `chain` is build by Knet, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
-  The other mandatory data are the dataset `data_train`, `data_test` and the size of the minibatch `size_minibatch`
+  `chain` is build by Knet.jl, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
+  The other mandatory data are: `data_train`, `data_test` and the size of the minibatch `size_minibatch`.
+	By default they are set to `MNIST` dataset with minibatchs of size 100.
   """
   function KnetNLPModel(chain_ANN :: T;
             size_minibatch :: Int=100,
