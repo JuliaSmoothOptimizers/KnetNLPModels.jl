@@ -35,7 +35,7 @@ reset_minibatch_train!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.curre
 
 Take a new testing minibatch for the `KnetNLPModel`. Usually use before a new accuracy test.
 """
-reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.current_minibatch_training = rand(nlp.data_train)
+reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.current_minibatch_testing = rand(nlp.data_test)
 
 """ 
     accuracy(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}

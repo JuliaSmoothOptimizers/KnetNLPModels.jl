@@ -39,7 +39,8 @@ More layers can be defined, once again see [Knet.jl tutorial](https://github.com
   end
   (c :: Chainnll)(x) = (for l in c.layers; x = l(x); end; x) # evaluates the network for a given input `x`
   (c :: Chainnll)(x, y) = Knet.nll(c(x), y) # computes the loss function given the input `x` and the expected result `y`
-  (c :: Chainnll)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # computes the loss function negative log likelihood for a minibatch `d`
+	(c :: Chainnll)(data :: Tuple{T1,T2}) where {T1,T2} = c(first(data,2)...) # compute the loss function given the data inputs as a tuple `(x,y),. This lines is mandatory to compute single minibatch (ex : `(x,y) = rand(dtrn)` or `(x,y) = first(dtrn)`).
+  (c :: Chainnll)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # computes the loss function negative log likelihood using a minibatch iterator `d`
 ```
 
 The chained structure that defines the neural network **must be a subtype** (`<: Chain`) of `KnetNLPModels.Chain`.
