@@ -22,24 +22,26 @@ Flatten a vector of arrays to a vector. It concatenate the variables produce by 
 """
 vcat_arrays_vector(arrays_vector) = vcat(Knet.cat1d.(arrays_vector)...)
 
+
 """ 
     reset_minibatch_train!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
 
 Take a new training minibatch for the `KnetNLPModel`. Usually use before a new evaluation.
 """
-reset_minibatch_train!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.minibatch_train = create_minibatch(nlp.data_train[1], nlp.data_train[2], nlp.size_minibatch)
+reset_minibatch_train!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.current_minibatch_training = rand(nlp.data_train)
 
 """
     reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
 
 Take a new testing minibatch for the `KnetNLPModel`. Usually use before a new accuracy test.
 """
-reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.minibatch_test = create_minibatch(nlp.data_test[1], nlp.data_test[2], nlp.size_minibatch)
+reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = nlp.current_minibatch_training = rand(nlp.data_train)
 
 """ 
     accuracy(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
 
 Computes the accuracy of the network `nlp.chain` given the data in `nlp.minibatch_test`.
+The accuracy is based from the whole testing dataset.
 """
 accuracy(nlp :: KnetNLPModel{T, S, C}) where {T, S, C} = Knet.accuracy(nlp.chain; data=nlp.minibatch_test)
 

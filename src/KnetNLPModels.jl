@@ -22,6 +22,8 @@ module KnetNLPModels
     size_minibatch :: Int
     minibatch_train
     minibatch_test
+		current_minibatch_training
+		current_minibatch_testing
     w :: S # == Vector{T}
     layers_g :: Vector{Param}
     nested_cuArray :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}
@@ -50,12 +52,26 @@ module KnetNLPModels
     ytst = data_test[2]
     minibatch_train = create_minibatch(xtrn, ytrn, size_minibatch)	 	 	
     minibatch_test = create_minibatch(xtst, ytst, size_minibatch)
+		current_minibatch_training = rand(minibatch_train)
+		current_minibatch_testing = rand(minibatch_test)
 
     nested_array = build_nested_array_from_vec(chain_ANN, x0)
     layers_g = similar(params(chain_ANN)) # create a Vector of layer variables
 
-    return KnetNLPModel(meta, chain_ANN, Counters(), data_train, data_test, size_minibatch, minibatch_train, minibatch_test, x0, layers_g, nested_array)
+    return KnetNLPModel(meta, chain_ANN, Counters(), data_train, data_test, size_minibatch, minibatch_train, minibatch_test, current_minibatch_training, current_minibatch_testing, x0, layers_g, nested_array)
   end
+
+	"""
+			set_size_minibatch!(knetnlp, size_minibatch)
+	
+	Change the size of the minibatchs of training and testing of the `knetnlp`.
+	After a call of `set_size_minibatch!`, if one want to use a minibatch of size `size_minibatch` it must use beforehand `reset_minibatch_train!`.
+	"""
+	function set_size_minibatch!(knetnlp :: KnetNLPModel, size_minibatch :: Int) 
+		knetnlp.size_minibatch = size_minibatch
+		knetnlp.minibatch_train = create_minibatch(knetnlp.data_train[1], knetnlp.data_train[2], knetnlp.size_minibatch)
+		knetnlp.minibatch_test = create_minibatch(knetnlp.data_test[1], knetnlp.data_test[2], knetnlp.size_minibatch)
+	end
 
   include("utils.jl")
   include("KnetNLPModels_methods.jl")

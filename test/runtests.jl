@@ -45,4 +45,10 @@ using CUDA, IterTools, Knet, MLDatasets, NLPModels
 
   @test obj_x1 != obj_x2
   @test grad_x1 != grad_x2
+
+	minibatch_size = rand(200:300)
+	set_size_minibatch!(LeNetNLPModel, minibatch_size)
+	@test LeNetNLPModel.minibatch_size == minibatch_size
+	@test length(LeNetNLPModel.minibatch_train) == minibatch_size
+	@test length(LeNetNLPModel.minibatch_test) == minibatch_size
 end 

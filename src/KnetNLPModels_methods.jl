@@ -6,7 +6,7 @@ Evaluate `f(x)`, the objective function of `nlp` at `x`.
 function NLPModels.obj(nlp :: KnetNLPModel{T, S, C}, w :: AbstractVector{T}) where {T, S, C}
 	increment!(nlp, :neval_obj)
 	set_vars!(nlp, w)
-  f_w = nlp.chain(nlp.minibatch_train)
+  f_w = nlp.chain(nlp.current_minibatch_training)
   return f_w
 end
 
@@ -19,7 +19,7 @@ function NLPModels.grad!(nlp :: KnetNLPModel{T, S, C}, w :: AbstractVector{T}, g
 	@lencheck nlp.meta.nvar w g
 	increment!(nlp, :neval_grad)
 	set_vars!(nlp, w)  
-  L = Knet.@diff nlp.chain(nlp.minibatch_train)	
+  L = Knet.@diff nlp.chain(nlp.current_minibatch_training)	
   vars = Knet.params(nlp.chain)	
   for (index, wᵢ) in enumerate(vars)
     nlp.layers_g[index] = Param(Knet.grad(L, wᵢ))
