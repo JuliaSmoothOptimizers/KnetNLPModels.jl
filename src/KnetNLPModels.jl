@@ -10,7 +10,7 @@ module KnetNLPModels
 
   abstract type Chain end 
 
-	abstract type AbstractKnetNLPModel <: AbstractNLPModel{T, S} end 
+	abstract type AbstractKnetNLPModel{T, S} <: AbstractNLPModel{T, S} end 
 
   """ 
       KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
