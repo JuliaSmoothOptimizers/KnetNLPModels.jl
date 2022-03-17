@@ -2,18 +2,22 @@ module KnetNLPModels
   using Statistics: mean
   using CUDA, IterTools, Knet, MLDatasets, NLPModels
 
-  export KnetNLPModel, Chain
+	export Chain
+  export AbstractKnetNLPModel, KnetNLPModel
   export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!, set_size_minibatch!
   export build_nested_array_from_vec, build_nested_array_from_vec!
+	export create_minibatch, set_vars!, vcat_arrays_vector
 
   abstract type Chain end 
+
+	abstract type AbstractKnetNLPModel <: AbstractNLPModel{T, S} end 
 
   """ 
       KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
   Data structure that makes the interfaces between neural networks defined with Knet.jl and NLPModels.
   """
-  mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
+  mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
     meta :: NLPModelMeta{T, S}
     chain :: C
     counters :: Counters
