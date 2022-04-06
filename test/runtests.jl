@@ -52,6 +52,7 @@ using CUDA, IterTools, Knet, MLDatasets, NLPModels
 	@test LeNetNLPModel.size_minibatch == minibatch_size
 	@test length(LeNetNLPModel.minibatch_train) == floor(length(ytrn)/minibatch_size)
 	@test length(LeNetNLPModel.minibatch_test) == floor(length(ytst)/minibatch_size)
+
+	# LeNet(LeNetNLPModel.current_minibatch_testing)
 end
 
-LeNet(LeNetNLPModel.current_minibatch_testing)

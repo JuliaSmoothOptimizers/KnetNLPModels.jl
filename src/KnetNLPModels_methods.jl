@@ -19,11 +19,11 @@ function NLPModels.grad!(nlp :: KnetNLPModel{T, S, C}, w :: AbstractVector{T}, g
 	@lencheck nlp.meta.nvar w g
 	increment!(nlp, :neval_grad)
 	set_vars!(nlp, w)  
-  L = Knet.@diff nlp.chain(nlp.current_minibatch_training)	
+  L = Knet.@diff nlp.chain(nlp.current_minibatch_training)
   vars = Knet.params(nlp.chain)	
   for (index, wᵢ) in enumerate(vars)
     nlp.layers_g[index] = Param(Knet.grad(L, wᵢ))
   end
-  g .= vcat_arrays_vector(nlp.layers_g)
+  g .= Vector(vcat_arrays_vector(nlp.layers_g))
 	return g
 end
