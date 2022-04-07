@@ -28,14 +28,14 @@ vcat_arrays_vector(arrays_vector) = vcat(Knet.cat1d.(arrays_vector)...)
 
 Take a new training minibatch for the `KnetNLPModel`. Usually use before a new evaluation.
 """
-reset_minibatch_train!(nlp :: T) where T <: AbstractKnetNLPModel = nlp.current_minibatch_training = rand(nlp.data_train)
+reset_minibatch_train!(nlp :: T) where T <: AbstractKnetNLPModel = nlp.current_minibatch_training = rand(nlp.minibatch_train)
 
 """
     reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
 
 Take a new testing minibatch for the `KnetNLPModel`. Usually use before a new accuracy test.
 """
-reset_minibatch_test!(nlp :: T) where T <: AbstractKnetNLPModel = nlp.current_minibatch_testing = rand(nlp.data_test)
+reset_minibatch_test!(nlp :: T) where T <: AbstractKnetNLPModel = nlp.current_minibatch_testing = rand(nlp.minibatch_test)
 
 """ 
     accuracy(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
