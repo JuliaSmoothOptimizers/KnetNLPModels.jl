@@ -28,7 +28,7 @@ function _init_KnetNLPModel(chain; kwargs...)
   return KnetNLP
 end
 
-""" 
+"""
     KnetNLPModelCPU{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
 Data structure that makes the interfaces between neural networks defined with [Knet.jl](https://github.com/denizyuret/Knet.jl) and [NLPModels](https://github.com/JuliaSmoothOptimizers/NLPModels.jl).
@@ -50,7 +50,7 @@ mutable struct KnetNLPModelCPU{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
   nested_cuArray::Vector{Array{T, N} where N}
 end
 
-""" 
+"""
     KnetNLPModelGPU{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
 Data structure that makes the interfaces between neural networks defined with [Knet.jl](https://github.com/denizyuret/Knet.jl) and [NLPModels](https://github.com/JuliaSmoothOptimizers/NLPModels.jl).
