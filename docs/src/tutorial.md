@@ -20,14 +20,14 @@ The following code define a dense layer as an evaluable julia structure.
   using Knet
 
   struct Dense{T}
-    w :: Param{Knet.KnetArrays.KnetMatrix{T}} # parameters of the layers
-    b :: Param{Knet.KnetArrays.KnetVector{T}} # bias of the layer
+    w :: Param{CuArray{Float32, 2, CUDA.Mem.DeviceBuffer}} # parameters of the layers
+    b :: Param{CuArray{Float32, 1, CUDA.Mem.DeviceBuffer}} # bias of the layer
     f # activation function
   end
   (d :: Dense)(x) = d.f.(d.w * mat(x) .+ d.b) # evaluates the layer for a given input `x`
   Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f) # define a dense layer whith an input size of `i` and an output of size `o`
 ```
-More layers can be defined, once again see [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
+More layers can be defined, once again, see [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
 ## Definition of the chained structure that evaluates the network and the loss function 
 ```julia
