@@ -86,6 +86,12 @@ function build_layer_from_vec!(myArray ::Array{T, N} where N, v :: Vector{T}, in
   return sizeArray
 end
 
+function build_layer_from_vec!(myArray ::Array{T, N} where N, v :: Vector{T}, index :: Int) where {T <: Number}
+	sizeArray = reduce(*, size(myArray))
+	copyto!(myArray, v[index+1:index+sizeArray])
+  return sizeArray
+end 
+
 """
     build_layer_from_vec!(array, v :: Vector{T}, index :: Int) where {T <: Number}
 
