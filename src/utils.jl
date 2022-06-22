@@ -178,8 +178,10 @@ function build_nested_array_from_vec!(
   end
 end
 
-
-function build_nested_array_from_vec!(vec_Array :: Vector{Array{T, N} where N}, v :: Vector{T}) where {T <: Number}
+function build_nested_array_from_vec!(
+  vec_Array::Vector{Array{T, N} where N},
+  v::Vector{T},
+) where {T <: Number}
   index = 0
   for variable_layer in vec_Array
     consumed_indices = build_layer_from_vec!(variable_layer, v, index)
