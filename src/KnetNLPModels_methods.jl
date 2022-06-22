@@ -26,7 +26,7 @@ function NLPModels.grad!(
   L = Knet.@diff nlp.chain(nlp.current_minibatch_training)
   vars = Knet.params(nlp.chain)
   for (index, wᵢ) in enumerate(vars)
-    nlp.layers_g[index] = Param(Knet.grad(L, wᵢ))
+    nlp.layers_g[index] = Param(Knet.grad(L, wᵢ)) 
   end
   g .= Vector(vcat_arrays_vector(nlp.layers_g))
   return g
