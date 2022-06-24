@@ -1,17 +1,17 @@
 # KnetNLPModels : An iterface to NLPModels
 
-| **Documentation** | **Coverage** | **DOI** |
-|:-----------------:|:------------:|:-------:|
+| **Documentation** | **Linux/macOS/Windows/FreeBSD** | **Coverage** | **DOI** |
+|:-----------------:|:-------------------------------:|:------------:|:-------:|
 | [![docs-stable][docs-stable-img]][docs-stable-url] [![docs-dev][docs-dev-img]][docs-dev-url] | [![build-gh][build-gh-img]][build-gh-url] [![build-cirrus][build-cirrus-img]][build-cirrus-url] | [![codecov][codecov-img]][codecov-url] | [![doi][doi-img]][doi-url] |
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
 [docs-stable-url]: https://paraynaud.github.io/KnetNLPModels.jl/stable
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-purple.svg
 [docs-dev-url]: https://paraynaud.github.io/KnetNLPModels.jl/dev
-[build-gh-img]: https://github.com/paraynaud/PartitionedStructures.jl/workflows/CI/badge.svg?branch=main
-[build-gh-url]: https://github.com/paraynaud/PartitionedStructures.jl/actions
-[build-cirrus-img]: https://img.shields.io/cirrus/github/paraynaud/PartitionedStructures.jl?logo=Cirrus%20CI
-[build-cirrus-url]: https://cirrus-ci.com/github/paraynaud/PartitionedStructures.jl
+[build-gh-img]: https://github.com/paraynaud/KnetNLPModels.jl/workflows/CI/badge.svg?branch=main
+[build-gh-url]: https://github.com/paraynaud/KnetNLPModels.jl/actions
+[build-cirrus-img]: https://img.shields.io/cirrus/github/paraynaud/KnetNLPModels.jl?logo=Cirrus%20CI
+[build-cirrus-url]: https://cirrus-ci.com/github/paraynaud/KnetNLPModels.jl
 [codecov-img]: https://codecov.io/gh/paraynaud/KnetNLPModels.jl/branch/main/graph/badge.svg
 [codecov-url]: https://app.codecov.io/gh/paraynaud/KnetNLPModels.jl
 [doi-img]: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.822073-blue.svg
@@ -21,10 +21,10 @@
 This module can be installed with the following command:
 ```julia
 julia> ] add https://github.com/paraynaud/KnetNLPModels.jl.git
-pkg> test
+pkg> test KnetNLPModels
 ```
 
-This step by step example suppose prior knowledge [julia](https://julialang.org/) and [Knet.jl](https://github.com/denizyuret/Knet.jl.git).
+This step-by-step example suppose prior knowledge [julia](https://julialang.org/) and [Knet.jl](https://github.com/denizyuret/Knet.jl.git).
 See the [Julia tutorial](https://julialang.org/learning/) and the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
 KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
@@ -53,7 +53,7 @@ end
 (d :: Dense)(x) = d.f.(d.w * mat(x) .+ d.b) # evaluates the layer for a given input x
 Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f) # define a dense layer with input size i and output size o
 ```
-More layer structures can be defined.
+More layer types can be defined.
 Once again, see the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
 ### Definition of the chained structure that evaluates the network and the loss function 
@@ -67,7 +67,6 @@ end
 (c :: Chainnll)(x) = (for l in c.layers; x = l(x); end; x) # evaluate the network for a given input x
 (c :: Chainnll)(x, y) = Knet.nll(c(x), y) # compute the loss function given input x and expected output y
 (c :: Chainnll)(data :: Tuple{T1,T2}) where {T1,T2} = c(first(data,2)...) # evaluate loss given data inputs (x,y)
-# This lines is mandatory to compute single minibatch (ex : (x,y) = rand(dtrn) or (x,y) = first(dtrn)).
 (c :: Chainnll)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # evaluate negative log likelihood loss using a minibatch iterator d
 ```
 The chained structure that defines the neural network **must be a subtype** of `KnetNLPModels.Chain`.
@@ -88,21 +87,20 @@ dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # 
 ```
 
 ## Definition of the neural network and KnetNLPModel
-The following code defines `DenseNet`, a neural network composed of 3 dense layers.
-The loss function applied is the negative likelihood function define by `Chainnll`.
+The following code defines `DenseNet`, a neural network composed of 3 dense layers, embedded in a `Chainnll`.
 ```julia
 DenseNet = Chainnll(Dense(784, 200), Dense(200, 50), Dense(50, 10))
 ```
 Next, we define the `KnetNLPModel` from the neural network.
-By default, the size of the minibatch is a hundredth of the dataset and the dataset used is MNIST.
+By default, the size of each minibatch is a hundredth of the corresponding dataset offered by MNIST.
 ```julia
 DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))
 ```
 
 ## Tools associated to a KnetNLPModel
-The dimension of the problem n:
+The dimension of the problem `w` ∈ ℝⁿ:
 ```julia
-DenseNetNLPModel.meta.nvar
+n = DenseNetNLPModel.meta.nvar
 ```
 
 ### Get the current variables of the network:
@@ -110,13 +108,13 @@ DenseNetNLPModel.meta.nvar
 w = vector_params(DenseNetNLPModel)
 ```
 
-### Evaluate the loss function (i.e. the objective function) at the point $w$:
+### Evaluate the loss function (i.e. the objective function) at the point `w`:
 ```julia
 NLPModels.obj(DenseNetNLPModel, w)
 ```
 The length of the vector w must be `DenseNetNLPModel.meta.nvar`.
 
-### Evaluate the loss function gradient at the point w (ie the gradient):
+### Evaluate the loss gradient at the point w:
 ```julia
 NLPModels.grad!(DenseNetNLPModel, w, g)
 ```
@@ -137,8 +135,7 @@ reset_minibatch_train!(DenseNetNLPModel)
 ```
 The size of the new minibatch is the size define previously.
 
-The size of the training and testing minibatch can be changed with:
+The size of the training and testing minibatch can be set to `1/denominator` the size of the dataset with:
 ```julia
-set_size_minibatch!(DenseNetNLPModel, size)
+set_size_minibatch!(DenseNetNLPModel, denominator) # denominator::Int > 1
 ```
-The size of the new training and testing minibatch is 
