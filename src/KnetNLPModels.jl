@@ -34,11 +34,11 @@ mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
 end
 
 """
-     KnetNLPModel(chain_ANN, size_minibatch; data_train=data_train, data_test=data_test)
+    KnetNLPModel(chain_ANN, size_minibatch; data_train=data_train, data_test=data_test)
 
- Build a KnetNLPModel from the neural network represented by `chain_ANN`.
- `chain` is build by Knet.jl, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
- The other mandatory data are: `data_train`, `data_test` and the size of the minibatch `size_minibatch`.
+Build a KnetNLPModel from the neural network represented by `chain_ANN`.
+`chain` is build by Knet.jl, see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
+The other mandatory data are: `data_train`, `data_test` and the size of the minibatch `size_minibatch`.
 By default they are set to `MNIST` dataset with minibatchs of size 100.
  """
 function KnetNLPModel(
@@ -89,7 +89,7 @@ function KnetNLPModel(
 end
 
 """
-		set_size_minibatch!(knetnlp, size_minibatch)
+    set_size_minibatch!(knetnlp, size_minibatch)
 
 Change the size of the minibatchs of training and testing of the `knetnlp`.
 After a call of `set_size_minibatch!`, if one want to use a minibatch of size `size_minibatch` it must use beforehand `reset_minibatch_train!`.
