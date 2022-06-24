@@ -15,7 +15,7 @@ abstract type AbstractKnetNLPModel{T, S} <: AbstractNLPModel{T, S} end
 """ 
     KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
-Data structure that makes the interfaces between neural networks defined with Knet.jl and NLPModels.
+Data structure that makes the interfaces between neural networks defined with [Knet.jl](https://github.com/denizyuret/Knet.jl) and [NLPModels](https://github.com/JuliaSmoothOptimizers/NLPModels.jl).
 """
 mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
   meta::NLPModelMeta{T, S}
@@ -37,10 +37,10 @@ end
     KnetNLPModel(chain_ANN; size_minibatch=100, data_train=MLDatasets.MNIST.traindata(Float32), data_test=MLDatasets.MNIST.testdata(Float32))
 
 Build a `KnetNLPModel` from the neural network represented by `chain_ANN`.
-`chain_ANN` is build using [Knet.jl](https://github.com/denizyuret/Knet.jl), see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
+`chain_ANN` is built using [Knet.jl](https://github.com/denizyuret/Knet.jl), see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
 The other data required are: an iterator over the training dataset `data_train`, an iterator over the test dataset `data_test` and the size of the minibatch `size_minibatch`.
-Suppose `(xtrn,ytrn) = knetnlp.data_train`, then the size of each training minibatch will be `1/minibatch_size * length(ytrn)`.
-By default, they are respectively set to the training dataset and test dataset of `MLDatasets.MNIST`, where each minibatch is a hundredth of the dataset.
+Suppose `(xtrn,ytrn) = knetnlp.data_train`, then the size of each training minibatch will be `1/size_minibatch * length(ytrn)`.
+By default, the other data are respectively set to the training dataset and test dataset of `MLDatasets.MNIST`, with each minibatch a hundredth of the dataset.
  """
 function KnetNLPModel(
   chain_ANN::T;
@@ -93,8 +93,8 @@ end
     set_size_minibatch!(knetnlp, size_minibatch)
 
 Change the size of both training and test minibatchs of the `knetnlp`.
-Suppose `(xtrn,ytrn) = knetnlp.data_train`, then the size of each training minibatch will be `1/minibatch_size * length(ytrn)`; the test minibatch follows the same logic.
-After a call of `set_size_minibatch!`, you must call `reset_minibatch_train!` to use a minibatch of the expected size.
+Suppose `(xtrn,ytrn) = knetnlp.data_train`, then the size of each training minibatch will be `1/size_minibatch * length(ytrn)`; the test minibatch follows the same logic.
+After a call of `set_size_minibatch!`, you must call `reset_minibatch_train!(knetnlp)` to use a minibatch of the expected size.
 """
 function set_size_minibatch!(knetnlp::KnetNLPModel, size_minibatch::Int)
   knetnlp.size_minibatch = size_minibatch

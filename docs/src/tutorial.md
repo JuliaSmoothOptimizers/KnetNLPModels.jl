@@ -5,14 +5,15 @@ See the [Julia tutorial](https://julialang.org/learning/) and the [Knet.jl tutor
 
 KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
 
-A KnetNLPModel gives the user access to:
+A `KnetNLPModel` gives the user access to:
 - the values of the neural network variables/weights `w`;
-- the objective/loss function `L(X, Y; w)` of the loss function L at the point `w` for a given minibatch `(X,Y)`
+- the objective/loss function `L(X, Y; w)` of the loss function `L` at the point `w` for a given minibatch `(X,Y)`
 - the gradient `∇L(X, Y; w)` of the objective/loss function at the point `w` for a given mini-batch `(X,Y)`
 
 In addition, it provides tools to:
 - Switch the minibatch used to evaluate the neural network;
-- Measure the neural network's accuracy at the current point for a given testing mini-batch.
+- Change the size of the minibatch;
+- Measure the neural network's accuracy at the current point `w`.
 
 ## Preliminaries
 
@@ -32,7 +33,7 @@ Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f) # define a 
 More layer types can be defined.
 Once again, see the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
-### Definition of the chained structure that evaluates the network and the loss function 
+### Definition of the chained structure that evaluates the network and the loss function (negative log likelihood)
 ```julia
 using KnetNLPModels
 
@@ -88,7 +89,7 @@ w = vector_params(DenseNetNLPModel)
 ```julia
 NLPModels.obj(DenseNetNLPModel, w)
 ```
-The length of the vector w must be `DenseNetNLPModel.meta.nvar`.
+The length of the vector `w` must be `DenseNetNLPModel.meta.nvar`.
 
 ### Evaluate the loss gradient at the point w:
 ```julia

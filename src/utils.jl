@@ -27,7 +27,7 @@ vcat_arrays_vector(arrays_vector) = vcat(Knet.cat1d.(arrays_vector)...)
     reset_minibatch_train!(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
 
 Select a new training minibatch for `nlp`.
-Typically used before a new evaluation.
+Typically used before a new evaluation of the loss function/gradient.
 """
 reset_minibatch_train!(nlp::T) where {T <: AbstractKnetNLPModel} =
   nlp.current_minibatch_training = rand(nlp.minibatch_train)
@@ -44,7 +44,7 @@ reset_minibatch_test!(nlp::T) where {T <: AbstractKnetNLPModel} =
     accuracy(nlp :: KnetNLPModel{T, S, C}) where {T, S, C}
 
 Compute the accuracy of the network `nlp.chain` given the data in `nlp.minibatch_test`.
-The computation of `accuracy` is based on the whole test dataset.
+The computation of `accuracy` is based on the whole test dataset `nlp.data_test`.
 """
 accuracy(nlp::T) where {T <: AbstractKnetNLPModel} =
   Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
@@ -90,7 +90,7 @@ end
     build_nested_array_from_vec(nested_array :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v :: Vector{T}) where {T <: Number}
 
 Build a vector of `CuArray` from `v` similar to `Knet.params(model.chain)`, `Knet.params(chain_ANN)` or `nested_array`.
-Call iteratively `build_layer_from_vec` to build each intermediary `CuArrays`.
+Call iteratively `build_layer_from_vec` to build each intermediate `CuArray`.
 This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec(model::T, v::Vector{T}) where {T <: AbstractKnetNLPModel} =
@@ -110,7 +110,7 @@ end
 
 function build_nested_array_from_vec(
   nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
-  v::Vector{T}
+  v::Vector{T},
 ) where {T <: Number}
   vec_CuArray = map(i -> similar(nested_array[i]), 1:length(nested_array))
   build_nested_array_from_vec!(vec_CuArray, v)
@@ -122,7 +122,7 @@ end
     build_nested_array_from_vec!(model :: KnetNLPModel{T, S, C}, new_w :: Vector{T}) where {T, S, C}
     
 Build a vector of `CuArrays` from `new_w` similar to `Knet.params(model.chain)` or `vec_CuArray`.
-Call iteratively `build_layer_from_vec!` to build each intermediary `CuArray`.
+Call iteratively `build_layer_from_vec!` to build each intermediate `CuArray`.
 This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec!(model::KnetNLPModel{T, S, C}, new_w::Vector{T}) where {T, S, C} =
@@ -141,15 +141,17 @@ end
 """
     set_vars!(model :: KnetNLPModel{T, S, C}, new_w :: Vector) where {T, S, C}
     set_vars!(chain_ANN :: C, nested_w :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}) where {C <: Chain, T <: Number}
+    set_vars!(vars :: Vector{Param}, nested_w :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N})
+)
 
-Set the variables of `model` or `chain` to `new_w`.
-Build a vector of `CuArrays` from `new_v` similar to `Knet.params(model.chain)`.
-Then, set those variables to the nested array.
+Set the variables of `model` (resp. `chain_ANN` and `vars`) to `new_w` (resp. `nested_w`).
+Build `nested_w`: a vector of `CuArrays` from `new_v` similar to `Knet.params(model.chain)`.
+Then, set the variables `vars` of the neural netword `chain_ANN, model` to `new_w, nested_w`.
 """
 set_vars!(
   vars::Vector{Param},
-  new_w::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
-) where {T <: Number} = map(i -> vars[i].value .= new_w[i], 1:length(vars))
+  nested_w::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
+) where {T <: Number} = map(i -> vars[i].value .= nested_w[i], 1:length(vars))
 
 set_vars!(
   chain_ANN::C,
