@@ -24,20 +24,24 @@ julia> ] add https://github.com/paraynaud/KnetNLPModels.jl.git
 pkg> test KnetNLPModels
 ```
 
+## Synopsis
+
+A `KnetNLPModel` gives the user access to:
+- the values of the neural network variables/weights `w`;
+- the value of the objective/loss function `L(X, Y; w)` at `w` for a given minibatch `(X,Y)`
+- the gradient `∇L(X, Y; w)` of the objective/loss function at `w` for a given mini-batch `(X,Y)`
+
+In addition, it provides tools to:
+- switch the minibatch used to evaluate the neural network;
+- change the minibatch size;
+- measure the neural network's accuracy at the current `w`.
+
+## Example
+
 This step-by-step example suppose prior knowledge [julia](https://julialang.org/) and [Knet.jl](https://github.com/denizyuret/Knet.jl.git).
 See the [Julia tutorial](https://julialang.org/learning/) and the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
 KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
-
-A `KnetNLPModel` gives the user access to:
-- the values of the neural network variables/weights `w`;
-- the objective/loss function `L(X, Y; w)` of the loss function `L` at the point `w` for a given minibatch `(X,Y)`
-- the gradient `∇L(X, Y; w)` of the objective/loss function at the point `w` for a given mini-batch `(X,Y)`
-
-In addition, it provides tools to:
-- Switch the minibatch used to evaluate the neural network;
-- Change the size of the minibatch;
-- Measure the neural network's accuracy at the current point `w`.
 
 ## Preliminaries
 
@@ -51,8 +55,10 @@ struct Dense{T}
   b :: Param{CuArray{Float32, 1, CUDA.Mem.DeviceBuffer}} # bias of the layer
   f # activation function
 end
-(d :: Dense)(x) = d.f.(d.w * mat(x) .+ d.b) # evaluates the layer for a given input x
-Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f) # define a dense layer with input size i and output size o
+(d :: Dense)(x) = d.f.(d.w * mat(x) .+ d.b) # evaluate the layer for a given input x
+
+# define a dense layer with input size i and output size o
+Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f)
 ```
 More layer types can be defined.
 Once again, see the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
@@ -61,82 +67,85 @@ Once again, see the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tre
 ```julia
 using KnetNLPModels
 
-struct Chainnll <: Chain # must derive from KnetNLPModels.Chain
+struct ChainNLL <: Chain # must derive from KnetNLPModels.Chain
   layers
-  Chainnll(layers...) = new(layers)
+  ChainNLL(layers...) = new(layers)
 end
-(c :: Chainnll)(x) = (for l in c.layers; x = l(x); end; x) # evaluate the network for a given input x
-(c :: Chainnll)(x, y) = Knet.nll(c(x), y) # compute the loss function given input x and expected output y
-(c :: Chainnll)(data :: Tuple{T1,T2}) where {T1,T2} = c(first(data,2)...) # evaluate loss given data inputs (x,y)
-(c :: Chainnll)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # evaluate negative log likelihood loss using a minibatch iterator d
+(c :: ChainNLL)(x) = (for l in c.layers; x = l(x); end; x) # evaluate the network for a given input x
+(c :: ChainNLL)(x, y) = Knet.nll(c(x), y) # compute the loss function given input x and expected output y
+(c :: ChainNLL)(data :: Tuple{T1,T2}) where {T1,T2} = c(first(data,2)...) # evaluate loss given data inputs (x,y)
+(c :: ChainNLL)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # evaluate loss using a minibatch iterator d
 ```
-The chained structure that defines the neural network **must be a subtype** of `KnetNLPModels.Chain`.
+The chained structure that defines the neural network must be a subtype of `KnetNLPModels.Chain`.
 
-### Load datasets and mini-batch
-Load a dataset from [MLDatasets.jl](https://github.com/JuliaML/MLDatasets.jl.git).
-In this example, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stable/datasets/MNIST/) dataset.
+### Load datasets and define mini-batch
+In this example, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stable/datasets/MNIST/) dataset from [MLDatasets.jl](https://github.com/JuliaML/MLDatasets.jl.git).
 ```julia
 using MLDatasets
 
 xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
 ytrn[ytrn.==0] .= 10 # re-arrange indices
-xtst, ytst = MNIST.testdata(Float32) # MNIST testing dataset
+xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
 ytst[ytst.==0] .= 10 # re-arrange indices
 
 dtrn = minibatch(xtrn, ytrn, 100; xsize=(size(xtrn, 1), size(xtrn, 2), 1, :)) # training mini-batch
-dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # testing mini-batch
+dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # test mini-batch
 ```
 
 ## Definition of the neural network and KnetNLPModel
-The following code defines `DenseNet`, a neural network composed of 3 dense layers, embedded in a `Chainnll`.
+The following code defines `DenseNet`, a neural network composed of 3 dense layers, embedded in a `ChainNLL`.
 ```julia
-DenseNet = Chainnll(Dense(784, 200), Dense(200, 50), Dense(50, 10))
+DenseNet = ChainNLL(Dense(784, 200), Dense(200, 50), Dense(50, 10))
 ```
 Next, we define the `KnetNLPModel` from the neural network.
-By default, the size of each minibatch is a hundredth of the corresponding dataset offered by MNIST.
+By default, the size of each minibatch is 1% of the corresponding dataset offered by MNIST.
 ```julia
-DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))
+DenseNetNLPModel = _init_KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))
 ```
 
+`DenseNetNLPModel` will be either a `KnetNLPModelCPU` if the code runs on a CPU or a `KnetNLPModelGPU` if it runs on a GPU.
+All the methods are defined for both `KnetNLPModelCPU` and `KnetNLPModelGPU`.
+
 ## Tools associated to a KnetNLPModel
-The dimension of the problem `w` ∈ ℝⁿ:
+The problem dimension `n`, where `w` ∈ ℝⁿ:
 ```julia
 n = DenseNetNLPModel.meta.nvar
 ```
 
-### Get the current variables of the network:
+### Get the current network weights:
 ```julia
 w = vector_params(DenseNetNLPModel)
 ```
 
-### Evaluate the loss function (i.e. the objective function) at the point `w`:
+### Evaluate the loss function (i.e. the objective function) at `w`:
 ```julia
 NLPModels.obj(DenseNetNLPModel, w)
 ```
-The length of the vector `w` must be `DenseNetNLPModel.meta.nvar`.
+The length of `w` must be `DenseNetNLPModel.meta.nvar`.
 
-### Evaluate the loss gradient at the point w:
+### Evaluate the gradient at `w`:
 ```julia
 NLPModels.grad!(DenseNetNLPModel, w, g)
 ```
 The result is stored in `g ::  Vector{T}`(of size `DenseNetNLPModel.meta.nvar`).
 
+### Evaluate the network accuracy:
 The accuracy of the network can be evaluated with:
 ```julia
 accuracy(DenseNetNLPModel)
 ```
-`accuracy` use the full training dataset.
-That way, the accuracy will not fluctuate depending on the testing minibatch used.
+`accuracy()` uses the full training dataset.
+That way, the accuracy will not fluctuate with the minibatch.
 
 ## Default behavior
 By default, the training minibatch that evaluates the neural network doesn't change between evaluations.
-To change the training minibatch use:
+To change the training minibatch, use:
 ```julia
 reset_minibatch_train!(DenseNetNLPModel)
 ```
-The size of the new minibatch is the size define previously.
+The size of the new minibatch is the size define earlier.
 
-The size of the training and testing minibatch can be set to `1/denominator` the size of the dataset with:
+The size of the training and test minibatch can be set to `1/p` the size of the dataset with:
 ```julia
-set_size_minibatch!(DenseNetNLPModel, denominator) # denominator::Int > 1
+set_size_minibatch!(DenseNetNLPModel, p) # p::Int > 1
 ```
