@@ -1,7 +1,7 @@
 using Test
+using KnetNLPModels
 using Statistics: mean
 using CUDA, IterTools, Knet, MLDatasets, NLPModels
-using KnetNLPModels
 
 @testset "KnetNLPModels tests" begin
   struct Conv
@@ -40,20 +40,24 @@ using KnetNLPModels
   dtst = minibatch(xtst, ytst, 100; xsize = (size(xtst, 1), size(xtst, 2), 1, :))
 
   LeNet = Chainnll(Conv(5, 5, 1, 20), Conv(5, 5, 20, 50), Dense(800, 500), Dense(500, 10, identity))
-  LeNetNLPModel = KnetNLPModel(LeNet; data_train = (xtrn, ytrn), data_test = (xtst, ytst))
+  LeNetNLPModel = _init_KnetNLPModel(LeNet; data_train = (xtrn, ytrn), data_test = (xtst, ytst))
 
   x1 = copy(LeNetNLPModel.w)
-  x2 = (x -> x + 50).(Array(LeNetNLPModel.w))
+  x2 = (x -> x + 50).(copy(LeNetNLPModel.w))
+  
+  CUDA.allowscalar(true)  
 
   obj_x1 = obj(LeNetNLPModel, x1)
   grad_x1 = NLPModels.grad(LeNetNLPModel, x1)
   @test x1 == LeNetNLPModel.w
+	@test length(grad_x1) == length(x1)
   @test params(LeNetNLPModel.chain)[1].value[1] == x1[1]
   @test params(LeNetNLPModel.chain)[1].value[2] == x1[2]
 
   obj_x2 = obj(LeNetNLPModel, x2)
   grad_x2 = NLPModels.grad(LeNetNLPModel, x2)
   @test x2 == LeNetNLPModel.w
+	@test length(grad_x2) == length(x2)
   @test params(LeNetNLPModel.chain)[1].value[1] == x2[1]
   @test params(LeNetNLPModel.chain)[1].value[2] == x2[2]
 
