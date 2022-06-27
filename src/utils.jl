@@ -101,6 +101,7 @@ function build_layer_from_vec!(
   return sizeArray
 end
 
+
 """
     build_nested_array_from_vec(chain_ANN :: C, v :: Vector{T}) where {C <: Chain, T <: Number}
     build_nested_array_from_vec(model <: AbstractKnetNLPModel{T, S}, v :: Vector{T}) where {T, S}
