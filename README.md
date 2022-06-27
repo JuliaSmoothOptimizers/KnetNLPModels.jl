@@ -28,8 +28,8 @@ pkg> test KnetNLPModels
 
 A `KnetNLPModel` gives the user access to:
 - the values of the neural network variables/weights `w`;
-- the value of the objective/loss function `L(X, Y; w)` at `w` for a given minibatch `(X,Y)`
-- the gradient `∇L(X, Y; w)` of the objective/loss function at `w` for a given mini-batch `(X,Y)`
+- the value of the objective/loss function `L(X, Y; w)` at `w` for a given minibatch `(X,Y)`;
+- the gradient `∇L(X, Y; w)` of the objective/loss function at `w` for a given mini-batch `(X,Y)`.
 
 In addition, it provides tools to:
 - switch the minibatch used to evaluate the neural network;
@@ -38,7 +38,7 @@ In addition, it provides tools to:
 
 ## Example
 
-This step-by-step example suppose prior knowledge [julia](https://julialang.org/) and [Knet.jl](https://github.com/denizyuret/Knet.jl.git).
+This step-by-step example assume prior knowledge of [julia](https://julialang.org/) and [Knet.jl](https://github.com/denizyuret/Knet.jl.git).
 See the [Julia tutorial](https://julialang.org/learning/) and the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
 KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
@@ -127,7 +127,7 @@ The length of `w` must be `DenseNetNLPModel.meta.nvar`.
 ```julia
 NLPModels.grad!(DenseNetNLPModel, w, g)
 ```
-The result is stored in `g ::  Vector{T}`(of size `DenseNetNLPModel.meta.nvar`).
+The result is stored in `g :: Vector{T}`, `g` is similar to `v` (of size `DenseNetNLPModel.meta.nvar`).
 
 ### Evaluate the network accuracy:
 The accuracy of the network can be evaluated with:
