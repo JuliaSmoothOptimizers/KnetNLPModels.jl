@@ -32,6 +32,8 @@ using CUDA, IterTools, Knet, MLDatasets, NLPModels
   (c::Chainnll)(data::Tuple{T1, T2}) where {T1, T2} = c(first(data, 2)...)
   (c::Chainnll)(d::Knet.Data) = Knet.nll(c; data = d, average = true)
 
+	ENV["DATADEPS_ALWAYS_ACCEPT"] = true # download datasets without having to manually confirm the download
+
   xtrn, ytrn = MNIST.traindata(Float32)
   ytrn[ytrn .== 0] .= 10
   xtst, ytst = MNIST.testdata(Float32)
