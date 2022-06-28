@@ -5,22 +5,22 @@
 | [![docs-stable][docs-stable-img]][docs-stable-url] [![docs-dev][docs-dev-img]][docs-dev-url] | [![build-gh][build-gh-img]][build-gh-url] [![build-cirrus][build-cirrus-img]][build-cirrus-url] | [![codecov][codecov-img]][codecov-url] | [![doi][doi-img]][doi-url] |
 
 [docs-stable-img]: https://img.shields.io/badge/docs-stable-blue.svg
-[docs-stable-url]: https://paraynaud.github.io/KnetNLPModels.jl/stable
+[docs-stable-url]: https://JuliaSmoothOptimizers.github.io/KnetNLPModels.jl/stable
 [docs-dev-img]: https://img.shields.io/badge/docs-dev-purple.svg
-[docs-dev-url]: https://paraynaud.github.io/KnetNLPModels.jl/dev
-[build-gh-img]: https://github.com/paraynaud/KnetNLPModels.jl/workflows/CI/badge.svg?branch=main
-[build-gh-url]: https://github.com/paraynaud/KnetNLPModels.jl/actions
-[build-cirrus-img]: https://img.shields.io/cirrus/github/paraynaud/KnetNLPModels.jl?logo=Cirrus%20CI
-[build-cirrus-url]: https://cirrus-ci.com/github/paraynaud/KnetNLPModels.jl
-[codecov-img]: https://codecov.io/gh/paraynaud/KnetNLPModels.jl/branch/main/graph/badge.svg
-[codecov-url]: https://app.codecov.io/gh/paraynaud/KnetNLPModels.jl
+[docs-dev-url]: https://JuliaSmoothOptimizers.github.io/KnetNLPModels.jl/dev
+[build-gh-img]: https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/workflows/CI/badge.svg?branch=main
+[build-gh-url]: https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/actions
+[build-cirrus-img]: https://img.shields.io/cirrus/github/JuliaSmoothOptimizers/KnetNLPModels.jl?logo=Cirrus%20CI
+[build-cirrus-url]: https://cirrus-ci.com/github/JuliaSmoothOptimizers/KnetNLPModels.jl
+[codecov-img]: https://codecov.io/gh/JuliaSmoothOptimizers/KnetNLPModels.jl/branch/main/graph/badge.svg
+[codecov-url]: https://app.codecov.io/gh/JuliaSmoothOptimizers/KnetNLPModels.jl
 [doi-img]: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.822073-blue.svg
-[doi-url]: https://doi.org/10.5281/zenodo.822073
+[doi-url]: https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/main/CITATION.bib
 
 ## How to install
 This module can be installed with the following command:
 ```julia
-julia> ] add https://github.com/paraynaud/KnetNLPModels.jl.git
+julia> ] add https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl.git
 pkg> test KnetNLPModels
 ```
 
@@ -149,3 +149,7 @@ The size of the training and test minibatch can be set to `1/p` the size of the 
 ```julia
 set_size_minibatch!(DenseNetNLPModel, p) # p::Int > 1
 ```
+
+## How to Cite
+
+If you use KnetNLPModels.jl in your work, please cite using the format given in [`CITATION.bib`](https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/main/CITATION.bib).
