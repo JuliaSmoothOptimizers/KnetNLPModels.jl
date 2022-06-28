@@ -105,7 +105,7 @@ Build a vector of `CuArray` from `v` similar to `Knet.params(model.chain)`, `Kne
 Call iteratively `build_layer_from_vec` to build each intermediate `CuArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec(model::T, v::Vector{T}) where {T <: AbstractKnetNLPModel} =
+build_nested_array_from_vec(model::K, v::Vector{T}) where {T <: Number, K <: AbstractKnetNLPModel{T, S}} =
   build_nested_array_from_vec(model.chain, v)
 
 function build_nested_array_from_vec(chain_ANN::C, v::Vector{T}) where {C <: Chain, T <: Number}
@@ -147,7 +147,7 @@ Build a vector of `CuArrays` from `new_w` similar to `Knet.params(model.chain)` 
 Call iteratively `build_layer_from_vec!` to build each intermediate `CuArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec!(model::KnetNLPModel{T, S, C}, new_w::Vector{T}) where {T, S, C} =
+build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::Vector{T}) where {T, S, C, V} =
   build_nested_array_from_vec!(model.nested_Array, new_w)
 
 function build_nested_array_from_vec!(
