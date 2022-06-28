@@ -1,7 +1,7 @@
 name = "KnetNLPModels"
 uuid = "f468eda6-eac5-11e8-05a5-ff9e497bcd19"
 authors = ["Paul Raynaud <paul.raynaud@polymtl.ca>"]
-version = "0.0.1"
+version = "0.1.0"
 
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
