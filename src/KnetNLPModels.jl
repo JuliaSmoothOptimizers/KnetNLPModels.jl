@@ -28,7 +28,7 @@ mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
   minibatch_test
   current_minibatch_training
   current_minibatch_testing
-  w::S # :: Vector{T}
+  w::S
   layers_g::Vector{Param}
   nested_cuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}
 end
@@ -37,7 +37,7 @@ end
     KnetNLPModel(chain_ANN; size_minibatch=100, data_train=MLDatasets.MNIST.traindata(Float32), data_test=MLDatasets.MNIST.testdata(Float32))
 
 Build a `KnetNLPModel` from the neural network represented by `chain_ANN`.
-`chain_ANN` is built using [Knet.jl](https://github.com/denizyuret/Knet.jl), see the [tutorial](https://paraynaud.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
+`chain_ANN` is built using [Knet.jl](https://github.com/denizyuret/Knet.jl), see the [tutorial](https://JuliaSmoothOptimizers.github.io/KnetNLPModels.jl/dev/tutorial/) for more details.
 The other data required are: an iterator over the training dataset `data_train`, an iterator over the test dataset `data_test` and the size of the minibatch `size_minibatch`.
 Suppose `(xtrn,ytrn) = knetnlp.data_train`, then the size of each training minibatch will be `1/size_minibatch * length(ytrn)`.
 By default, the other data are respectively set to the training dataset and test dataset of `MLDatasets.MNIST`, with each minibatch a hundredth of the dataset.
