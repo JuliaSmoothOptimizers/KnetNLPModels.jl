@@ -2,18 +2,18 @@
   "description": "A package KnetNLPModels.jl",
   "title": "KnetNLPModels.jl",
   "upload_type": "software",
-  "publication_date": "2019-02-07",
+  "publication_date": "2022-06-27",
   "creators": [
     {
       "affiliation": "\u00c9cole Polytechnique/GERAD - Montr\u00e9al",
-      "name": "Paul Raynaud"
+      "name": "Jean Bigeon, Dominique Orban, Paul Raynaud"
     }
   ],
   "access_right": "open",
   "related_identifiers": [
     {
       "scheme": "url",
-      "identifier": "https://github.com/paraynaud/KnetNLPModels.jl/",
+      "identifier": "https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/",
       "relation": "isSupplementTo"
     }
   ]
