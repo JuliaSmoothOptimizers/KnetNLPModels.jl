@@ -15,7 +15,7 @@
 [codecov-img]: https://codecov.io/gh/JuliaSmoothOptimizers/KnetNLPModels.jl/branch/main/graph/badge.svg
 [codecov-url]: https://app.codecov.io/gh/JuliaSmoothOptimizers/KnetNLPModels.jl
 [doi-img]: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.822073-blue.svg
-[doi-url]: https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/main/CITATION.bib
+[doi-url]: https://doi.org/10.5281/zenodo.822073
 
 ## How to install
 This module can be installed with the following command:
