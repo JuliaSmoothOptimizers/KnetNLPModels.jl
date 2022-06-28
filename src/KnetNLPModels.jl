@@ -17,7 +17,7 @@ abstract type AbstractKnetNLPModel{T, S} <: AbstractNLPModel{T, S} end
 
 Data structure that makes the interfaces between neural networks defined with [Knet.jl](https://github.com/denizyuret/Knet.jl) and [NLPModels](https://github.com/JuliaSmoothOptimizers/NLPModels.jl).
 """
-mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
+mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   meta::NLPModelMeta{T, S}
   chain::C
   counters::Counters
@@ -30,7 +30,7 @@ mutable struct KnetNLPModel{T, S, C <: Chain} <: AbstractKnetNLPModel{T, S}
   current_minibatch_testing
   w::S
   layers_g::Vector{Param}
-  nested_cuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}
+  nested_Array::V
 end
 
 """
