@@ -3,7 +3,7 @@
 
 Evaluate `f(x)`, the objective function of `nlp` at `x`.
 """
-function NLPModels.obj(nlp::KnetNLPModel{T, S, C}, w::AbstractVector{T}) where {T, S, C}
+function NLPModels.obj(nlp::KnetNLPModel{T, S, C, V}, w::AbstractVector{T}) where {T, S, C, V}
   increment!(nlp, :neval_obj)
   set_vars!(nlp, w)
   f_w = nlp.chain(nlp.current_minibatch_training)
@@ -16,10 +16,10 @@ end
 Evaluate `∇f(x)`, the gradient of the objective function at `x` in place.
 """
 function NLPModels.grad!(
-  nlp::KnetNLPModel{T, S, C},
+  nlp::KnetNLPModel{T, S, C, V},
   w::AbstractVector{T},
   g::AbstractVector{T},
-) where {T, S, C}
+) where {T, S, C, V}
   @lencheck nlp.meta.nvar w g
   increment!(nlp, :neval_grad)
   set_vars!(nlp, w)
