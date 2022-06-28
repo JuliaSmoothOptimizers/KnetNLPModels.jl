@@ -27,7 +27,8 @@ using KnetNLPModels
   end
   (c::Chainnll)(x) = (for l in c.layers
     x = l(x)
-  end; x)
+  end;
+  x)
   (c::Chainnll)(x, y) = Knet.nll(c(x), y)  # nécessaire
   (c::Chainnll)(data::Tuple{T1, T2}) where {T1, T2} = c(first(data, 2)...)
   (c::Chainnll)(d::Knet.Data) = Knet.nll(c; data = d, average = true)
