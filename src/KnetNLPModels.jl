@@ -30,7 +30,7 @@ mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   current_minibatch_testing
   w::S
   layers_g::Vector{Param}
-  nested_Array::V
+  nested_array::V
 end
 
 """
@@ -102,6 +102,7 @@ function set_size_minibatch!(knetnlp::KnetNLPModel, size_minibatch::Int)
     create_minibatch(knetnlp.data_train[1], knetnlp.data_train[2], knetnlp.size_minibatch)
   knetnlp.minibatch_test =
     create_minibatch(knetnlp.data_test[1], knetnlp.data_test[2], knetnlp.size_minibatch)
+	return (knetnlp.minibatch_train, knetnlp.minibatch_test)
 end
 
 include("utils.jl")

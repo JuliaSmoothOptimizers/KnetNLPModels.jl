@@ -50,49 +50,18 @@ accuracy(nlp::T) where {T <: AbstractKnetNLPModel} =
   Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
 
 """
-    build_layer_from_vec(v :: Vector{T}, var_layers :: CuArray{T, N, CUDA.Mem.DeviceBuffer} where N, index :: Int) where {T <: Number}
+    build_layer_from_vec!(array :: A, v :: V, index :: Int) where {T <: Number, N, A<:AbstractArray{T,N}, V<:AbstractVector{T}}
 
-Inverse of the function `Knet.cat1d`; build a `CuArray` similar to `var_layers` from `v`.
-The return values are those of the vector `v` in the range `index+1:index+consumed_index`.
-This method is not optimized; it allocates memory.
-"""
-function build_layer_from_vec(
-  v::Vector{T},
-  var_layers::CuArray{T, N, CUDA.Mem.DeviceBuffer} where {N},
-  index::Int,
-) where {T <: Number}
-  dims = ndims(var_layers)
-  size_var_layers = size(var_layers)
-  tmp_array = Array{T, dims}(undef, size_var_layers)
-  cuArray = CuArray(tmp_array)
-  product_dims = build_layer_from_vec!(cuArray, v, index)
-  return (cuArray, product_dims)
-end
-
-"""
-    build_layer_from_vec!(cuArray :: CuArray{T, N, CUDA.Mem.DeviceBuffer} where {N}, v :: Vector{T}, index :: Int) where {T <: Number}
-    build_layer_from_vec!(array :: Array{T, N} where {N}, v :: Vector{T}, index :: Int) where {T <: Number}
-
-Inverse of the function `Knet.cat1d`; set `cuArray` (resp. `array`) to the values of `v` in the range `index+1:index+consumed_index`.
+Inverse of the function `Knet.cat1d`; set `array` to the values of `v` in the range `index+1:index+consumed_index`.
 """
 function build_layer_from_vec!(
-  cuArray::CuArray{T, N, CUDA.Mem.DeviceBuffer} where {N},
-  v::Vector{T},
+  array::A,
+  v::V,
   index::Int,
-) where {T <: Number}
-  sizecuArray = reduce(*, size(cuArray))
-  copyto!(cuArray, v[(index + 1):(index + sizecuArray)])
-  return sizecuArray
-end
-
-function build_layer_from_vec!(
-  cuArray::Array{T, N} where {N},
-  v::Vector{T},
-  index::Int,
-) where {T <: Number}
-  sizecuArray = reduce(*, size(cuArray))
-  copyto!(cuArray, v[(index + 1):(index + sizecuArray)])
-  return sizecuArray
+) where {T <: Number, V<:AbstractVector{T}, N, A<:AbstractArray{T, N}}
+  sizearray = reduce(*, size(array))
+  copyto!(array, v[(index + 1):(index + sizearray)])
+  return sizearray
 end
 
 """
@@ -116,61 +85,61 @@ function build_nested_array_from_vec(chain_ANN::C, v::Vector{T}) where {C <: Cha
   )
 
   param_value = (x -> x.value).(param_chain) # :: Vector{CuArray}
-  vec_CuArray = build_nested_array_from_vec(param_value, v)
-  return vec_CuArray
+  vec_cuarray = build_nested_array_from_vec(param_value, v)
+  return vec_cuarray
 end
 
 function build_nested_array_from_vec(
   nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
   v::Vector{T},
 ) where {T <: Number}
-  vec_CuArray = map(i -> similar(nested_array[i]), 1:length(nested_array))
-  build_nested_array_from_vec!(vec_CuArray, v)
-  return vec_CuArray
+  vec_cuarray = map(i -> similar(nested_array[i]), 1:length(nested_array))
+  build_nested_array_from_vec!(vec_cuarray, v)
+  return vec_cuarray
 end
 
 function build_nested_array_from_vec(
   nested_array::Vector{Array{T,N} where N},
   v::Vector{T},
 ) where {T <: Number}
-  vec_CuArray = map(i -> similar(nested_array[i]), 1:length(nested_array))
-  build_nested_array_from_vec!(vec_CuArray, v)
-  return vec_CuArray
+  vec_array = map(i -> similar(nested_array[i]), 1:length(nested_array))
+  build_nested_array_from_vec!(vec_array, v)
+  return vec_array
 end
 
 """
-    build_nested_array_from_vec!(vec_CuArray :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, new_w :: Vector{T}) where {T <: Number}
+    build_nested_array_from_vec!(vec_cuarray :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, new_w :: Vector{T}) where {T <: Number}
     build_nested_array_from_vec!(model :: KnetNLPModel{T, S, C, V}, new_w :: Vector{T}) where {T, S, C, V}
-    build_nested_array_from_vec!(vec_Array::Vector{Array{T, N} where N}, new_w::Vector{T}) where {T <: Number}
+    build_nested_array_from_vec!(vec_array::Vector{Array{T, N} where N}, new_w::Vector{T}) where {T <: Number}
     
-Build a vector of `CuArrays` from `new_w` similar to `Knet.params(model.chain)` or `vec_CuArray`.
-Call iteratively `build_layer_from_vec!` to build each intermediate `CuArray`.
+Build a vector of `CuArrays`/`Array` from `new_w` similar to `Knet.params(model.chain)` or `vec_cuarray`.
+Call iteratively `build_layer_from_vec!` to build each intermediate `CuArray`/`Array`.
 This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::Vector{T}) where {T, S, C, V} =
-  build_nested_array_from_vec!(model.nested_Array, new_w)
+  build_nested_array_from_vec!(model.nested_array, new_w)
 
-function build_nested_array_from_vec!(
-  vec_CuArray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
-  new_w::Vector{T},
-) where {T <: Number}
-  index = 0
-  for variable_layer in vec_CuArray
-    consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
-    index += consumed_indices
+  function build_nested_array_from_vec!(
+    vec_cuarray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
+    new_w::Vector{T},
+  ) where {T <: Number}
+    index = 0
+    for variable_layer in vec_cuarray
+      consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
+      index += consumed_indices
+    end
   end
-end
-
-function build_nested_array_from_vec!(
-  vec_Array::Vector{Array{T, N} where N},
-  new_w::Vector{T},
-) where {T <: Number}
-  index = 0
-  for variable_layer in vec_Array
-    consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
-    index += consumed_indices
+  
+  function build_nested_array_from_vec!(
+    vec_array::Vector{Array{T, N} where N},
+    new_w::Vector{T},
+  ) where {T <: Number}
+    index = 0
+    for variable_layer in vec_array
+      consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
+      index += consumed_indices
+    end
   end
-end
 
 """
     set_vars!(model :: KnetNLPModel{T, S, C, V}, new_w :: Vector) where {T, S, C, V}
@@ -205,6 +174,6 @@ set_vars!(
 
 function set_vars!(model::T, new_w::Vector) where {T <: AbstractKnetNLPModel}
   build_nested_array_from_vec!(model, new_w)
-  set_vars!(model.chain, model.nested_Array)
+  set_vars!(model.chain, model.nested_array)
   model.w .= new_w
 end
