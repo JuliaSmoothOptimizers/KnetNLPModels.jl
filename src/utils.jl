@@ -61,7 +61,9 @@ function build_layer_from_vec!(
 ) where {T <: Number, N}
   sizearray = reduce(*, size(array))
   copyto!(array, v[(index + 1):(index + sizearray)])
-  return sizearray # i.e. consume_index in build_nested_array_from_vec!(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},new_w::AbstractVector{T},) where T<:Number
+  return sizearray
+  # size_array is consume_index in the method
+  # build_nested_array_from_vec!(nested_array,new_w)
 end
 
 """
@@ -104,6 +106,7 @@ end
     
 Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.chain)` or `nested_array`.
 Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
+This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::AbstractVector{T}) where {T, S, C, V} =
   build_nested_array_from_vec!(model.nested_array, new_w)
