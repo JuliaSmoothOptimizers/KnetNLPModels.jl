@@ -65,18 +65,18 @@ function build_layer_from_vec!(
 end
 
 """
-    build_nested_array_from_vec(chain_ANN :: C, v :: Vector{T}) where {C <: Chain, T <: Number}
-    build_nested_array_from_vec(model :: KnetNLPModel{T, S, C, V}, v :: Vector{T}) where {T, S, C, V}
-    build_nested_array_from_vec(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}}, v::Vector{T}) where {T <: Number}
+    build_nested_array_from_vec(chain_ANN :: C, v :: AbstractVector{T}) where {C <: Chain, T <: Number}
+    build_nested_array_from_vec(model :: KnetNLPModel{T, S, C, V}, v :: AbstractVector{T}) where {T, S, C, V}
+    build_nested_array_from_vec(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}}, v::AbstractVector{T}) where {T <: Number}
 
 Build a vector of `AbstractArray` from `v` similar to `Knet.params(model.chain)`, `Knet.params(chain_ANN)` or `nested_array`.
 Call iteratively `build_layer_from_vec` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec(model::K, v::Vector{T}) where {T <: Number, S, K <: AbstractKnetNLPModel{T, S}} =
+build_nested_array_from_vec(model::K, v::AbstractVector{T}) where {T <: Number, S, K <: AbstractKnetNLPModel{T, S}} =
   build_nested_array_from_vec(model.chain, v)
 
-function build_nested_array_from_vec(chain_ANN::C, v::Vector{T}) where {C <: Chain, T <: Number}
+function build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {C <: Chain, T <: Number}
   param_chain = params(chain_ANN) # :: Param
   size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
   size_param == length(v) || error(
@@ -90,7 +90,7 @@ end
 
 function build_nested_array_from_vec(
   nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
-  v::Vector{T},
+  v::AbstractVector{T},
 ) where {T <: Number}
   vec_cuarray = map(i -> similar(nested_array[i]), 1:length(nested_array))
   build_nested_array_from_vec!(vec_cuarray, v)
@@ -99,19 +99,19 @@ end
 
 
 """
-    build_nested_array_from_vec!(model :: KnetNLPModel{T, S, C, V}, new_w :: Vector{T}) where {T, S, C, V}
-    build_nested_array_from_vec!(nested_array :: AbstractVector{<:AbstractArray{T,N} where {N}}, new_w :: Vector{T}) where {T <: Number}
+    build_nested_array_from_vec!(model :: KnetNLPModel{T, S, C, V}, new_w :: AbstractVector{T}) where {T, S, C, V}
+    build_nested_array_from_vec!(nested_array :: AbstractVector{<:AbstractArray{T,N} where {N}}, new_w :: AbstractVector{T}) where {T <: Number}
     
 Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.chain)` or `nested_array`.
 Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::Vector{T}) where {T, S, C, V} =
+build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::AbstractVector{T}) where {T, S, C, V} =
   build_nested_array_from_vec!(model.nested_array, new_w)
 
   function build_nested_array_from_vec!(
     nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
-    new_w::Vector{T},
+    new_w::AbstractVector{T},
   ) where {T <: Number}
     index = 0
     for variable_layer in nested_array
@@ -122,7 +122,7 @@ build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::Vector{T}) 
   end
   
 """
-    set_vars!(model :: KnetNLPModel{T, S, C, V}, new_w :: Vector) where {T, S, C, V}
+    set_vars!(model :: KnetNLPModel{T, S, C, V}, new_w :: AbstractVector) where {T, S, C, V}
     set_vars!(chain_ANN :: C, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {C <: Chain, T <: Number}    
     set_vars!(vars :: Vector{Param}, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}})
 )
@@ -132,7 +132,7 @@ Build `nested_w`: a vector of `AbstractArray` from `new_v` similar to `Knet.para
 Then, set the variables `vars` of the neural netword `model` (resp. `chain_ANN`) to `new_w` (resp. `nested_w`).
 """
 set_vars!(
-  vars::Vector{Param},
+  vars::AbstractVector{Param},
   nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
 ) where {T <: Number} = map(i -> vars[i].value .= nested_w[i], 1:length(vars))
 
@@ -141,7 +141,7 @@ set_vars!(
   nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
 ) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
 
-function set_vars!(model::T, new_w::Vector) where {T <: AbstractKnetNLPModel}
+function set_vars!(model::K, new_w::AbstractVector{T}) where {T<:Number, S, K <: AbstractKnetNLPModel{T,S}}
   build_nested_array_from_vec!(model, new_w)
   set_vars!(model.chain, model.nested_array)
   model.w .= new_w
