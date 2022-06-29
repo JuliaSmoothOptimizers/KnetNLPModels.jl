@@ -67,11 +67,10 @@ end
 """
     build_nested_array_from_vec(chain_ANN :: C, v :: Vector{T}) where {C <: Chain, T <: Number}
     build_nested_array_from_vec(model :: KnetNLPModel{T, S, C, V}, v :: Vector{T}) where {T, S, C, V}
-    build_nested_array_from_vec(nested_array :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, v :: Vector{T}) where {T <: Number}
-    build_nested_array_from_vec(nested_array :: Vector{Array{T,N} where N}, v :: Vector{T}) where {T <: Number}
+    build_nested_array_from_vec(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}}, v::Vector{T}) where {T <: Number}
 
-Build a vector of `CuArray` from `v` similar to `Knet.params(model.chain)`, `Knet.params(chain_ANN)` or `nested_array`.
-Call iteratively `build_layer_from_vec` to build each intermediate `CuArray`.
+Build a vector of `AbstractArray` from `v` similar to `Knet.params(model.chain)`, `Knet.params(chain_ANN)` or `nested_array`.
+Call iteratively `build_layer_from_vec` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec(model::K, v::Vector{T}) where {T <: Number, S, K <: AbstractKnetNLPModel{T, S}} =
@@ -90,7 +89,7 @@ function build_nested_array_from_vec(chain_ANN::C, v::Vector{T}) where {C <: Cha
 end
 
 function build_nested_array_from_vec(
-  nested_array::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
+  nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
   v::Vector{T},
 ) where {T <: Number}
   vec_cuarray = map(i -> similar(nested_array[i]), 1:length(nested_array))
@@ -98,78 +97,48 @@ function build_nested_array_from_vec(
   return vec_cuarray
 end
 
-function build_nested_array_from_vec(
-  nested_array::Vector{Array{T,N} where N},
-  v::Vector{T},
-) where {T <: Number}
-  vec_array = map(i -> similar(nested_array[i]), 1:length(nested_array))
-  build_nested_array_from_vec!(vec_array, v)
-  return vec_array
-end
 
 """
-    build_nested_array_from_vec!(vec_cuarray :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}, new_w :: Vector{T}) where {T <: Number}
     build_nested_array_from_vec!(model :: KnetNLPModel{T, S, C, V}, new_w :: Vector{T}) where {T, S, C, V}
-    build_nested_array_from_vec!(vec_array::Vector{Array{T, N} where N}, new_w::Vector{T}) where {T <: Number}
+    build_nested_array_from_vec!(nested_array :: AbstractVector{<:AbstractArray{T,N} where {N}}, new_w :: Vector{T}) where {T <: Number}
     
-Build a vector of `CuArrays`/`Array` from `new_w` similar to `Knet.params(model.chain)` or `vec_cuarray`.
-Call iteratively `build_layer_from_vec!` to build each intermediate `CuArray`/`Array`.
+Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.chain)` or `nested_array`.
+Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::Vector{T}) where {T, S, C, V} =
   build_nested_array_from_vec!(model.nested_array, new_w)
 
   function build_nested_array_from_vec!(
-    vec_cuarray::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
+    nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
     new_w::Vector{T},
   ) where {T <: Number}
     index = 0
-    for variable_layer in vec_cuarray
+    for variable_layer in nested_array
       consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
       index += consumed_indices
     end
+    nested_array
   end
   
-  function build_nested_array_from_vec!(
-    vec_array::Vector{Array{T, N} where N},
-    new_w::Vector{T},
-  ) where {T <: Number}
-    index = 0
-    for variable_layer in vec_array
-      consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
-      index += consumed_indices
-    end
-  end
-
 """
     set_vars!(model :: KnetNLPModel{T, S, C, V}, new_w :: Vector) where {T, S, C, V}
-    set_vars!(chain_ANN :: C, nested_w :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N}) where {C <: Chain, T <: Number}
-    set_vars!(vars :: Vector{Param}, nested_w :: Vector{Array{T, N} where N}) where {T <: Number} 
-    set_vars!(vars :: Vector{Param}, nested_w :: Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N})
+    set_vars!(chain_ANN :: C, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {C <: Chain, T <: Number}    
+    set_vars!(vars :: Vector{Param}, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}})
 )
 
 Set the variables of `model` (resp. `chain_ANN` and `vars`) to `new_w` (resp. `nested_w`).
-Build `nested_w`: a vector of `CuArrays` from `new_v` similar to `Knet.params(model.chain)`.
-Then, set the variables `vars` of the neural netword `chain_ANN, model` to `new_w, nested_w`.
+Build `nested_w`: a vector of `AbstractArray` from `new_v` similar to `Knet.params(model.chain)`.
+Then, set the variables `vars` of the neural netword `model` (resp. `chain_ANN`) to `new_w` (resp. `nested_w`).
 """
 set_vars!(
   vars::Vector{Param},
-  nested_w::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
-) where {T <: Number} = map(i -> vars[i].value .= nested_w[i], 1:length(vars))
-
-set_vars!(
-  vars::Vector{Param},
-  nested_w::Vector{Array{T, N} where N},
+  nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
 ) where {T <: Number} = map(i -> vars[i].value .= nested_w[i], 1:length(vars))
 
 set_vars!(
   chain_ANN::C,
-  nested_w::Vector{CuArray{T, N, CUDA.Mem.DeviceBuffer} where N},
-) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
-
-set_vars!(
-  chain_ANN::C,
-  nested_w::Vector{Array{T, N} where N},
+  nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
 ) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
 
 function set_vars!(model::T, new_w::Vector) where {T <: AbstractKnetNLPModel}
