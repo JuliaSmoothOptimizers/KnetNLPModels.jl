@@ -33,7 +33,7 @@ using KnetNLPModels
   (c::Chainnll)(data::Tuple{T1, T2}) where {T1, T2} = c(first(data, 2)...)
   (c::Chainnll)(d::Knet.Data) = Knet.nll(c; data = d, average = true)
 
-	ENV["DATADEPS_ALWAYS_ACCEPT"] = true # download datasets without having to manually confirm the download
+  ENV["DATADEPS_ALWAYS_ACCEPT"] = true # download datasets without having to manually confirm the download
   CUDA.allowscalar(true)  
 
   xtrn, ytrn = MNIST.traindata(Float32)
@@ -43,8 +43,7 @@ using KnetNLPModels
   dtrn = minibatch(xtrn, ytrn, 100; xsize = (size(xtrn, 1), size(xtrn, 2), 1, :))
   dtst = minibatch(xtst, ytst, 100; xsize = (size(xtst, 1), size(xtst, 2), 1, :))
 
-  # LeNet = Chainnll(Conv(5, 5, 1, 20), Conv(5, 5, 20, 50), Dense(800, 500), Dense(500, 10, identity))
-	LeNet = Chainnll(Conv(5, 5, 1, 20), Conv(5, 5, 20, 50), Dense(800, 10), Dense(10, 10, identity))
+  LeNet = Chainnll(Conv(5, 5, 1, 20), Conv(5, 5, 20, 50), Dense(800, 500), Dense(500, 10, identity))  
   LeNetNLPModel = KnetNLPModel(LeNet; data_train = (xtrn, ytrn), data_test = (xtst, ytst))
 
   x1 = copy(LeNetNLPModel.w)

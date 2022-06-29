@@ -50,15 +50,15 @@ accuracy(nlp::T) where {T <: AbstractKnetNLPModel} =
   Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
 
 """
-    build_layer_from_vec!(array :: A, v :: V, index :: Int) where {T <: Number, N, A<:AbstractArray{T,N}, V<:AbstractVector{T}}
+    build_layer_from_vec!(array :: AbstractArray{T, N}, v :: AbstractVector{T}, index :: Int) where {T <: Number, N}
 
 Inverse of the function `Knet.cat1d`; set `array` to the values of `v` in the range `index+1:index+consumed_index`.
 """
 function build_layer_from_vec!(
-  array::A,
-  v::V,
+  array::AbstractArray{T, N},
+  v::AbstractVector{T},
   index::Int,
-) where {T <: Number, V<:AbstractVector{T}, N, A<:AbstractArray{T, N}}
+) where {T <: Number, N}
   sizearray = reduce(*, size(array))
   copyto!(array, v[(index + 1):(index + sizearray)])
   return sizearray
