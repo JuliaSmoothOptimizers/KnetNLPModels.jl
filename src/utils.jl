@@ -61,7 +61,7 @@ function build_layer_from_vec!(
 ) where {T <: Number, N}
   sizearray = reduce(*, size(array))
   copyto!(array, v[(index + 1):(index + sizearray)])
-  return sizearray
+  return sizearray # i.e. consume_index in build_nested_array_from_vec!(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},new_w::AbstractVector{T},) where T<:Number
 end
 
 """
@@ -83,18 +83,18 @@ function build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {
     "Dimension of Vector v mismatch, function build_nested_array $(size_param) != $(length(v))",
   )
 
-  param_value = (x -> x.value).(param_chain) # :: Vector{CuArray}
-  vec_cuarray = build_nested_array_from_vec(param_value, v)
-  return vec_cuarray
+  nested_w_value = (w -> w.value).(param_chain)
+  nested_array = build_nested_array_from_vec(nested_w_value, v)
+  return nested_array
 end
 
 function build_nested_array_from_vec(
   nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
   v::AbstractVector{T},
 ) where {T <: Number}
-  vec_cuarray = map(i -> similar(nested_array[i]), 1:length(nested_array))
-  build_nested_array_from_vec!(vec_cuarray, v)
-  return vec_cuarray
+  similar_nested_array = map(array -> similar(array), nested_array)
+  build_nested_array_from_vec!(similar_nested_array, v)
+  return similar_nested_array
 end
 
 
@@ -104,22 +104,21 @@ end
     
 Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.chain)` or `nested_array`.
 Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
-This method is not optimized; it allocates memory.
 """
 build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::AbstractVector{T}) where {T, S, C, V} =
   build_nested_array_from_vec!(model.nested_array, new_w)
 
-  function build_nested_array_from_vec!(
-    nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
-    new_w::AbstractVector{T},
-  ) where {T <: Number}
-    index = 0
-    for variable_layer in nested_array
-      consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
-      index += consumed_indices
-    end
-    nested_array
+function build_nested_array_from_vec!(
+  nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
+  new_w::AbstractVector{T},
+) where {T <: Number}
+  index = 0
+  for variable_layer in nested_array
+    consumed_indices = build_layer_from_vec!(variable_layer, new_w, index) 
+    index += consumed_indices
   end
+  nested_array
+end
   
 """
     set_vars!(model :: KnetNLPModel{T, S, C, V}, new_w :: AbstractVector) where {T, S, C, V}
@@ -130,6 +129,7 @@ build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::AbstractVec
 Set the variables of `model` (resp. `chain_ANN` and `vars`) to `new_w` (resp. `nested_w`).
 Build `nested_w`: a vector of `AbstractArray` from `new_v` similar to `Knet.params(model.chain)`.
 Then, set the variables `vars` of the neural netword `model` (resp. `chain_ANN`) to `new_w` (resp. `nested_w`).
+`set_vars!(model, new_w)` allocates memory.
 """
 set_vars!(
   vars::AbstractVector{Param},
