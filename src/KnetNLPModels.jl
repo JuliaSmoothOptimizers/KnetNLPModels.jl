@@ -23,13 +23,13 @@ A KnetNLPModel has fields
 * `data_train` is the complete data training set;
 * `data_test` is the complete data test;
 * `size_minibatch` parametrizes the size of an training and test minibatches, which are of size `1/size_minibatch * length(ytrn)` and `1/size_minibatch * length(ytst)` ;
-* `minibatch_train` is the iterator over an training minibatches;
-* `minibatch_test` is the iterator over the test minibatches.;
+* `minibatch_train` is an iterator over an training minibatches;
+* `minibatch_test` is an iterator over the test minibatches.;
 * `current_minibatch_training` is the training minibatch used to evaluate the neural network;
 * `current_minibatch_test` is the current test minibatch, it is not used in practice;
 * `w` is the vector of weights/variables;
-* `layers_g` is a nested array used for internal purpose;
-* `nested_array` is a vector of `Array{T,N}`; its shape mathces that of `chain`.
+* `layers_g` is a nested array used for internal purposes;
+* `nested_array` is a vector of `Array{T,N}`; its shape matches that of `chain`.
 """
 mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   meta::NLPModelMeta{T, S}
