@@ -22,7 +22,7 @@ A KnetNLPModel has fields
 * `chain` is the chained structure representing the neural network;
 * `data_train` is the complete data training set;
 * `data_test` is the complete data test;
-* `size_minibatch` parametrizes the size of an training and test minibatches, which are of size `1/size_minibatch * length(ytrn)` and `1/size_minibatch * length(ytst)` ;
+* `size_minibatch` parametrizes the size of an training and test minibatches, which are of size `1/size_minibatch * length(ytrn)` and `1/size_minibatch * length(ytst)`;
 * `minibatch_train` is an iterator over an training minibatches;
 * `minibatch_test` is an iterator over the test minibatches.;
 * `current_minibatch_training` is the training minibatch used to evaluate the neural network;
