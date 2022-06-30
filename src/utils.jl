@@ -8,45 +8,45 @@ create_minibatch(x_data, y_data, minibatch_size) =
 
 """
     vector_params(chain :: C) where C <: Chain
-    vector_params(nlp :: KnetNLPModel)
+    vector_params(nlp :: AbstractKnetNLPModel)
 
 Retrieve the variables within `chain` or `nlp.chain` as a vector. 
 """
 vector_params(chain::C) where {C <: Chain} = Array(vcat_arrays_vector(params(chain)))
-vector_params(nlp::KnetNLPModel) = nlp.w
+vector_params(nlp::AbstractKnetNLPModel) = nlp.w
 
 """
-    vcat_arrays_vector(arrays_vector)
+    vcat_arrays_vector(arrays_vector::AbstractVector{Param})
 
 Flatten a vector of arrays `arrays_vector` to a vector.
 It concatenates the vectors produced by the application of `Knet.cat1d` to each array.
 """
-vcat_arrays_vector(arrays_vector) = vcat(Knet.cat1d.(arrays_vector)...)
+vcat_arrays_vector(arrays_vector::AbstractVector{Param}) = vcat(Knet.cat1d.(arrays_vector)...)
 
 """ 
-    reset_minibatch_train!(nlp :: KnetNLPModel{T, S, C, V}) where {T, S, C, V}
+    reset_minibatch_train!(nlp::AbstractKnetNLPModel)
 
 Select a new training minibatch for `nlp`.
 Typically used before a new evaluation of the loss function/gradient.
 """
-reset_minibatch_train!(nlp::T) where {T <: AbstractKnetNLPModel} =
+reset_minibatch_train!(nlp::AbstractKnetNLPModel) =
   nlp.current_minibatch_training = rand(nlp.minibatch_train)
 
 """
-    reset_minibatch_test!(nlp :: KnetNLPModel{T, S, C, V}) where {T, S, C, V}
+    reset_minibatch_test!(nlp::AbstractKnetNLPModel)
 
 Select a new test minibatch for `nlp`.
 """
-reset_minibatch_test!(nlp::T) where {T <: AbstractKnetNLPModel} =
+reset_minibatch_test!(nlp::AbstractKnetNLPModel) =
   nlp.current_minibatch_testing = rand(nlp.minibatch_test)
 
 """ 
-    accuracy(nlp :: KnetNLPModel{T, S, C, V}) where {T, S, C, V}
+    accuracy(nlp::AbstractKnetNLPModel)
 
 Compute the accuracy of the network `nlp.chain` given the data in `nlp.minibatch_test`.
 The computation of `accuracy` is based on the whole test dataset `nlp.data_test`.
 """
-accuracy(nlp::T) where {T <: AbstractKnetNLPModel} =
+accuracy(nlp::AbstractKnetNLPModel) =
   Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
 
 """
@@ -67,15 +67,15 @@ function build_layer_from_vec!(
 end
 
 """
-    build_nested_array_from_vec(chain_ANN :: C, v :: AbstractVector{T}) where {C <: Chain, T <: Number}
-    build_nested_array_from_vec(model :: KnetNLPModel{T, S, C, V}, v :: AbstractVector{T}) where {T, S, C, V}
-    build_nested_array_from_vec(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}}, v::AbstractVector{T}) where {T <: Number}
+    nested_array = build_nested_array_from_vec(model::AbstractKnetNLPModel{T, S}, v::AbstractVector{T}) where {T <: Number, S}
+    nested_array = build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {C <: Chain, T <: Number}
+    nested_array = build_nested_array_from_vec(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}}, v::AbstractVector{T}) where {T <: Number}
 
 Build a vector of `AbstractArray` from `v` similar to `Knet.params(model.chain)`, `Knet.params(chain_ANN)` or `nested_array`.
 Call iteratively `build_layer_from_vec` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec(model::K, v::AbstractVector{T}) where {T <: Number, S, K <: AbstractKnetNLPModel{T, S}} =
+build_nested_array_from_vec(model::AbstractKnetNLPModel{T, S}, v::AbstractVector{T}) where {T <: Number, S} =
   build_nested_array_from_vec(model.chain, v)
 
 function build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {C <: Chain, T <: Number}
@@ -99,16 +99,15 @@ function build_nested_array_from_vec(
   return similar_nested_array
 end
 
-
 """
-    build_nested_array_from_vec!(model :: KnetNLPModel{T, S, C, V}, new_w :: AbstractVector{T}) where {T, S, C, V}
+    build_nested_array_from_vec!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T, S}
     build_nested_array_from_vec!(nested_array :: AbstractVector{<:AbstractArray{T,N} where {N}}, new_w :: AbstractVector{T}) where {T <: Number}
     
 Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.chain)` or `nested_array`.
 Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec!(model::KnetNLPModel{T, S, C, V}, new_w::AbstractVector{T}) where {T, S, C, V} =
+build_nested_array_from_vec!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T, S} =
   build_nested_array_from_vec!(model.nested_array, new_w)
 
 function build_nested_array_from_vec!(
@@ -124,7 +123,7 @@ function build_nested_array_from_vec!(
 end
   
 """
-    set_vars!(model :: KnetNLPModel{T, S, C, V}, new_w :: AbstractVector) where {T, S, C, V}
+    set_vars!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T<:Number, S}
     set_vars!(chain_ANN :: C, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {C <: Chain, T <: Number}    
     set_vars!(vars :: Vector{Param}, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}})
 )
@@ -144,7 +143,7 @@ set_vars!(
   nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
 ) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
 
-function set_vars!(model::K, new_w::AbstractVector{T}) where {T<:Number, S, K <: AbstractKnetNLPModel{T,S}}
+function set_vars!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T<:Number, S}
   build_nested_array_from_vec!(model, new_w)
   set_vars!(model.chain, model.nested_array)
   model.w .= new_w

@@ -16,6 +16,18 @@ abstract type AbstractKnetNLPModel{T, S} <: AbstractNLPModel{T, S} end
     KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
 
 Data structure that makes the interfaces between neural networks defined with [Knet.jl](https://github.com/denizyuret/Knet.jl) and [NLPModels](https://github.com/JuliaSmoothOptimizers/NLPModels.jl).
+`meta` and `counters` retain informations about the `KnetNLPModel`.
+`chain` is the chained structure representing the neural network.
+`data_train` is the complete data train.
+`data_test` is the complete data test.
+`size_minibatch` parametrizes the size of the training minibatchs, which are of size `1/size_minibatch * length(ytrn)`; the test minibatchs follow the same logic.
+`minibatch_train` is the iterator gathering the training minibatchs.
+`minibatch_test` is the iterator gathering the test minibatchs. 
+`current_minibatch_training` is the training minibatch that will evaluate the neural network.
+`current_minibatch_testing` is the current test minibatch, it is not used in practice.
+`w` is the vector of the weights/variables.
+`layers_g` is a nested array which may vary depending the architecture used; its shape fits `chain`.
+`nested_array` is a nested of `Array{T,N}`; its shape fits `chain`.
 """
 mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   meta::NLPModelMeta{T, S}
@@ -90,13 +102,13 @@ function KnetNLPModel(
 end
 
 """
-    set_size_minibatch!(knetnlp, size_minibatch)
+    set_size_minibatch!(knetnlp::AbstractKnetNLPModel, size_minibatch::Int)
 
 Change the size of both training and test minibatchs of the `knetnlp`.
 Suppose `(xtrn,ytrn) = knetnlp.data_train`, then the size of each training minibatch will be `1/size_minibatch * length(ytrn)`; the test minibatch follows the same logic.
 After a call of `set_size_minibatch!`, you must call `reset_minibatch_train!(knetnlp)` to use a minibatch of the expected size.
 """
-function set_size_minibatch!(knetnlp::KnetNLPModel, size_minibatch::Int)
+function set_size_minibatch!(knetnlp::AbstractKnetNLPModel, size_minibatch::Int)
   knetnlp.size_minibatch = size_minibatch
   knetnlp.minibatch_train =
     create_minibatch(knetnlp.data_train[1], knetnlp.data_train[2], knetnlp.size_minibatch)
