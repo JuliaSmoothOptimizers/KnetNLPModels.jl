@@ -10,7 +10,7 @@ create_minibatch(x_data, y_data, minibatch_size) =
     vector_params(chain :: C) where C <: Chain
     vector_params(nlp :: AbstractKnetNLPModel)
 
-Retrieve the variables within `chain` or `nlp.chain` as a vector. 
+Retrieve the variables within `chain` or `nlp.chain` as a vector.
 """
 vector_params(chain::C) where {C <: Chain} = Array(vcat_arrays_vector(params(chain)))
 vector_params(nlp::AbstractKnetNLPModel) = nlp.w
@@ -23,7 +23,7 @@ It concatenates the vectors produced by the application of `Knet.cat1d` to each 
 """
 vcat_arrays_vector(arrays_vector::AbstractVector{Param}) = vcat(Knet.cat1d.(arrays_vector)...)
 
-""" 
+"""
     reset_minibatch_train!(nlp::AbstractKnetNLPModel)
 
 Select a new training minibatch for `nlp`.
@@ -40,7 +40,7 @@ Select a new test minibatch for `nlp`.
 reset_minibatch_test!(nlp::AbstractKnetNLPModel) =
   nlp.current_minibatch_testing = rand(nlp.minibatch_test)
 
-""" 
+"""
     accuracy(nlp::AbstractKnetNLPModel)
 
 Compute the accuracy of the network `nlp.chain` given the data in `nlp.minibatch_test`.
@@ -102,7 +102,7 @@ end
 """
     build_nested_array_from_vec!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T, S}
     build_nested_array_from_vec!(nested_array :: AbstractVector{<:AbstractArray{T,N} where {N}}, new_w :: AbstractVector{T}) where {T <: Number}
-    
+
 Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.chain)` or `nested_array`.
 Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
@@ -116,15 +116,15 @@ function build_nested_array_from_vec!(
 ) where {T <: Number}
   index = 0
   for variable_layer in nested_array
-    consumed_indices = build_layer_from_vec!(variable_layer, new_w, index) 
+    consumed_indices = build_layer_from_vec!(variable_layer, new_w, index)
     index += consumed_indices
   end
   nested_array
 end
-  
+
 """
     set_vars!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T<:Number, S}
-    set_vars!(chain_ANN :: C, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {C <: Chain, T <: Number}    
+    set_vars!(chain_ANN :: C, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {C <: Chain, T <: Number}
     set_vars!(vars :: Vector{Param}, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}})
 )
 
