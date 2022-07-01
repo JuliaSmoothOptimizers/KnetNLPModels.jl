@@ -1,4 +1,4 @@
-# KnetNLPModels : An iterface to NLPModels
+# KnetNLPModels : An interface to NLPModels
 
 | **Documentation** | **Linux/macOS/Windows/FreeBSD** | **Coverage** | **DOI** |
 |:-----------------:|:-------------------------------:|:------------:|:-------:|
@@ -20,7 +20,7 @@
 ## How to install
 This module can be installed with the following command:
 ```julia
-julia> ] add https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl.git
+julia> ] add KnetNLPModels
 pkg> test KnetNLPModels
 ```
 
