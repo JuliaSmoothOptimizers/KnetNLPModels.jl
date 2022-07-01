@@ -3,7 +3,7 @@
 ## How to install
 This module can be installed with the following command:
 ```julia
-julia> ] add KnetNLPModels
+pkg> add KnetNLPModels
 pkg> test KnetNLPModels
 ```
 
