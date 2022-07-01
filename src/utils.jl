@@ -46,8 +46,7 @@ reset_minibatch_test!(nlp::AbstractKnetNLPModel) =
 Compute the accuracy of the network `nlp.chain` given the data in `nlp.minibatch_test`.
 The computation of `accuracy` is based on the whole test dataset `nlp.data_test`.
 """
-accuracy(nlp::AbstractKnetNLPModel) =
-  Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
+accuracy(nlp::AbstractKnetNLPModel) = Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
 
 """
     build_layer_from_vec!(array :: AbstractArray{T, N}, v :: AbstractVector{T}, index :: Int) where {T <: Number, N}
@@ -75,10 +74,15 @@ Build a vector of `AbstractArray` from `v` similar to `Knet.params(model.chain)`
 Call iteratively `build_layer_from_vec` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec(model::AbstractKnetNLPModel{T, S}, v::AbstractVector{T}) where {T <: Number, S} =
-  build_nested_array_from_vec(model.chain, v)
+build_nested_array_from_vec(
+  model::AbstractKnetNLPModel{T, S},
+  v::AbstractVector{T},
+) where {T <: Number, S} = build_nested_array_from_vec(model.chain, v)
 
-function build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {C <: Chain, T <: Number}
+function build_nested_array_from_vec(
+  chain_ANN::C,
+  v::AbstractVector{T},
+) where {C <: Chain, T <: Number}
   param_chain = params(chain_ANN) # :: Param
   size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
   size_param == length(v) || error(
@@ -91,7 +95,7 @@ function build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {
 end
 
 function build_nested_array_from_vec(
-  nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
+  nested_array::AbstractVector{<:AbstractArray{T, N} where {N}},
   v::AbstractVector{T},
 ) where {T <: Number}
   similar_nested_array = map(array -> similar(array), nested_array)
@@ -107,11 +111,13 @@ Build a vector of `AbstractArray` from `new_w` similar to `Knet.params(model.cha
 Call iteratively `build_layer_from_vec!` to build each intermediate `AbstractArray`.
 This method is not optimized; it allocates memory.
 """
-build_nested_array_from_vec!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T, S} =
-  build_nested_array_from_vec!(model.nested_array, new_w)
+build_nested_array_from_vec!(
+  model::AbstractKnetNLPModel{T, S},
+  new_w::AbstractVector{T},
+) where {T, S} = build_nested_array_from_vec!(model.nested_array, new_w)
 
 function build_nested_array_from_vec!(
-  nested_array::AbstractVector{<:AbstractArray{T,N} where {N}},
+  nested_array::AbstractVector{<:AbstractArray{T, N} where {N}},
   new_w::AbstractVector{T},
 ) where {T <: Number}
   index = 0
@@ -135,15 +141,18 @@ Then, set the variables `vars` of the neural netword `model` (resp. `chain_ANN`)
 """
 set_vars!(
   vars::AbstractVector{Param},
-  nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
+  nested_w::AbstractVector{<:AbstractArray{T, N} where {N}},
 ) where {T <: Number} = map(i -> vars[i].value .= nested_w[i], 1:length(vars))
 
 set_vars!(
   chain_ANN::C,
-  nested_w::AbstractVector{<:AbstractArray{T,N} where {N}},
+  nested_w::AbstractVector{<:AbstractArray{T, N} where {N}},
 ) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
 
-function set_vars!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T<:Number, S}
+function set_vars!(
+  model::AbstractKnetNLPModel{T, S},
+  new_w::AbstractVector{T},
+) where {T <: Number, S}
   build_nested_array_from_vec!(model, new_w)
   set_vars!(model.chain, model.nested_array)
   model.w .= new_w
