@@ -30,7 +30,7 @@ Select a new training minibatch for `nlp`.
 Typically used before a new evaluation of the loss function/gradient.
 """
 reset_minibatch_train!(nlp::AbstractKnetNLPModel) =
-  nlp.current_minibatch_training = rand(nlp.train_minibatch_iterator)
+  nlp.current_training_minibatch = rand(nlp.training_minibatch_iterator)
 
 """
     reset_minibatch_test!(nlp::AbstractKnetNLPModel)
@@ -38,7 +38,7 @@ reset_minibatch_train!(nlp::AbstractKnetNLPModel) =
 Select a new test minibatch for `nlp`.
 """
 reset_minibatch_test!(nlp::AbstractKnetNLPModel) =
-  nlp.current_minibatch_testing = rand(nlp.test_minibatch_iterator)
+  nlp.current_test_minibatch = rand(nlp.test_minibatch_iterator)
 
 """
     accuracy(nlp::AbstractKnetNLPModel)
