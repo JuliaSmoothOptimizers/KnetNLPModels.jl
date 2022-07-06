@@ -102,7 +102,7 @@ DenseNet = ChainNLL(Dense(784, 200), Dense(200, 50), Dense(50, 10))
 Next, we define the `KnetNLPModel` from the neural network.
 By default, the size of each minibatch is 1% of the corresponding dataset offered by MNIST.
 ```julia
-DenseNetNLPModel = _init_KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))
+DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))
 ```
 
 `DenseNetNLPModel` will be either a `KnetNLPModelCPU` if the code runs on a CPU or a `KnetNLPModelGPU` if it runs on a GPU.
