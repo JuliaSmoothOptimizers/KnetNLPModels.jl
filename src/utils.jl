@@ -43,8 +43,8 @@ reset_minibatch_test!(nlp::AbstractKnetNLPModel) =
 """
     accuracy(nlp::AbstractKnetNLPModel)
 
-Compute the accuracy of the network `nlp.chain` given the data in `nlp.test_minibatch_iterator`.
-The computation of `accuracy` is based on the whole test dataset `nlp.data_test`.
+Compute the accuracy of the network `nlp.chain` on dataset `data`.
+By default, `data` is the entire test dataset.
 """
 accuracy(nlp::AbstractKnetNLPModel) = Knet.accuracy(nlp.chain; data = nlp.test_minibatch_iterator)
 
