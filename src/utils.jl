@@ -30,7 +30,7 @@ Select a new training minibatch for `nlp`.
 Typically used before a new evaluation of the loss function/gradient.
 """
 reset_minibatch_train!(nlp::AbstractKnetNLPModel) =
-  nlp.current_minibatch_training = rand(nlp.minibatch_train)
+  nlp.current_minibatch_training = rand(nlp.train_minibatch_iterator)
 
 """
     reset_minibatch_test!(nlp::AbstractKnetNLPModel)
@@ -38,15 +38,15 @@ reset_minibatch_train!(nlp::AbstractKnetNLPModel) =
 Select a new test minibatch for `nlp`.
 """
 reset_minibatch_test!(nlp::AbstractKnetNLPModel) =
-  nlp.current_minibatch_testing = rand(nlp.minibatch_test)
+  nlp.current_minibatch_testing = rand(nlp.test_minibatch_iterator)
 
 """
     accuracy(nlp::AbstractKnetNLPModel)
 
-Compute the accuracy of the network `nlp.chain` given the data in `nlp.minibatch_test`.
+Compute the accuracy of the network `nlp.chain` given the data in `nlp.test_minibatch_iterator`.
 The computation of `accuracy` is based on the whole test dataset `nlp.data_test`.
 """
-accuracy(nlp::AbstractKnetNLPModel) = Knet.accuracy(nlp.chain; data = nlp.minibatch_test)
+accuracy(nlp::AbstractKnetNLPModel) = Knet.accuracy(nlp.chain; data = nlp.test_minibatch_iterator)
 
 """
     build_layer_from_vec!(array :: AbstractArray{T, N}, v :: AbstractVector{T}, index :: Int) where {T <: Number, N}

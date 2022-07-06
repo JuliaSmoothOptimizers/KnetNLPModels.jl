@@ -67,8 +67,7 @@ using KnetNLPModels
   minibatch_size = rand(200:300)
   set_size_minibatch!(LeNetNLPModel, minibatch_size)
   @test LeNetNLPModel.size_minibatch == minibatch_size
-  @test length(LeNetNLPModel.minibatch_train) == floor(length(ytrn) / minibatch_size)
-  @test length(LeNetNLPModel.minibatch_test) == floor(length(ytst) / minibatch_size)
+  @test length(LeNetNLPModel.train_minibatch_iterator) == floor(length(ytrn) / minibatch_size)
+  @test length(LeNetNLPModel.test_minibatch_iterator) == floor(length(ytst) / minibatch_size)
 
-  # LeNet(LeNetNLPModel.current_minibatch_testing)
 end

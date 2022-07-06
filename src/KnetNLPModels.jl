@@ -23,8 +23,8 @@ A KnetNLPModel has fields
 * `data_train` is the complete data training set;
 * `data_test` is the complete data test;
 * `size_minibatch` parametrizes the size of an training and test minibatches, which are of size `1/size_minibatch * length(ytrn)` and `1/size_minibatch * length(ytst)`;
-* `minibatch_train` is an iterator over an training minibatches;
-* `minibatch_test` is an iterator over the test minibatches;
+* `train_minibatch_iterator` is an iterator over an training minibatches;
+* `test_minibatch_iterator` is an iterator over the test minibatches;
 * `current_minibatch_training` is the training minibatch used to evaluate the neural network;
 * `current_minibatch_test` is the current test minibatch, it is not used in practice;
 * `w` is the vector of weights/variables;
@@ -38,8 +38,8 @@ mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   data_train
   data_test
   size_minibatch::Int
-  minibatch_train
-  minibatch_test
+  train_minibatch_iterator
+  test_minibatch_iterator
   current_minibatch_training
   current_minibatch_testing
   w::S
@@ -78,10 +78,10 @@ function KnetNLPModel(
   ytrn = data_train[2]
   xtst = data_test[1]
   ytst = data_test[2]
-  minibatch_train = create_minibatch(xtrn, ytrn, size_minibatch)
-  minibatch_test = create_minibatch(xtst, ytst, size_minibatch)
-  current_minibatch_training = rand(minibatch_train)
-  current_minibatch_testing = rand(minibatch_test)
+  train_minibatch_iterator = create_minibatch(xtrn, ytrn, size_minibatch)
+  test_minibatch_iterator = create_minibatch(xtst, ytst, size_minibatch)
+  current_minibatch_training = rand(train_minibatch_iterator)
+  current_minibatch_testing = rand(test_minibatch_iterator)
 
   nested_array = build_nested_array_from_vec(chain_ANN, x0)
   layers_g = similar(params(chain_ANN)) # create a Vector of layer variables
@@ -93,8 +93,8 @@ function KnetNLPModel(
     data_train,
     data_test,
     size_minibatch,
-    minibatch_train,
-    minibatch_test,
+    train_minibatch_iterator,
+    test_minibatch_iterator,
     current_minibatch_training,
     current_minibatch_testing,
     x0,
@@ -112,9 +112,9 @@ After a call of `set_size_minibatch!`, you must call `reset_minibatch_train!(kne
 """
 function set_size_minibatch!(knetnlp::AbstractKnetNLPModel, size_minibatch::Int)
   knetnlp.size_minibatch = size_minibatch
-  knetnlp.minibatch_train =
+  knetnlp.train_minibatch_iterator =
     create_minibatch(knetnlp.data_train[1], knetnlp.data_train[2], knetnlp.size_minibatch)
-  knetnlp.minibatch_test =
+  knetnlp.test_minibatch_iterator =
     create_minibatch(knetnlp.data_test[1], knetnlp.data_test[2], knetnlp.size_minibatch)
   return knetnlp
 end
