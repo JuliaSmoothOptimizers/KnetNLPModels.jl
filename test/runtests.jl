@@ -69,5 +69,4 @@ using KnetNLPModels
   @test LeNetNLPModel.size_minibatch == minibatch_size
   @test length(LeNetNLPModel.training_minibatch_iterator) == floor(length(ytrn) / minibatch_size)
   @test length(LeNetNLPModel.test_minibatch_iterator) == floor(length(ytst) / minibatch_size)
-
 end
