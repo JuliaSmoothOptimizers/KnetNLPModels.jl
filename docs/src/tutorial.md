@@ -62,6 +62,9 @@ In this example, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stab
 ```@example KnetNLPModel
 using MLDatasets
 
+# download datasets without having to manually confirm it
+ENV["DATADEPS_ALWAYS_ACCEPT"] = true 
+
 xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
 ytrn[ytrn.==0] .= 10 # re-arrange indices
 xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
