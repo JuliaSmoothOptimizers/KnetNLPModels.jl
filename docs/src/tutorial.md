@@ -63,7 +63,7 @@ In this example, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stab
 ```@example KnetNLPModel
 using MLDatasets
 
-# download datasets without having to manually confirm it
+# download datasets without user intervention
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true 
 
 xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
