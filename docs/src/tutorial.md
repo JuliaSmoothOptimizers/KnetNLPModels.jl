@@ -89,7 +89,7 @@ DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, 
 `DenseNetNLPModel` will be either a `KnetNLPModelCPU` if the code runs on a CPU or a `KnetNLPModelGPU` if it runs on a GPU.
 All the methods are defined for both `KnetNLPModelCPU` and `KnetNLPModelGPU`.
 
-## Tools associated to a KnetNLPModel
+## Tools associated with a KnetNLPModel
 The problem dimension `n`, where `w` ∈ ℝⁿ:
 ```@example KnetNLPModel
 n = DenseNetNLPModel.meta.nvar
