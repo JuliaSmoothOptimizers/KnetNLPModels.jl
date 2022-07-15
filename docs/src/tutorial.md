@@ -25,13 +25,14 @@ KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Kn
 The following code defines a dense layer as a callable julia structure for use on a CPU.
 You can get the corresponding structure running on a GPU (via [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl)) by uncommenting the `CuArray` lines:
 ```@example KnetNLPModel
-using Knet
+using Knet, CUDA
 
-mutable struct Dense
-  w :: Param{Matrix{Float32}} # parameters of the layers
-  b :: Param{Vector{Float32}} # bias of the layer
-  # w :: Param{CuArray{Float32, 2, CUDA.Mem.DeviceBuffer}} # for GPU
-  # b :: Param{CuArray{Float32, 1, CUDA.Mem.DeviceBuffer}} # for GPU
+mutable struct Dense{
+    T <: Union{Matrix{Float32}, CuArray{Float32, 2, CUDA.Mem.DeviceBuffer}},
+    Y <: Union{Vector{Float32}, CuArray{Float32, 1, CUDA.Mem.DeviceBuffer}}
+    }
+  w :: Param{T}
+  b :: Param{Y}
   f # activation function
 end
 (d :: Dense)(x) = d.f.(d.w * mat(x) .+ d.b) # evaluate the layer for a given input x
