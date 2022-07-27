@@ -4,7 +4,7 @@
 Create a minibatch's iterator of the data `X`, `Y` of size `1/minibatch_size * length(Y)`.
 """
 create_minibatch(x_data, y_data, minibatch_size) =
-  minibatch(x_data, y_data, minibatch_size; xsize = (size(x_data, 1), size(x_data, 2), 1, :))
+  minibatch(x_data, y_data, minibatch_size; xsize = (size(x_data, 1), size(x_data, 2), size(x_data, 3), :))
 
 """
     vector_params(chain :: C) where C <: Chain
