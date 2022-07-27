@@ -1,6 +1,7 @@
 # KnetNLPModels.jl Tutorial
 
 ## Synopsis
+KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
 
 A `KnetNLPModel` gives the user access to:
 - the values of the neural network variables/weights `w`;
@@ -12,18 +13,12 @@ In addition, it provides tools to:
 - change the minibatch size;
 - measure the neural network's accuracy at the current `w`.
 
-## Example
-
+## Preliminaries
 This step-by-step example assume prior knowledge of [julia](https://julialang.org/) and [Knet.jl](https://github.com/denizyuret/Knet.jl.git).
 See the [Julia tutorial](https://julialang.org/learning/) and the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
-KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
-
-## Preliminaries
-
 ### Define the layers of interest
-The following code defines a dense layer as a callable julia structure for use on a CPU.
-You can get the corresponding structure running on a GPU (via [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl)) by uncommenting the `CuArray` lines:
+The following code defines a dense layer as a callable julia structure for use on a CPU, via `Matrix` and `Vector` or on a GPU via [CUDA.jl](https://github.com/JuliaGPU/CUDA.jl) and `CuArray`:
 ```@example KnetNLPModel
 using Knet, CUDA
 
