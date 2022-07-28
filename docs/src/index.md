@@ -1,5 +1,8 @@
 # KnetNLPModels.jl
 
+## Compatibility
+Julia ≥ 1.6.
+
 ## How to install
 This module can be installed with the following command:
 ```julia
@@ -8,6 +11,7 @@ pkg> test KnetNLPModels
 ```
 
 ## Synopsis
+KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Knet.jl.git)'s classification neural networks and [NLPModels.jl](https://github.com/JuliaSmoothOptimizers/NLPModels.jl.git).
 
 A `KnetNLPModel` gives the user access to:
 - the values of the neural network variables/weights `w`;
@@ -18,3 +22,6 @@ In addition, it provides tools to:
 - switch the minibatch used to evaluate the neural network;
 - change the minibatch size;
 - measure the neural network's accuracy at the current `w`.
+
+## How to use
+Check the [tutorial](https://juliasmoothoptimizers.github.io/KnetNLPModels.jl/stable/).
