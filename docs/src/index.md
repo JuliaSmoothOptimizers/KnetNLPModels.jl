@@ -24,4 +24,4 @@ In addition, it provides tools to:
 - measure the neural network's accuracy at the current `w`.
 
 ## How to use
-Check the [tutorial](https://juliasmoothoptimizers.github.io/KnetNLPModels.jl/dev/tutorial/).
+Check the [tutorial](https://juliasmoothoptimizers.github.io/KnetNLPModels.jl/stable/).
