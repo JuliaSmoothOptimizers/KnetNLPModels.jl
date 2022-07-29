@@ -1,4 +1,4 @@
-# KnetNLPModels : An interface to NLPModels
+# KnetNLPModels : An NLPModels Interface to Knet
 
 | **Documentation** | **Linux/macOS/Windows** | **Coverage** | **DOI** |
 |:-----------------:|:-------------------------------:|:------------:|:-------:|
@@ -12,8 +12,12 @@
 [build-gh-url]: https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/actions
 [codecov-img]: https://codecov.io/gh/JuliaSmoothOptimizers/KnetNLPModels.jl/branch/main/graph/badge.svg
 [codecov-url]: https://app.codecov.io/gh/JuliaSmoothOptimizers/KnetNLPModels.jl
-[doi-img]: https://img.shields.io/badge/DOI-10.5281%2Fzenodo.822073-blue.svg
-[doi-url]: https://doi.org/10.5281/zenodo.822073
+[doi-img]: https://zenodo.org/badge/447176402.svg
+[doi-url]: https://zenodo.org/badge/latestdoi/447176402
+
+## How to Cite
+
+If you use KnetNLPModels.jl in your work, please cite using the format given in [`CITATION.bib`](CITATION.bib).
 
 ## How to install
 This module can be installed with the following command:
@@ -147,7 +151,3 @@ The size of the training and test minibatch can be set to `1/p` the size of the 
 ```julia
 set_size_minibatch!(DenseNetNLPModel, p) # p::Int > 1
 ```
-
-## How to Cite
-
-If you use KnetNLPModels.jl in your work, please cite using the format given in [`CITATION.bib`](https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/main/CITATION.bib).
