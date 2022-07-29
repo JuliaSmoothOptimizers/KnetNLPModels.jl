@@ -11,8 +11,13 @@ flag_dim(x) = length(size(x)) == 3
 
 Create a minibatch's iterator of the data `X`, `Y` of size `1/minibatch_size * length(Y)`.
 """
-function create_minibatch(x_data, y_data, minibatch_size; _reshape::Bool=flag_dim(x_data))
-  mb = minibatch(x_data, y_data, minibatch_size; xsize = (size(x_data, 1), size(x_data, 2), size(x_data, 3), :))
+function create_minibatch(x_data, y_data, minibatch_size; _reshape::Bool = flag_dim(x_data))
+  mb = minibatch(
+    x_data,
+    y_data,
+    minibatch_size;
+    xsize = (size(x_data, 1), size(x_data, 2), size(x_data, 3), :),
+  )
   if _reshape
     mb.xsize = (size(x_data, 1), size(x_data, 2), 1, :) # To force x_data to take 1 as third dimension
   end
