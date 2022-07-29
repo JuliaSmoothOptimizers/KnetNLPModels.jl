@@ -1,12 +1,12 @@
 {
-  "description": "A package KnetNLPModels.jl",
+  "description": "An interface between Knet.jl and NLPModels.jl",
   "title": "KnetNLPModels.jl",
   "upload_type": "software",
   "publication_date": "2022-06-27",
   "creators": [
     {
-      "affiliation": "\u00c9cole Polytechnique/GERAD - Montr\u00e9al",
-      "name": "Jean Bigeon, Dominique Orban, Paul Raynaud"
+      "affiliation": "École  Polytechnique/GERAD - Montréal",
+      "name": "Paul Raynaud"
     }
   ],
   "access_right": "open",
@@ -16,5 +16,12 @@
       "identifier": "https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/",
       "relation": "isSupplementTo"
     }
-  ]
+  ],
+  "contributors": [
+    {
+      "name": "Dominique Orban",
+      "type": "Researcher"
+    }
+  ],
+  "license": "MPL-2.0"
 }
