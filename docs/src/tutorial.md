@@ -9,10 +9,7 @@ The following code defines a dense layer as a callable julia structure for use o
 ```@example KnetNLPModel
 using Knet, CUDA
 
-mutable struct Dense{
-    T <: Union{Matrix{Float32}, CuArray{Float32, 2, CUDA.Mem.DeviceBuffer}},
-    Y <: Union{Vector{Float32}, CuArray{Float32, 1, CUDA.Mem.DeviceBuffer}}
-    }
+mutable struct Dense{T, Y}
   w :: Param{T}
   b :: Param{Y}
   f # activation function
