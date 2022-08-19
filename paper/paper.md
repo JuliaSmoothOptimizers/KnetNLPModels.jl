@@ -1,36 +1,27 @@
 ---
 title: 'Gala: A Python package for galactic dynamics'
 tags:
-  - Python
-  - astronomy
-  - dynamics
-  - galactic dynamics
-  - milky way
+  - Julia
+  - Machine learning
+  - Optimization
 authors:
-  - name: Adrian M. Price-Whelan
-    orcid: 0000-0000-0000-0000
+  - name: Paul Raynaud
+    # orcid: 0000-0000-0000-0000
     equal-contrib: true
     affiliation: "1, 2" # (Multiple affiliations must be quoted)
-  - name: Author Without ORCID
-    equal-contrib: true # (This is how you can denote equal contributions between multiple authors)
-    affiliation: 2
-  - name: Author with no affiliation
+  - name: Farhad Rahbarnia
+    corresponding: true
+    affiliation: 1
+  - name: Nathan Allaire
     corresponding: true # (This is how to denote the corresponding author)
-    affiliation: 3
+    affiliation: 1
 affiliations:
- - name: Lyman Spitzer, Jr. Fellow, Princeton University, USA
+ - name: GERAD, Montréal, Canada
    index: 1
- - name: Institution Name, Country
+ - name: GSCOP, Grenoble, France
    index: 2
- - name: Independent Researcher, Country
-   index: 3
-date: 13 August 2017
+date: 19 August 2022
 bibliography: paper.bib
-
-# Optional fields if submitting to a AAS journal too, see this blog post:
-# https://blog.joss.theoj.org/2018/12/a-new-collaboration-with-aas-publishing
-aas-doi: 10.3847/xxxxx <- update this with the DOI from AAS once you know it.
-aas-journal: Astrophysical Journal <- The name of the AAS journal.
 ---
 
 # Summary
@@ -47,6 +38,8 @@ performing numerical orbit integration).
 
 # Statement of need
 
+`KnetNLPModels.jl` interface a neural network modelized as a Chain with the help
+of `Knet.jl`.
 `Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
 enables wrapping low-level languages (e.g., C) for speed without losing
 flexibility or ease-of-use in the user-interface. The API for `Gala` was
