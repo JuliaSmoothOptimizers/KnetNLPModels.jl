@@ -24,6 +24,21 @@ date: 19 August 2022
 bibliography: paper.bib
 ---
 
+# KnetNLPModel draft
+
+KnetNLPModels.jl is based upon Knet.jl, a module dedicated to deep neural network training.
+As many other machine learning modules are generally standalone modules allowing:
+- deep neural networks definition;
+- loss-function evaluation given a dataset or a mini-batch, from MLDatasets.jl;
+- accuracy evaluation of the current neural network;
+- GPU support;
+- optimizers/optimization methods, relying on variable partial derivatives computed with automatic differentiation.
+
+These modules implement standard neural-network trainings: SGD, Nesterov, Adagrad, Adam (put refs), which are line search methods, but they lack API to interface with other optimization methods.
+The purpose of KnetNLPModels.jl is to address this issue by representing a Knet neural-network paired with its loss function as an unconstrained NLPModel.
+That way, a Knet neural network can benefit JuliaSmoothOptimizers ecosystem and can be trained with JSO optimization methods.
+
+
 # Summary
 
 The forces on stars, galaxies, and dark matter under external gravitational
@@ -38,8 +53,6 @@ performing numerical orbit integration).
 
 # Statement of need
 
-`KnetNLPModels.jl` interface a neural network modelized as a Chain with the help
-of `Knet.jl`.
 `Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
 enables wrapping low-level languages (e.g., C) for speed without losing
 flexibility or ease-of-use in the user-interface. The API for `Gala` was
