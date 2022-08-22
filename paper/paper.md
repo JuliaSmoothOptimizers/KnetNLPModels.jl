@@ -24,7 +24,7 @@ date: 19 August 2022
 bibliography: paper.bib
 ---
 
-# KnetNLPModel draft
+# Summary KnetNLPModel draft
 
 KnetNLPModels.jl is based upon Knet.jl, a module dedicated to deep neural network training.
 As many other machine learning modules are generally standalone modules allowing:
@@ -32,12 +32,21 @@ As many other machine learning modules are generally standalone modules allowing
 - loss-function evaluation given a dataset or a mini-batch, from MLDatasets.jl;
 - accuracy evaluation of the current neural network;
 - GPU support;
-- optimizers/optimization methods, relying on variable partial derivatives computed with automatic differentiation.
+- optimizers/optimization methods, relying on variable partial derivatives computed with automatic differentiation (essentially the gradient).
 
-These modules implement standard neural-network trainings: SGD, Nesterov, Adagrad, Adam (put refs), which are line search methods, but they lack API to interface with other optimization methods.
+These modules implement standard neural-network trainings: SGD, Nesterov, Adagrad, Adam (put refs), which are line-search methods, but they lack API to interface with other optimization methods/framework.
 The purpose of KnetNLPModels.jl is to address this issue by representing a Knet neural-network paired with its loss function as an unconstrained NLPModel.
 That way, a Knet neural network can benefit JuliaSmoothOptimizers ecosystem and can be trained with JSO optimization methods.
 
+# Statement of need
+
+Plan (WIP):
+- neural network training problem introduction;
+- neural network: Knet.jl part; 
+- eq loss-function;
+- minimization algorithm available in JSO not available in Knet (i.e. stochastic gradient descent);
+- example dataset (CIFAR), a word about mini-batch size;
+- figure of a result.
 
 # Summary
 
