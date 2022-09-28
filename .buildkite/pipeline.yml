@@ -1,5 +1,5 @@
 steps:
-  - label: "Nvidia GPUs -- CUDA.jl"
+  - label: "KnetNLPModels.jl"
     plugins:
       - JuliaCI/julia#v1:
           version: 1.8
