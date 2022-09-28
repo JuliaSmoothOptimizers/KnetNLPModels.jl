@@ -8,3 +8,18 @@ steps:
       queue: "juliagpu"
       cuda: "*"
     timeout_in_minutes: 30
+
+steps:
+  - label: "Knet.jl -- CUDA.jl"
+    plugins:
+      - JuliaCI/julia#v1:
+          version: 1.8
+    agents:
+      queue: "juliagpu"
+      cuda: "*"
+    command: |
+      julia --color=yes --project -e '
+      using Pkg
+      Pkg.add("Knet")
+      Pkg.test("Knet")'
+    timeout_in_minutes: 30
