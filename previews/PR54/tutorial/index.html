@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>Tutorial · KnetNLPModels.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="../assets/style.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="KnetNLPModels.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">KnetNLPModels.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li class="is-active"><a class="tocitem" href>Tutorial</a><ul class="internal"><li><a class="tocitem" href="#Preliminaries"><span>Preliminaries</span></a></li><li><a class="tocitem" href="#Definition-of-the-neural-network-and-KnetNLPModel"><span>Definition of the neural network and KnetNLPModel</span></a></li><li><a class="tocitem" href="#Tools-associated-with-a-KnetNLPModel"><span>Tools associated with a KnetNLPModel</span></a></li><li><a class="tocitem" href="#Default-behavior"><span>Default behavior</span></a></li></ul></li><li><a class="tocitem" href="../reference/">Reference</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>Tutorial</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>Tutorial</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/master/docs/src/tutorial.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="KnetNLPModels.jl-Tutorial"><a class="docs-heading-anchor" href="#KnetNLPModels.jl-Tutorial">KnetNLPModels.jl Tutorial</a><a id="KnetNLPModels.jl-Tutorial-1"></a><a class="docs-heading-anchor-permalink" href="#KnetNLPModels.jl-Tutorial" title="Permalink"></a></h1><h2 id="Preliminaries"><a class="docs-heading-anchor" href="#Preliminaries">Preliminaries</a><a id="Preliminaries-1"></a><a class="docs-heading-anchor-permalink" href="#Preliminaries" title="Permalink"></a></h2><p>This step-by-step example assume prior knowledge of <a href="https://julialang.org/">julia</a> and <a href="https://github.com/denizyuret/Knet.jl.git">Knet.jl</a>. See the <a href="https://julialang.org/learning/">Julia tutorial</a> and the <a href="https://github.com/denizyuret/Knet.jl/tree/master/tutorial">Knet.jl tutorial</a> for more details.</p><h3 id="Define-the-layers-of-interest"><a class="docs-heading-anchor" href="#Define-the-layers-of-interest">Define the layers of interest</a><a id="Define-the-layers-of-interest-1"></a><a class="docs-heading-anchor-permalink" href="#Define-the-layers-of-interest" title="Permalink"></a></h3><p>The following code defines a dense layer as a callable julia structure for use on a CPU, via <code>Matrix</code> and <code>Vector</code> or on a GPU via <a href="https://github.com/JuliaGPU/CUDA.jl">CUDA.jl</a> and <code>CuArray</code>:</p><pre><code class="language-julia">using Knet, CUDA
+
+mutable struct Dense{T, Y}
+  w :: Param{T}
+  b :: Param{Y}
+  f # activation function
+end
+(d :: Dense)(x) = d.f.(d.w * mat(x) .+ d.b) # evaluate the layer for a given input x
+
+# define a dense layer with input size i and output size o
+Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f)</code></pre><pre class="documenter-example-output">Main.var&quot;ex-KnetNLPModel&quot;.Dense</pre><p>More layer types can be defined. Once again, see the <a href="https://github.com/denizyuret/Knet.jl/tree/master/tutorial">Knet.jl tutorial</a> for more details.</p><h3 id="Definition-of-the-chained-structure-that-evaluates-the-network-and-the-loss-function-(negative-log-likelihood)"><a class="docs-heading-anchor" href="#Definition-of-the-chained-structure-that-evaluates-the-network-and-the-loss-function-(negative-log-likelihood)">Definition of the chained structure that evaluates the network and the loss function (negative log likelihood)</a><a id="Definition-of-the-chained-structure-that-evaluates-the-network-and-the-loss-function-(negative-log-likelihood)-1"></a><a class="docs-heading-anchor-permalink" href="#Definition-of-the-chained-structure-that-evaluates-the-network-and-the-loss-function-(negative-log-likelihood)" title="Permalink"></a></h3><pre><code class="language-julia">using KnetNLPModels
+
+struct ChainNLL &lt;: Chain # must derive from KnetNLPModels.Chain
+  layers
+  ChainNLL(layers...) = new(layers)
+end
+(c :: ChainNLL)(x) = (for l in c.layers; x = l(x); end; x) # evaluate the network for a given input x
+(c :: ChainNLL)(x, y) = Knet.nll(c(x), y) # compute the loss function given input x and expected output y
+(c :: ChainNLL)(data :: Tuple{T1,T2}) where {T1,T2} = c(first(data,2)...) # evaluate loss given data inputs (x,y)
+(c :: ChainNLL)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # evaluate loss using a minibatch iterator d</code></pre><p>The chained structure that defines the neural network must be a subtype of <code>KnetNLPModels.Chain</code>.</p><h3 id="Load-datasets-and-define-mini-batch"><a class="docs-heading-anchor" href="#Load-datasets-and-define-mini-batch">Load datasets and define mini-batch</a><a id="Load-datasets-and-define-mini-batch-1"></a><a class="docs-heading-anchor-permalink" href="#Load-datasets-and-define-mini-batch" title="Permalink"></a></h3><p>In this example, we use the <a href="https://juliaml.github.io/MLDatasets.jl/stable/datasets/MNIST/">MNIST</a> dataset from <a href="https://github.com/JuliaML/MLDatasets.jl.git">MLDatasets.jl</a>.</p><pre><code class="language-julia">using MLDatasets
+
+# download datasets without user intervention
+ENV[&quot;DATADEPS_ALWAYS_ACCEPT&quot;] = true
+
+xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
+ytrn[ytrn.==0] .= 10 # re-arrange indices
+xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
+ytst[ytst.==0] .= 10 # re-arrange indices
+
+dtrn = minibatch(xtrn, ytrn, 100; xsize=(size(xtrn, 1), size(xtrn, 2), 1, :)) # training mini-batch
+dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # test mini-batch</code></pre><pre class="documenter-example-output">100-element Knet.Train20.Data{Tuple{Array{Float32}, Array{Int64}}}</pre><h2 id="Definition-of-the-neural-network-and-KnetNLPModel"><a class="docs-heading-anchor" href="#Definition-of-the-neural-network-and-KnetNLPModel">Definition of the neural network and KnetNLPModel</a><a id="Definition-of-the-neural-network-and-KnetNLPModel-1"></a><a class="docs-heading-anchor-permalink" href="#Definition-of-the-neural-network-and-KnetNLPModel" title="Permalink"></a></h2><p>The following code defines <code>DenseNet</code>, a neural network composed of 3 dense layers, embedded in a <code>ChainNLL</code>.</p><pre><code class="language-julia">DenseNet = ChainNLL(Dense(784, 200), Dense(200, 50), Dense(50, 10))</code></pre><pre class="documenter-example-output">Main.var&quot;ex-KnetNLPModel&quot;.ChainNLL((Main.var&quot;ex-KnetNLPModel&quot;.Dense{Matrix{Float32}, Vector{Float32}}(P(Matrix{Float32}(200,784)), P(Vector{Float32}(200)), Knet.Ops20.sigm), Main.var&quot;ex-KnetNLPModel&quot;.Dense{Matrix{Float32}, Vector{Float32}}(P(Matrix{Float32}(50,200)), P(Vector{Float32}(50)), Knet.Ops20.sigm), Main.var&quot;ex-KnetNLPModel&quot;.Dense{Matrix{Float32}, Vector{Float32}}(P(Matrix{Float32}(10,50)), P(Vector{Float32}(10)), Knet.Ops20.sigm)))</pre><p>Next, we define the <code>KnetNLPModel</code> from the neural network. By default, the size of each minibatch is 1% of the corresponding dataset offered by MNIST.</p><pre><code class="language-julia">DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))</code></pre><pre class="documenter-example-output">KnetNLPModel{Float32, Vector{Float32}, Main.var&quot;ex-KnetNLPModel&quot;.ChainNLL, Vector{Array{Float32}}}
+  Problem name: Generic
+   All variables: ████████████████████ 167560 All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            free: ████████████████████ 167560            free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (  0.00% sparsity)   14038260580          linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (------% sparsity)         
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+        cons_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             cons_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         jac_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            jprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+       jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</pre><p><code>DenseNetNLPModel</code> will be either a <code>KnetNLPModelCPU</code> if the code runs on a CPU or a <code>KnetNLPModelGPU</code> if it runs on a GPU. All the methods are defined for both <code>KnetNLPModelCPU</code> and <code>KnetNLPModelGPU</code>.</p><h2 id="Tools-associated-with-a-KnetNLPModel"><a class="docs-heading-anchor" href="#Tools-associated-with-a-KnetNLPModel">Tools associated with a KnetNLPModel</a><a id="Tools-associated-with-a-KnetNLPModel-1"></a><a class="docs-heading-anchor-permalink" href="#Tools-associated-with-a-KnetNLPModel" title="Permalink"></a></h2><p>The problem dimension <code>n</code>, where <code>w</code> ∈ ℝⁿ:</p><pre><code class="language-julia">n = DenseNetNLPModel.meta.nvar</code></pre><pre class="documenter-example-output">167560</pre><h3 id="Get-the-current-network-weights:"><a class="docs-heading-anchor" href="#Get-the-current-network-weights:">Get the current network weights:</a><a id="Get-the-current-network-weights:-1"></a><a class="docs-heading-anchor-permalink" href="#Get-the-current-network-weights:" title="Permalink"></a></h3><pre><code class="language-julia">w = vector_params(DenseNetNLPModel)</code></pre><pre class="documenter-example-output">167560-element Vector{Float32}:
+ -0.049321406
+ -0.0348162
+ -0.048976947
+  0.004619133
+ -0.0033540837
+ -0.07743225
+  0.02822489
+ -0.075687975
+ -0.074508846
+  0.03900292
+  ⋮
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0</pre><h3 id="Evaluate-the-loss-function-(i.e.-the-objective-function)-at-w:"><a class="docs-heading-anchor" href="#Evaluate-the-loss-function-(i.e.-the-objective-function)-at-w:">Evaluate the loss function (i.e. the objective function) at <code>w</code>:</a><a id="Evaluate-the-loss-function-(i.e.-the-objective-function)-at-w:-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-the-loss-function-(i.e.-the-objective-function)-at-w:" title="Permalink"></a></h3><pre><code class="language-julia">using NLPModels
+NLPModels.obj(DenseNetNLPModel, w)</code></pre><pre class="documenter-example-output">2.3118474f0</pre><p>The length of <code>w</code> must be <code>DenseNetNLPModel.meta.nvar</code>.</p><h3 id="Evaluate-the-gradient-at-w:"><a class="docs-heading-anchor" href="#Evaluate-the-gradient-at-w:">Evaluate the gradient at <code>w</code>:</a><a id="Evaluate-the-gradient-at-w:-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-the-gradient-at-w:" title="Permalink"></a></h3><pre><code class="language-julia">g = similar(w)
+NLPModels.grad!(DenseNetNLPModel, w, g)</code></pre><pre class="documenter-example-output">167560-element Vector{Float32}:
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  0.0
+  ⋮
+  0.0039050425
+  0.0051474557
+ -0.008089141
+ -0.004049461
+ -0.003966862
+ -0.001116035
+  0.00042936247
+  0.0021789302
+  0.0060423613</pre><p>The result is stored in <code>g :: Vector{T}</code>, <code>g</code> is similar to <code>v</code> (of size <code>DenseNetNLPModel.meta.nvar</code>).</p><h3 id="Evaluate-the-network-accuracy:"><a class="docs-heading-anchor" href="#Evaluate-the-network-accuracy:">Evaluate the network accuracy:</a><a id="Evaluate-the-network-accuracy:-1"></a><a class="docs-heading-anchor-permalink" href="#Evaluate-the-network-accuracy:" title="Permalink"></a></h3><p>The accuracy of the network can be evaluated with:</p><pre><code class="language-julia">KnetNLPModels.accuracy(DenseNetNLPModel)</code></pre><pre class="documenter-example-output">0.0979</pre><p><code>accuracy()</code> uses the full training dataset. That way, the accuracy will not fluctuate with the minibatch.</p><h2 id="Default-behavior"><a class="docs-heading-anchor" href="#Default-behavior">Default behavior</a><a id="Default-behavior-1"></a><a class="docs-heading-anchor-permalink" href="#Default-behavior" title="Permalink"></a></h2><p>By default, the training minibatch that evaluates the neural network doesn&#39;t change between evaluations. To change the training minibatch, use:</p><pre><code class="language-julia">reset_minibatch_train!(DenseNetNLPModel)</code></pre><pre class="documenter-example-output">([0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;;; … ;;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0], [4, 4, 3, 10, 9, 3, 7, 8, 6, 7  …  10, 8, 3, 7, 4, 4, 8, 2, 5, 1])</pre><p>The size of the new minibatch is the size define earlier.</p><p>The size of the training and test minibatch can be set to <code>1/p</code> the size of the dataset with:</p><pre><code class="language-julia">p = 120
+set_size_minibatch!(DenseNetNLPModel, p) # p::Int &gt; 1</code></pre><pre class="documenter-example-output">KnetNLPModel{Float32, Vector{Float32}, Main.var&quot;ex-KnetNLPModel&quot;.ChainNLL, Vector{Array{Float32}}}
+  Problem name: Generic
+   All variables: ████████████████████ 167560 All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            free: ████████████████████ 167560            free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (  0.00% sparsity)   14038260580          linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (------% sparsity)         
+
+  Counters:
+             obj: ████████████████████ 1                 grad: ████████████████████ 1                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+        cons_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             cons_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         jac_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            jprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+       jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../">« Home</a><a class="docs-footer-nextpage" href="../reference/">Reference »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 28 September 2022 15:46">Wednesday 28 September 2022</span>. Using Julia version 1.8.1.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
