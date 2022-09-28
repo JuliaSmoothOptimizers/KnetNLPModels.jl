@@ -9,7 +9,6 @@ steps:
       cuda: "*"
     timeout_in_minutes: 30
 
-steps:
   - label: "Knet.jl -- CUDA.jl"
     plugins:
       - JuliaCI/julia#v1:
@@ -18,7 +17,7 @@ steps:
       queue: "juliagpu"
       cuda: "*"
     command: |
-      julia --color=yes --project -e '
+      julia --color=yes -e '
       using Pkg
       Pkg.add("Knet")
       Pkg.test("Knet")'
