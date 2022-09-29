@@ -21,4 +21,4 @@ steps:
       using Pkg
       Pkg.add("Knet")
       Pkg.test("Knet")'
-    timeout_in_minutes: 30
+    timeout_in_minutes: 120
