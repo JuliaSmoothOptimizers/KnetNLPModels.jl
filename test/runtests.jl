@@ -1,5 +1,4 @@
 using Test
-using Statistics: mean
 using CUDA, IterTools, Knet, MLDatasets, NLPModels
 using KnetNLPModels
 

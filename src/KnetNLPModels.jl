@@ -1,5 +1,4 @@
 module KnetNLPModels
-using Statistics: mean
 using CUDA, IterTools, Knet, MLDatasets, NLPModels
 
 export Chain
