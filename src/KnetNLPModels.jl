@@ -1,6 +1,6 @@
 module KnetNLPModels
-using CUDA, IterTools, Knet, MLDatasets, NLPModels
 
+using Knet, NLPModels
 export Chain
 export AbstractKnetNLPModel, KnetNLPModel
 export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!, set_size_minibatch!

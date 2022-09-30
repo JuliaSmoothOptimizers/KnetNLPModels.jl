@@ -1,5 +1,5 @@
 using Test
-using CUDA, IterTools, Knet, MLDatasets, NLPModels
+using CUDA, Knet, MLDatasets, NLPModels
 using KnetNLPModels
 
 @testset "KnetNLPModels tests" begin
