@@ -58,7 +58,8 @@ rand_minibatch_train!(nlp::AbstractKnetNLPModel) =
   nlp.current_training_minibatch = rand(nlp.training_minibatch_iterator)
 
 """
-minibatch_next_train!(nlp::AbstractKnetNLPModel)
+    minibatch_next_train!(nlp::AbstractKnetNLPModel)
+
 Selects the next mini-batch from training_minibatch_iterator
 nlp:: KnetNLPModel 
 i:: current location in the iterator
