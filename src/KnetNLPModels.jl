@@ -44,6 +44,8 @@ mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   w::S
   layers_g::Vector{Param}
   nested_array::V
+  i::Int
+  i_test::Int
 end
 
 """
@@ -99,6 +101,8 @@ function KnetNLPModel(
     x0,
     layers_g,
     nested_array,
+    1, #inti the batch current i to 1
+    1
   )
 end
 

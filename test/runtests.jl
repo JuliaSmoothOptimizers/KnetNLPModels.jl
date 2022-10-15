@@ -1,6 +1,6 @@
 using Test
 using CUDA, Knet, MLDatasets, NLPModels
-using KnetNLPModels
+# using KnetNLPModels
 
 @testset "KnetNLPModels tests" begin
   struct Conv
@@ -68,4 +68,16 @@ using KnetNLPModels
   @test LeNetNLPModel.size_minibatch == minibatch_size
   @test length(LeNetNLPModel.training_minibatch_iterator) == floor(length(ytrn) / minibatch_size)
   @test length(LeNetNLPModel.test_minibatch_iterator) == floor(length(ytst) / minibatch_size)
+
+  rand_minibatch_train!(LeNetNLPModel)
+  @test (LeNetNLPModel.i >= 1 && LeNetNLPModel.i<=minibatch_size)
+  reset_minibatch_train!(LeNetNLPModel)
+  @test LeNetNLPModel.i == 1
+  minibatch_next_train!(LeNetNLPModel)
+  i = 1
+  i += LeNetNLPModel.size_minibatch
+  (next, indice) = iterate(LeNetNLPModel.training_minibatch_iterator, i)
+  @test LeNetNLPModel.i == i
+  @test next.equal(LeNetNLPModel.current_training_minibatch)
+  
 end
