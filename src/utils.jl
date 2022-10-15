@@ -73,8 +73,8 @@ function minibatch_next_train!(nlp::AbstractKnetNLPModel, i::int)
     nlp.current_training_minibatch = first(nlp.training_minibatch_iterator) # reset to the first one
     return 0
   else
-    next = iterate(nlp.training_minibatch_iterator, i)
-    nlp.current_training_minibatch = next[1]
+    (next, indice) = iterate(nlp.training_minibatch_iterator, i)
+    nlp.current_training_minibatch = next
     return i
   end
 end
