@@ -3,7 +3,9 @@ module KnetNLPModels
 using Knet, NLPModels
 export Chain
 export AbstractKnetNLPModel, KnetNLPModel
-export vector_params, accuracy, reset_minibatch_test!, reset_minibatch_train!, set_size_minibatch!
+export vector_params, accuracy
+export reset_minibatch_train!, rand_minibatch_train!, minibatch_next_train!, set_size_minibatch!
+export reset_minibatch_test!, rand_minibatch_test!, minibatch_next_test!
 export build_nested_array_from_vec, build_nested_array_from_vec!
 export create_minibatch, set_vars!, vcat_arrays_vector
 
@@ -102,7 +104,7 @@ function KnetNLPModel(
     layers_g,
     nested_array,
     1, #inti the batch current i to 1
-    1
+    1,
   )
 end
 

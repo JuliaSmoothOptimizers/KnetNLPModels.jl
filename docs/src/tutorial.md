@@ -103,10 +103,20 @@ That way, the accuracy will not fluctuate with the minibatch.
 
 ## Default behavior
 By default, the training minibatch that evaluates the neural network doesn't change between evaluations.
-To change the training minibatch, use:
+To change the training minibatch, use one of the following methods:
+* To select randomly a mini-batch 
+```@example KnetNLPModel
+rand_minibatch_train!!(DenseNetNLPModel)
+```
+* To select the next mini-batch from current mini-batch iterator (Can be used in a loop to go over all the datasets)
+```@example KnetNLPModel
+minibatch_next_train!(DenseNetNLPModel)
+```
+* To reset the first mini-batch
 ```@example KnetNLPModel
 reset_minibatch_train!(DenseNetNLPModel)
 ```
+
 The size of the new minibatch is the size define earlier.
 
 The size of the training and test minibatch can be set to `1/p` the size of the dataset with:
