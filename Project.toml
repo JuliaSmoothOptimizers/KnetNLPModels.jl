@@ -5,7 +5,6 @@ version = "0.2.1"
 
 [deps]
 Knet = "1902f260-5fb4-5aff-8c31-6271790ab950"
-MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
 NLPModels = "a4795742-8479-5a88-8948-cc11e1c8c1a6"
 
 [compat]
