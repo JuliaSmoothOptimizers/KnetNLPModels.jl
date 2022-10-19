@@ -46,7 +46,7 @@ mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
   w::S
   layers_g::Vector{Param}
   nested_array::V
-  i::Int
+  i_train::Int
   i_test::Int
 end
 

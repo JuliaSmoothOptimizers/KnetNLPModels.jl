@@ -48,7 +48,7 @@ Select a the first training minibatch for `nlp`.
 """
 function reset_minibatch_train!(nlp::AbstractKnetNLPModel)
   nlp.current_training_minibatch = first(nlp.training_minibatch_iterator)
-  nlp.i = 1
+  nlp.i_train = 1
 end
 
 """
@@ -57,29 +57,28 @@ end
 Select a training minibatch for `nlp` randomly.
 """
 function rand_minibatch_train!(nlp::AbstractKnetNLPModel)
-  nlp.i = rand(1:(nlp.training_minibatch_iterator.imax))
-  nlp.current_training_minibatch = iterate(nlp.training_minibatch_iterator, nlp.i)
+  nlp.i_train = rand(1:(nlp.training_minibatch_iterator.imax))
+  nlp.current_training_minibatch = iterate(nlp.training_minibatch_iterator, nlp.i_train)
 end
 
 """
     minibatch_next_train!(nlp::AbstractKnetNLPModel)
 
-Selects the next mini-batch from training_minibatch_iterator
-nlp:: KnetNLPModel 
-i:: current location in the iterator
-Returns a new current location of the iterator i, if 0 is returned when all mini-batches are visited
+Selects the next mini-batch from `nlp.training_minibatch_iterator`.  
+Returns a new current location of the iterator i, if 1 is returned when all mini-batches are visited
 can be used in a loop or method call - refere to KnetNLPModelProblems for more use cases
 """
 function minibatch_next_train!(nlp::AbstractKnetNLPModel)
-  nlp.i += nlp.size_minibatch # update the i by mini_batch size
-  if (nlp.i >= nlp.training_minibatch_iterator.imax)
-    # reset to the begining and return zero 
+  nlp.i_train += nlp.size_minibatch # update the i by mini_batch size
+  if (nlp.i_train >= nlp.training_minibatch_iterator.imax)
+    # reset to the begining 
     nlp.current_training_minibatch = first(nlp.training_minibatch_iterator) # reset to the first one
-    nlp.i = 1
+    nlp.i_train = 1
   else
-    (next, indice) = iterate(nlp.training_minibatch_iterator, nlp.i)
+    (next, indice) = iterate(nlp.training_minibatch_iterator, nlp.i_train)
     nlp.current_training_minibatch = next
   end
+  return nlp.i_train
 end
 
 """
@@ -93,7 +92,7 @@ function rand_minibatch_test!(nlp::AbstractKnetNLPModel)
 end
 
 """
-    reset_minibatch_train!(nlp::AbstractKnetNLPModel)
+    reset_minibatch_test!(nlp::AbstractKnetNLPModel)
 
 Select a the first test minibatch for `nlp`.
 """
@@ -101,12 +100,14 @@ function reset_minibatch_test!(nlp::AbstractKnetNLPModel)
   nlp.current_test_minibatch = first(nlp.test_minibatch_iterator)
   nlp.i_test = 1
 end
+
 """
-minibatch_next_test!(nlp::AbstractKnetNLPModel)
+    minibatch_next_test!(nlp::AbstractKnetNLPModel)
+
 Selects the next mini-batch from test_minibatch_iterator
 nlp:: KnetNLPModel 
 i:: current location in the iterator
-Returns a new current location of the iterator i, if 0 is returned when all mini-batches are visited
+Returns a new current location of the iterator i, if 1 is returned when all mini-batches are visited
 can be used in a loop or method call - refere to KnetNLPModelProblems for more use cases
 """
 function minibatch_next_test!(nlp::AbstractKnetNLPModel)
@@ -115,9 +116,10 @@ function minibatch_next_test!(nlp::AbstractKnetNLPModel)
     nlp.current_test_minibatch = first(nlp.test_minibatch_iterator)
     nlp.i_test = 1
   else
-    next = iterate(nlp.test_minibatch_iterator, nlp.i_test)
-    nlp.current_test_minibatch = next[1]
+    (next, indice) = iterate(nlp.test_minibatch_iterator, nlp.i_test)
+    nlp.current_test_minibatch = next
   end
+  return nlp.i_test
 end
 
 """

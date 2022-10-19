@@ -70,15 +70,15 @@ using KnetNLPModels
   @test length(LeNetNLPModel.test_minibatch_iterator) == floor(length(ytst) / minibatch_size)
 
   rand_minibatch_train!(LeNetNLPModel)
-  @test LeNetNLPModel.i >= 1
-  @test LeNetNLPModel.i <= LeNetNLPModel.training_minibatch_iterator.length - minibatch_size
+  @test LeNetNLPModel.i_train >= 1
+  @test LeNetNLPModel.i_train <= LeNetNLPModel.training_minibatch_iterator.length - minibatch_size
 
   reset_minibatch_train!(LeNetNLPModel)
-  @test LeNetNLPModel.i == 1
+  @test LeNetNLPModel.i_train == 1
   minibatch_next_train!(LeNetNLPModel)
   i = 1
   i += LeNetNLPModel.size_minibatch
   (next, indice) = iterate(LeNetNLPModel.training_minibatch_iterator, i)
-  @test LeNetNLPModel.i == i
+  @test LeNetNLPModel.i_train == i
   @test isequal(LeNetNLPModel.current_training_minibatch, next)
 end
