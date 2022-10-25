@@ -105,11 +105,10 @@ end
 """
     minibatch_next_test!(nlp::AbstractKnetNLPModel)
 
-Selects the next mini-batch from test_minibatch_iterator
-nlp:: KnetNLPModel 
-i:: current location in the iterator
-Returns a new current location of the iterator i, if 1 is returned when all mini-batches are visited
-can be used in a loop or method call - refere to KnetNLPModelProblems for more use cases
+Selects the next mini-batch from `test_minibatch_iterator`.
+Returns the new current location of the iterator `nlp.i_test`.
+If it returns 1, the current training minibatch is the first of `nlp.test_minibatch_iterator` and the previous minibatch was the last of `nlp.test_minibatch_iterator`.
+`minibatch_next_test!` aims to be used in a loop or method call - refere to KnetNLPModelProblems.jl for more use cases
 """
 function minibatch_next_test!(nlp::AbstractKnetNLPModel)
   nlp.i_test += nlp.size_minibatch #TODO in the futue we might want to have different size for minbatch test vs train
