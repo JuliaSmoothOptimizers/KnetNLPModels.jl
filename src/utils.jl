@@ -44,7 +44,7 @@ vcat_arrays_vector(arrays_vector::AbstractVector{Param}) = vcat(Knet.cat1d.(arra
 """
     reset_minibatch_train!(nlp::AbstractKnetNLPModel)
 
-Select a the first training minibatch for `nlp`.
+Select the first training minibatch for `nlp`.
 """
 function reset_minibatch_train!(nlp::AbstractKnetNLPModel)
   nlp.current_training_minibatch = first(nlp.training_minibatch_iterator)
