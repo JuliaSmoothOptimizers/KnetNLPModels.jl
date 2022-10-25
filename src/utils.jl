@@ -94,7 +94,7 @@ end
 """
     reset_minibatch_test!(nlp::AbstractKnetNLPModel)
 
-Select a the first test minibatch for `nlp`.
+Select the first test minibatch for `nlp`.
 """
 function reset_minibatch_test!(nlp::AbstractKnetNLPModel)
   nlp.current_test_minibatch = first(nlp.test_minibatch_iterator)
