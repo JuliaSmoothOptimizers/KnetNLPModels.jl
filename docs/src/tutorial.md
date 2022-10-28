@@ -37,7 +37,7 @@ end
 ```
 The chained structure that defines the neural network must be a subtype of `KnetNLPModels.Chain`.
 
-### Load datasets and define mini-batch
+### Load datasets and define minibatch
 In this example, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stable/datasets/MNIST/) dataset from [MLDatasets.jl](https://github.com/JuliaML/MLDatasets.jl.git).
 ```@example KnetNLPModel
 using MLDatasets
@@ -50,8 +50,8 @@ ytrn[ytrn.==0] .= 10 # re-arrange indices
 xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
 ytst[ytst.==0] .= 10 # re-arrange indices
 
-dtrn = minibatch(xtrn, ytrn, 100; xsize=(size(xtrn, 1), size(xtrn, 2), 1, :)) # training mini-batch
-dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # test mini-batch
+dtrn = minibatch(xtrn, ytrn, 100; xsize=(size(xtrn, 1), size(xtrn, 2), 1, :)) # training minibatch
+dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # test minibatch
 ```
 
 ## Definition of the neural network and KnetNLPModel
@@ -104,15 +104,15 @@ That way, the accuracy will not fluctuate with the minibatch.
 ## Default behavior
 By default, the training minibatch that evaluates the neural network doesn't change between evaluations.
 To change the training minibatch, use one of the following methods:
-* To select randomly a mini-batch 
+* To select randomly a minibatch 
 ```@example KnetNLPModel
 rand_minibatch_train!!(DenseNetNLPModel)
 ```
-* To select the next mini-batch from current mini-batch iterator (Can be used in a loop to go over all the datasets)
+* To select the next minibatch from current minibatch iterator (Can be used in a loop to go over all the datasets)
 ```@example KnetNLPModel
 minibatch_next_train!(DenseNetNLPModel)
 ```
-* To reset the first mini-batch
+* Reset to the first minibatch
 ```@example KnetNLPModel
 reset_minibatch_train!(DenseNetNLPModel)
 ```
