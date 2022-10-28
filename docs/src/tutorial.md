@@ -106,7 +106,7 @@ By default, the training minibatch that evaluates the neural network doesn't cha
 To change the training minibatch, use one of the following methods:
 * To select randomly a minibatch 
 ```@example KnetNLPModel
-rand_minibatch_train!!(DenseNetNLPModel)
+rand_minibatch_train!(DenseNetNLPModel)
 ```
 * To select the next minibatch from current minibatch iterator (Can be used in a loop to go over all the datasets)
 ```@example KnetNLPModel

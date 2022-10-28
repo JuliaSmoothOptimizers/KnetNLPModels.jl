@@ -44,7 +44,7 @@ vcat_arrays_vector(arrays_vector::AbstractVector{Param}) = vcat(Knet.cat1d.(arra
 """
     reset_minibatch_train!(nlp::AbstractKnetNLPModel)
 
-Select a the first training minibatch for `nlp`.
+Select the first training minibatch for `nlp`.
 """
 function reset_minibatch_train!(nlp::AbstractKnetNLPModel)
   nlp.current_training_minibatch = first(nlp.training_minibatch_iterator)
@@ -64,9 +64,11 @@ end
 """
     minibatch_next_train!(nlp::AbstractKnetNLPModel)
 
-Selects the next minibatch from `nlp.training_minibatch_iterator`.  
-Returns a new current location of the iterator i, if 1 is returned when all minibatches are visited
-can be used in a loop or method call - refere to KnetNLPModelProblems for more use cases
+Selects the next mini-batch from `nlp.training_minibatch_iterator`.  
+Returns the new current location of the iterator `nlp.i_train`.
+If it returns 1, the current training minibatch is the first of `nlp.training_minibatch_iterator` and the previous minibatch was the last of `nlp.training_minibatch_iterator`.
+`minibatch_next_train!` aims to be used in a loop or method call.
+Refer to KnetNLPModelProblems.jl for more use cases.
 """
 function minibatch_next_train!(nlp::AbstractKnetNLPModel)
   nlp.i_train += nlp.size_minibatch # update the i by mini_batch size
@@ -96,7 +98,7 @@ end
 """
     reset_minibatch_test!(nlp::AbstractKnetNLPModel)
 
-Select a the first test minibatch for `nlp`.
+Select the first test minibatch for `nlp`.
 """
 function reset_minibatch_test!(nlp::AbstractKnetNLPModel)
   nlp.current_test_minibatch = first(nlp.test_minibatch_iterator)
@@ -106,11 +108,10 @@ end
 """
     minibatch_next_test!(nlp::AbstractKnetNLPModel)
 
-Selects the next minibatch from test_minibatch_iterator
-nlp:: KnetNLPModel 
-i:: current location in the iterator
-Returns a new current location of the iterator i, if 1 is returned when all minibatches are visited
-can be used in a loop or method call - refere to KnetNLPModelProblems for more use cases
+Selects the next mini-batch from `test_minibatch_iterator`.
+Returns the new current location of the iterator `nlp.i_test`.
+If it returns 1, the current training minibatch is the first of `nlp.test_minibatch_iterator` and the previous minibatch was the last of `nlp.test_minibatch_iterator`.
+`minibatch_next_test!` aims to be used in a loop or method call - refere to KnetNLPModelProblems.jl for more use cases
 """
 function minibatch_next_test!(nlp::AbstractKnetNLPModel)
   nlp.i_test += nlp.size_minibatch #TODO in the futue we might want to have different size for minbatch test vs train
