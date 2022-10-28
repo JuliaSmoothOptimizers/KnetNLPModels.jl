@@ -67,7 +67,8 @@ end
 Selects the next mini-batch from `nlp.training_minibatch_iterator`.  
 Returns the new current location of the iterator `nlp.i_train`.
 If it returns 1, the current training minibatch is the first of `nlp.training_minibatch_iterator` and the previous minibatch was the last of `nlp.training_minibatch_iterator`.
-`minibatch_next_train!` aims to be used in a loop or method call - refere to KnetNLPModelProblems.jl for more use cases
+`minibatch_next_train!` aims to be used in a loop or method call.
+Refer to KnetNLPModelProblems.jl for more use cases.
 """
 function minibatch_next_train!(nlp::AbstractKnetNLPModel)
   nlp.i_train += nlp.size_minibatch # update the i by mini_batch size
