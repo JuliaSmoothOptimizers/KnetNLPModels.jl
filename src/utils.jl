@@ -70,14 +70,16 @@ can be used in a loop or method call - refere to KnetNLPModelProblems for more u
 """
 function minibatch_next_train!(nlp::AbstractKnetNLPModel)
   nlp.i_train += nlp.size_minibatch # update the i by mini_batch size
-  if (nlp.i_train >= nlp.training_minibatch_iterator.imax)
+  result = iterate(nlp.training_minibatch_iterator, nlp.i_train)
+  if result === nothing
     # reset to the begining 
-    nlp.current_training_minibatch = first(nlp.training_minibatch_iterator) # reset to the first one
-    nlp.i_train = 1
+    reset_minibatch_train!(nlp)
+    return 1
   else
-    (next, indice) = iterate(nlp.training_minibatch_iterator, nlp.i_train)
+    (next, indice) = result
     nlp.current_training_minibatch = next
   end
+
   return nlp.i_train
 end
 
@@ -112,14 +114,19 @@ can be used in a loop or method call - refere to KnetNLPModelProblems for more u
 """
 function minibatch_next_test!(nlp::AbstractKnetNLPModel)
   nlp.i_test += nlp.size_minibatch #TODO in the futue we might want to have different size for minbatch test vs train
-  if (nlp.i_test >= nlp.test_minibatch_iterator.imax)
-    nlp.current_test_minibatch = first(nlp.test_minibatch_iterator)
-    nlp.i_test = 1
+  result = iterate(nlp.test_minibatch_iterator, nlp.i_test)
+
+  if result === nothing
+    # reset to the begining 
+    reset_minibatch_test!(nlp)
+    return 1
   else
-    (next, indice) = iterate(nlp.test_minibatch_iterator, nlp.i_test)
+    (next, indice) = result
     nlp.current_test_minibatch = next
   end
+
   return nlp.i_test
+
 end
 
 """
