@@ -76,7 +76,6 @@ function minibatch_next_train!(nlp::AbstractKnetNLPModel)
   if result === nothing
     # reset to the begining 
     reset_minibatch_train!(nlp)
-    return 1
   else
     (next, indice) = result
     nlp.current_training_minibatch = next
@@ -120,7 +119,6 @@ function minibatch_next_test!(nlp::AbstractKnetNLPModel)
   if result === nothing
     # reset to the begining 
     reset_minibatch_test!(nlp)
-    return 1
   else
     (next, indice) = result
     nlp.current_test_minibatch = next
