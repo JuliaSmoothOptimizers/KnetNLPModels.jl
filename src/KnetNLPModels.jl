@@ -103,7 +103,7 @@ function KnetNLPModel(
     x0,
     layers_g,
     nested_array,
-    1, #inti the batch current i to 1
+    1, #initialize the batch current i to 1
     1,
   )
 end
