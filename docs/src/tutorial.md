@@ -108,7 +108,7 @@ To change the training minibatch, use one of the following methods:
 ```@example KnetNLPModel
 rand_minibatch_train!(DenseNetNLPModel)
 ```
-* To select the next minibatch from current minibatch iterator (Can be used in a loop to go over all the datasets)
+* To select the next minibatch from the current minibatch iterator (can be used in a loop to go over the whole dataset)
 ```@example KnetNLPModel
 minibatch_next_train!(DenseNetNLPModel)
 ```
