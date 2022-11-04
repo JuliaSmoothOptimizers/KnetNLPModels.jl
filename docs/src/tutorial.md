@@ -117,7 +117,7 @@ minibatch_next_train!(DenseNetNLPModel)
 reset_minibatch_train!(DenseNetNLPModel)
 ```
 
-The size of the new minibatch is the size define earlier.
+The size of the new minibatch is the size defined earlier.
 
 The size of the training and test minibatch can be set to `1/p` the size of the dataset with:
 ```@example KnetNLPModel
