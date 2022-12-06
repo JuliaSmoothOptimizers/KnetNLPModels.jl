@@ -1,9 +1,9 @@
 ---
-title: 'Gala: A Python package for galactic dynamics'
+title: 'KnetNLPModels.jl: Smooth optimization model of deep neural networks'
 tags:
   - Julia
   - Machine learning
-  - Optimization
+  - Smooth-optimization
 authors:
   - name: Paul Raynaud
     # orcid: 0000-0000-0000-0000
@@ -20,23 +20,24 @@ affiliations:
    index: 1
  - name: GSCOP, Grenoble, France
    index: 2
-date: 19 August 2022
+date: 6 December 2022
 bibliography: paper.bib
 ---
 
 # Summary KnetNLPModel draft
 
-KnetNLPModels.jl is based upon Knet.jl, a module dedicated to deep neural network training.
-As many other machine learning modules are generally standalone modules allowing:
-- deep neural networks definition;
-- loss-function evaluation given a dataset or a mini-batch, from MLDatasets.jl;
-- accuracy evaluation of the current neural network;
-- GPU support;
-- optimizers/optimization methods, relying on variable partial derivatives computed with automatic differentiation (essentially the gradient).
-
-These modules implement standard neural-network trainings: SGD, Nesterov, Adagrad, Adam (put refs), which are line-search methods, but they lack API to interface with other optimization methods/framework.
-The purpose of KnetNLPModels.jl is to address this issue by representing a Knet neural-network paired with its loss function as an unconstrained NLPModel.
-That way, a Knet neural network can benefit JuliaSmoothOptimizers ecosystem and can be trained with JSO optimization methods.
+Machine learning modules, similar to [Knet.jl](https://github.com/denizyuret/Knet.jl), are generally standalone modules whose provide:
+- deep neural networks modelling;
+- support standard training and test datasets (from MLDatasets.jl in Julia);
+- several loss-functions, which may be evaluated from a mini-batch of a dataset;
+- evaluate the accuracy of a neural network from a test dataset;
+- GPU support of any operation performed by a neural network;
+- state-of-the-art optimizers: SGD, Nesterov, Adagrad, Adam (refs), which are sophisticate stochastic line-search around first order derivatives of the loss-function.
+Due to their design focused on neuroscience, those modules lack interface with optimization frameworks.
+KnetNLPModels.jl resolves this issue by representing a Knet neural-network paired with a loss function and a dataset as an unconstrained smooth optimization model: a KnetNLPModel.
+By doing so, a KnetNLPModel may benefit the JuliaSmoothOptimizers ecosystem:
+- [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl) optimizers, which train the neural network by considering the weights as variables;
+- augmented optimization models such as quasi-Newton models (LBFGS or LSR1).
 
 # Statement of need
 
@@ -48,6 +49,8 @@ Plan (WIP):
 - example dataset (CIFAR), a word about mini-batch size;
 - figure of a result.
 
+
+<!-- Example markdown article -->
 # Summary
 
 The forces on stars, galaxies, and dark matter under external gravitational
