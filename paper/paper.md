@@ -1,5 +1,5 @@
 ---
-title: 'KnetNLPModels.jl: Smooth optimization model of deep neural networks'
+title: 'KnetNLPModels.jl: a bridge to apply smooth optimization solvers to neural networks training'
 tags:
   - Julia
   - Machine learning
@@ -24,30 +24,29 @@ date: 6 December 2022
 bibliography: paper.bib
 ---
 
-# Summary KnetNLPModel draft
+# Summary
 
-Machine learning modules, similar to [Knet.jl](https://github.com/denizyuret/Knet.jl), are generally standalone modules whose provide:
+Machine learning modules, similar to the Julia module (ref) [Knet.jl](https://github.com/denizyuret/Knet.jl), are generally standalone modules whose provide:
 - deep neural networks modelling;
 - support standard training and test datasets (from MLDatasets.jl in Julia);
 - several loss-functions, which may be evaluated from a mini-batch of a dataset;
 - evaluate the accuracy of a neural network from a test dataset;
 - GPU support of any operation performed by a neural network;
 - state-of-the-art optimizers: SGD, Nesterov, Adagrad, Adam (refs), which are sophisticate stochastic line-search around first order derivatives of the loss-function.
-Due to their design focused on neuroscience, those modules lack interface with optimization frameworks.
-KnetNLPModels.jl resolves this issue by representing a Knet neural-network paired with a loss function and a dataset as an unconstrained smooth optimization model: a KnetNLPModel.
-By doing so, a KnetNLPModel may benefit the JuliaSmoothOptimizers ecosystem:
+Due to their design focused on machine learning, those modules lack interfaces with pure optimization frameworks.
+
+KnetNLPModels.jl tackles this issue by implementing a KnetNLPModel, an unconstrained smooth optimization model.
+KnetNLPModel gather a neural-network modelled with Knet, a loss function, a dataset and implement interface's methods related to unconstrained models with Knet's functionnalities.
+By doing so, a KnetNLPModel benefits the JuliaSmoothOptimizers ecosystem:
 - [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl) optimizers, which train the neural network by considering the weights as variables;
 - augmented optimization models such as quasi-Newton models (LBFGS or LSR1).
 
 # Statement of need
 
-Plan (WIP):
-- neural network training problem introduction;
-- neural network: Knet.jl part; 
-- eq loss-function;
-- minimization algorithm available in JSO not available in Knet (i.e. stochastic gradient descent);
-- example dataset (CIFAR), a word about mini-batch size;
-- figure of a result.
+
+# Acknowledgements
+
+This work has been supported by the NSERC Alliance grant 544900-19 in collaboration with Huawei-Canada
 
 
 <!-- Example markdown article -->
