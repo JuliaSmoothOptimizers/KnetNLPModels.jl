@@ -52,7 +52,72 @@ It has access to:
 - augmented optimization models such as quasi-Newton models (LBFGS or LSR1).
 
 
-# Working example -- name to change 
+# Example -- name to change 
+The following example (ref) covers traing a DNN model on MNIST (ref) data sets. It includes loading the data, defining DNN model, here Lenet-5 (ref), setting the mini-batches, and traing using R2 solver from JSOSolvers. 
+
+The main step is to transfer a Knet model to KnetNLP model, this can be achived by:
+```julia
+# LeNet is defined model for Knet 
+LeNetNLPModel = KnetNLPModel(
+        LeNet;
+        data_train = (xtrn, ytrn),
+        data_test = (xtst, ytst),
+        size_minibatch = minibatchSize,
+    )
+```
+ ```KnetNLPModel``` takes **LeNet**, a small DNN model defined in Knet using ```Chainnnll```, train and test data, as well as user-defined batchsize.
+
+Once the KnetNLP model is created, solvers from JSOSolver can be used. Here is an example using R2 solver 
+```julia
+solver_stats = R2(
+        modelNLP;
+        callback = (nlp, solver, stats, nlp_param) ->
+            cb(nlp, solver, stats, stochastic_data),
+    )
+```
+For more information on R2 solver, refere to (ref)
+
+To change the mini-batch data and update the epochs, a callback method can be constructoed and passed on to the R2 solver.
+
+```julia
+function cb(
+    nlp,
+    solver,
+    stats,
+    data::StochasticR2Data,
+)
+    # Max epoch
+    if data.epoch == data.max_epoch
+        stats.status = :user
+        return
+    end
+    data.i = KnetNLPModels.minibatch_next_train!(nlp)
+    if data.i == 1   # once one epoch is finished     
+        # reset
+        data.grads_arr = []
+        data.epoch += 1
+        acc = KnetNLPModels.accuracy(nlp) # accracy of the 
+        train_acc = Knet.accuracy(nlp.chain; data = nlp.training_minibatch_iterator) #TODO minibatch acc.
+    end
+end
+```
+We used a stuct to pass on different values and keep track of the accracy durong the training.
+
+To check the accracy of the train or test data, use:
+```julia
+train_acc = Knet.accuracy(nlp.chain; data = nlp.training_minibatch_iterator) #TODO minibatch acc.
+```
+
+
+To allow use of GPU we need the ```Knet.array_type``` to be set, we can achive that using:
+```julia
+if CUDA.functional()
+    Knet.array_type[] = CUDA.CuArray{T}
+else
+    Knet.array_type[] = Array{T}
+end
+```
+
 
 # Statement of need
 
