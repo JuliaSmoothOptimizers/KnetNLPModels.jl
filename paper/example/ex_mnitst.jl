@@ -1,6 +1,6 @@
 # This is a simple example of training KnetNLPModels with Lenet5 and MNIST on CPU/GPU
 # For more tools and indetailed example check KnetNLPModelsProblems.jl
-#
+# Note that we need to fine-tune the example so it has a better results than SGD.
 
 using CUDA, IterTools
 using JSOSolvers
@@ -175,7 +175,7 @@ function train_knetNLPmodel!(
         β = β,
         max_time = max_time,
         verbose = verbose,
-        callback = (nlp, solver, stats, nlp_param) ->
+        callback = (nlp, solver, stats) ->
             cb(nlp, solver, stats, stochastic_data),
     )
     return stochastic_data
