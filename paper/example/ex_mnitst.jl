@@ -2,7 +2,8 @@
 # For more tools and indetailed example check KnetNLPModelsProblems.jl
 # Note that we need to fine-tune the example so it has a better results than SGD.
 
-using CUDA, IterTools
+using CUDA
+# using IterTools
 using JSOSolvers
 using LinearAlgebra
 using Random
