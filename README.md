@@ -35,7 +35,7 @@ KnetNLPModels is an interface between [Knet.jl](https://github.com/denizyuret/Kn
 A `KnetNLPModel` gives the user access to:
 - the values of the neural network variables/weights `w`;
 - the value of the objective/loss function `L(X, Y; w)` at `w` for a given minibatch `(X,Y)`;
-- the gradient `∇L(X, Y; w)` of the objective/loss function at `w` for a given mini-batch `(X,Y)`.
+- the gradient `∇L(X, Y; w)` of the objective/loss function at `w` for a given minibatch `(X,Y)`.
 
 In addition, it provides tools to:
 - switch the minibatch used to evaluate the neural network;
@@ -48,3 +48,10 @@ Check the [tutorial](https://juliasmoothoptimizers.github.io/KnetNLPModels.jl/st
 ## How to Cite
 
 If you use KnetNLPModels.jl in your work, please cite using the format given in [`CITATION.bib`](https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/main/CITATION.bib).
+
+# Bug reports and discussions
+
+If you think you found a bug, feel free to open an [issue](https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/issues).
+Focused suggestions and requests can also be opened as issues. Before opening a pull request, start an issue or a discussion on the topic, please.
+
+If you want to ask a question not suited for a bug report, feel free to start a discussion [here](https://github.com/JuliaSmoothOptimizers/Organization/discussions). This forum is for general discussion about this repository and the [JuliaSmoothOptimizers](https://github.com/JuliaSmoothOptimizers), so questions about any of our packages are welcome.
