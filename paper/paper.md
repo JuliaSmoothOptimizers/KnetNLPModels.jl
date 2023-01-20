@@ -101,7 +101,7 @@ function cb(
     end
 end
 ```
-We used a stuct to pass on different values and keep track of the accracy durong the training.
+We used a stuct to pass on different values and keep track of the accuracy during the training.
 
 To check the accuracy of the training or test data, use:
 ```julia
