@@ -26,20 +26,98 @@ bibliography: paper.bib
 
 # Summary
 
-Machine learning modules, similar to the Julia module (ref) [Knet.jl](https://github.com/denizyuret/Knet.jl), are generally standalone modules whose provide:
+Deep neural network(DNN) modules, similar to the Julia module (ref) [Knet.jl](https://github.com/denizyuret/Knet.jl), are generally standalone modules whose provide:
 - deep neural networks modelling;
 - support standard training and test datasets (from MLDatasets.jl in Julia);
 - several loss-functions, which may be evaluated from a mini-batch of a dataset;
 - evaluate the accuracy of a neural network from a test dataset;
 - GPU support of any operation performed by a neural network;
 - state-of-the-art optimizers: SGD, Nesterov, Adagrad, Adam (refs), which are sophisticate stochastic line-search around first order derivatives of the loss-function.
-Due to their design focused on machine learning, those modules lack interfaces with pure optimization frameworks.
 
-KnetNLPModels.jl tackles this issue by implementing a KnetNLPModel, an unconstrained smooth optimization model.
-KnetNLPModel gather a neural-network modelled with Knet, a loss function, a dataset and implement interface's methods related to unconstrained models with Knet's functionnalities.
-By doing so, a KnetNLPModel benefits the JuliaSmoothOptimizers ecosystem:
+
+Due to their design focused on machine learning, those modules lack interfaces with pure optimization frameworks such as JSOSolver (ref).
+
+KnetNLPModels.jl tackles this issue by enabling wrapping DNN into unconstrained models. It inhernat and implement most, if not all, Knet's interfaces, such as:
+- standard training and test datasets
+- its lost functions
+- ability to divide datasets into user-defined-size minibatches
+- support GPU/CPU interface
+
+<!-- KnetNLPModels.jl tackles this issue by implementing a KnetNLPModel, an unconstrained smooth optimization model. -->
+
+<!-- KnetNLPModel gather a neural network modelled with Knet, a loss function, a dataset and implement interface's methods related to unconstrained models with Knet's functionnalities. -->
+KnetNLPModel benefits from the JuliaSmoothOptimizers ecosystem and is not limitted to the Knet solvers
+It has access to:
 - [JSOSolvers.jl](https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl) optimizers, which train the neural network by considering the weights as variables;
 - augmented optimization models such as quasi-Newton models (LBFGS or LSR1).
+
+
+# Example -- name to change 
+The following example (ref) covers traing a DNN model on MNIST (ref) data sets. It includes loading the data, defining DNN model, here Lenet-5 (ref), setting the mini-batches, and traing using R2 solver from JSOSolvers. 
+
+The main step is to transfer a Knet model to a KnetNLP model, this can be achived by:
+```julia
+# LeNet is defined model for Knet 
+LeNetNLPModel = KnetNLPModel(
+        LeNet;
+        data_train = (xtrn, ytrn),
+        data_test = (xtst, ytst),
+        size_minibatch = minibatchSize,
+    )
+```
+ ```KnetNLPModel``` takes **LeNet**, a small DNN model defined in Knet using ```Chainnnll```, train and test data, as well as user-defined batchsize.
+
+Once the KnetNLP model is created, solvers from JSOSolver can be used. Here is an example using R2 solver 
+```julia
+solver_stats = R2(
+        modelNLP;
+        callback = (nlp, solver, stats, nlp_param) ->
+            cb(nlp, solver, stats, stochastic_data),
+    )
+```
+For more information on R2 solver, refere to (ref)
+
+To change the mini-batch data and update the epochs, a callback method may be constructed and passed on to the R2 solver.
+
+```julia
+function cb(
+    nlp,
+    solver,
+    stats,
+    data::StochasticR2Data,
+)
+    # Max epoch
+    if data.epoch == data.max_epoch
+        stats.status = :user
+        return
+    end
+    data.i = KnetNLPModels.minibatch_next_train!(nlp)
+    if data.i == 1   # once one epoch is finished     
+        # reset
+        data.grads_arr = []
+        data.epoch += 1
+        acc = KnetNLPModels.accuracy(nlp) # accracy of the 
+        train_acc = Knet.accuracy(nlp.chain; data = nlp.training_minibatch_iterator) #TODO minibatch acc.
+    end
+end
+```
+We used a stuct to pass on different values and keep track of the accuracy during the training.
+
+To check the accuracy of the training or test data, use:
+```julia
+train_acc = Knet.accuracy(nlp.chain; data = nlp.training_minibatch_iterator) #TODO minibatch acc.
+```
+
+
+To allow use of GPU we need the ```Knet.array_type``` to be set, we can achive that using:
+```julia
+if CUDA.functional()
+    Knet.array_type[] = CUDA.CuArray{T}
+else
+    Knet.array_type[] = Array{T}
+end
+```
+
 
 # Statement of need
 
@@ -49,84 +127,5 @@ By doing so, a KnetNLPModel benefits the JuliaSmoothOptimizers ecosystem:
 This work has been supported by the NSERC Alliance grant 544900-19 in collaboration with Huawei-Canada
 
 
-<!-- Example markdown article -->
-# Summary
-
-The forces on stars, galaxies, and dark matter under external gravitational
-fields lead to the dynamical evolution of structures in the universe. The orbits
-of these bodies are therefore key to understanding the formation, history, and
-future state of galaxies. The field of "galactic dynamics," which aims to model
-the gravitating components of galaxies to study their structure and evolution,
-is now well-established, commonly taught, and frequently used in astronomy.
-Aside from toy problems and demonstrations, the majority of problems require
-efficient numerical tools, many of which require the same base code (e.g., for
-performing numerical orbit integration).
-
-# Statement of need
-
-`Gala` is an Astropy-affiliated Python package for galactic dynamics. Python
-enables wrapping low-level languages (e.g., C) for speed without losing
-flexibility or ease-of-use in the user-interface. The API for `Gala` was
-designed to provide a class-based and user-friendly interface to fast (C or
-Cython-optimized) implementations of common operations such as gravitational
-potential and force evaluation, orbit integration, dynamical transformations,
-and chaos indicators for nonlinear dynamics. `Gala` also relies heavily on and
-interfaces well with the implementations of physical units and astronomical
-coordinate systems in the `Astropy` package [@astropy] (`astropy.units` and
-`astropy.coordinates`).
-
-`Gala` was designed to be used by both astronomical researchers and by
-students in courses on gravitational dynamics or astronomy. It has already been
-used in a number of scientific publications [@Pearson:2017] and has also been
-used in graduate courses on Galactic dynamics to, e.g., provide interactive
-visualizations of textbook material [@Binney:2008]. The combination of speed,
-design, and support for Astropy functionality in `Gala` will enable exciting
-scientific explorations of forthcoming data releases from the *Gaia* mission
-[@gaia] by students and experts alike.
-
-# Mathematics
-
-Single dollars ($) are required for inline mathematics e.g. $f(x) = e^{\pi/x}$
-
-Double dollars make self-standing equations:
-
-$$\Theta(x) = \left\{\begin{array}{l}
-0\textrm{ if } x < 0\cr
-1\textrm{ else}
-\end{array}\right.$$
-
-You can also use plain \LaTeX for equations
-\begin{equation}\label{eq:fourier}
-\hat f(\omega) = \int_{-\infty}^{\infty} f(x) e^{i\omega x} dx
-\end{equation}
-and refer to \autoref{eq:fourier} from text.
-
-# Citations
-
-Citations to entries in paper.bib should be in
-[rMarkdown](http://rmarkdown.rstudio.com/authoring_bibliographies_and_citations.html)
-format.
-
-If you want to cite a software repository URL (e.g. something on GitHub without a preferred
-citation) then you can do it with the example BibTeX entry below for @fidgit.
-
-For a quick reference, the following citation commands can be used:
-- `@author:2001`  ->  "Author et al. (2001)"
-- `[@author:2001]` -> "(Author et al., 2001)"
-- `[@author1:2001; @author2:2001]` -> "(Author1 et al., 2001; Author2 et al., 2002)"
-
-# Figures
-
-Figures can be included like this:
-![Caption for example figure.\label{fig:example}](figure.png)
-and referenced from text using \autoref{fig:example}.
-
-Figure sizes can be customized by adding an optional second parameter:
-![Caption for example figure.](figure.png){ width=20% }
-
-# Acknowledgements
-
-We acknowledge contributions from Brigitta Sipocz, Syrtis Major, and Semyeong
-Oh, and support from Kathryn Johnston during the genesis of this project.
 
 # References
