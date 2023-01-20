@@ -189,8 +189,10 @@ end
 ####################################################
 """
     all_accuracy(nlp::AbstractKnetNLPModel)
+
 Compute the accuracy of the network `nlp.chain` given the data in `nlp.tests`.
-uses the whole test data sets"""
+uses the whole test data sets
+"""
 all_accuracy(nlp::AbstractKnetNLPModel) = Knet.accuracy(nlp.chain; data = nlp.data_test)
 
 # this functions load MNIST data or CIFAR10
