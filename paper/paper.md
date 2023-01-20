@@ -103,7 +103,7 @@ end
 ```
 We used a stuct to pass on different values and keep track of the accracy durong the training.
 
-To check the accracy of the train or test data, use:
+To check the accuracy of the training or test data, use:
 ```julia
 train_acc = Knet.accuracy(nlp.chain; data = nlp.training_minibatch_iterator) #TODO minibatch acc.
 ```
