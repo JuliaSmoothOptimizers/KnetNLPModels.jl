@@ -77,7 +77,7 @@ solver_stats = R2(
 ```
 For more information on R2 solver, refere to (ref)
 
-To change the mini-batch data and update the epochs, a callback method can be constructoed and passed on to the R2 solver.
+To change the mini-batch data and update the epochs, a callback method may be constructed and passed on to the R2 solver.
 
 ```julia
 function cb(
