@@ -55,7 +55,7 @@ It has access to:
 # Example -- name to change 
 The following example (ref) covers traing a DNN model on MNIST (ref) data sets. It includes loading the data, defining DNN model, here Lenet-5 (ref), setting the mini-batches, and traing using R2 solver from JSOSolvers. 
 
-The main step is to transfer a Knet model to KnetNLP model, this can be achived by:
+The main step is to transfer a Knet model to a KnetNLP model, this can be achived by:
 ```julia
 # LeNet is defined model for Knet 
 LeNetNLPModel = KnetNLPModel(
