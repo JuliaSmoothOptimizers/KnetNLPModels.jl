@@ -1,11 +1,151 @@
-@article{bezanson-edelman-karpinski-shah-2017,
-  author    = {Bezanson, Jeff and Edelman, Alan and Karpinski, Stefan and Shah, Viral B.},
-  title     = {Julia: A Fresh Approach to Numerical Computing},
-  journal   = {SIAM Review},
-  volume    = {59},
-  number    = {1},
-  pages     = {65--98},
-  year      = {2017},
-  doi       = {10.1137/141000671},
-  publisher = {SIAM},
+
+@article{lecun-bouttou-bengio-haffner1998,
+  author={Lecun, Y. and Bottou, L. and Bengio, Y. and Haffner, P.},
+  journal={Proceedings of the IEEE}, 
+  title={Gradient-based learning applied to document recognition}, 
+  year={1998},
+  volume={86},
+  number={11},
+  pages={2278-2324},
+  abstract={Multilayer neural networks trained with the back-propagation algorithm constitute the best example of a successful gradient based learning technique.
+  Given an appropriate network architecture, gradient-based learning algorithms can be used to synthesize a complex decision surface that can classify high-dimensional patterns, such as handwritten characters, with minimal preprocessing.
+  This paper reviews various methods applied to handwritten character recognition and compares them on a standard handwritten digit recognition task.
+  Convolutional neural networks, which are specifically designed to deal with the variability of 2D shapes, are shown to outperform all other techniques.
+  Real-life document recognition systems are composed of multiple modules including field extraction, segmentation recognition, and language modeling.
+  A new learning paradigm, called graph transformer networks (GTN), allows such multimodule systems to be trained globally using gradient-based methods so as to minimize an overall performance measure.
+  Two systems for online handwriting recognition are described. Experiments demonstrate the advantage of global training, and the flexibility of graph transformer networks.
+  A graph transformer network for reading a bank cheque is also described.
+  It uses convolutional neural network character recognizers combined with global training techniques to provide record accuracy on business and personal cheques.
+  It is deployed commercially and reads several million cheques per day.
+  },
+  doi={10.1109/5.726791},
+  ISSN={1558-2256},
+  month={Nov},
+}
+
+@article{Nesterov1983,
+  title={A method for solving the convex programming problem with convergence rate O(1/k^2)},
+  author={Nesterov, Y.},
+  journal={Proceedings of the USSR Academy of Sciences},
+  year={1983},
+  volume={269},
+  pages={543-547}
+}
+
+@article{duchi-hazan-singer2011,
+	author = {Duchi, J. and Hazan, E. and Singer, Y.},
+	doi = {10.5555/1953048.2021068},
+	title = {Adaptive Subgradient Methods for Online Learning and Stochastic Optimization},
+	year = {2011},
+	issue_date = {2/1/2011},
+	publisher = {JMLR.org},
+	volume = {12},
+	number = {null},
+	issn = {1532-4435},
+	abstract = {We present a new family of subgradient methods that dynamically incorporate knowledge of the geometry of the data observed in earlier iterations to perform more informative gradient-based learning.
+  Metaphorically, the adaptation allows us to find needles in haystacks in the form of very predictive but rarely seen features.
+  Our paradigm stems from recent advances in stochastic optimization and online learning which employ proximal functions to control the gradient steps of the algorithm.
+  We describe and analyze an apparatus for adaptively modifying the proximal function, which significantly simplifies setting a learning rate and results in regret guarantees that are provably as good as the best proximal function that can be chosen in hindsight.
+  We give several efficient algorithms for empirical risk minimization problems with common and important regularization functions and domain constraints. We experimentally study our theoretical analysis and show that adaptive subgradient methods outperform state-of-the-art, yet non-adaptive, subgradient algorithms.
+  },
+	journal = {J. Mach. Learn. Res.},
+	month = {jul},
+	pages = {2121–2159},
+	numpages = {39}
+}
+
+@misc{kingma-ba2017,
+	title={Adam: A Method for Stochastic Optimization}, 
+	author={Kingma, D. P.  and Ba, J. },
+	year={2017},
+	eprint={1412.6980},
+	archivePrefix={arXiv},
+	primaryClass={cs.LG},
+	abstract={We introduce Adam, an algorithm for first-order gradient-based optimization of stochastic objective functions, based on adaptive estimates of lower-order moments.
+  The method is straightforward to implement, is computationally efficient, has little memory requirements, is invariant to diagonal rescaling of the gradients, and is well suited for problems that are large in terms of data and/or parameters.
+  The method is also appropriate for non-stationary objectives and problems with very noisy and/or sparse gradients.
+  The hyper-parameters have intuitive interpretations and typically require little tuning.
+  Some connections to related algorithms, on which Adam was inspired, are discussed. We also analyze the theoretical convergence properties of the algorithm and provide a regret bound on the convergence rate that is comparable to the best known results under the online convex optimization framework.
+  Empirical results demonstrate that Adam works well in practice and compares favorably to other stochastic optimization methods.
+  Finally, we discuss AdaMax, a variant of Adam based on the infinity norm
+  }
+}
+
+@misc{orban-siqueira-nlpmodels-2020,
+  author = {D. Orban and A. S. Siqueira and {contributors}},
+  title = {NLPModels.jl: Data Structures for Optimization Models},
+  month = {July},
+  url = {https://github.com/JuliaSmoothOptimizers/NLPModels.jl},
+  year = {2020},
+  DOI = {10.5281/zenodo.2558627},
+}
+
+@misc{orban-siqueira-jsosolvers-2021,
+  author = {D. Orban and A. S. Siqueira and contributors},
+  title = {JSOSolvers.jl: JuliaSmoothOptimizers optimization solvers},
+  month = {March},
+  url = {https://github.com/JuliaSmoothOptimizers/JSOSolvers.jl},
+  year = {2021},
+  DOI = {10.5281/zenodo.3991143},
+}
+
+@article{Flux.jl-2018,
+  author    = {Innes, M. and
+               Saba, E. and
+               Fischer, K. and
+               Gandhi, D. and
+               Concetto Rudilosso, M. and
+               Mariya Joy, N. and
+               Karmali, T. and
+               Pal, A. and
+               Shah V. 
+               },
+  title     = {Fashionable Modelling with Flux},
+  journal   = {Computing Research Repository},
+  volume    = {abs/1811.01457},
+  year      = {2018},
+  url       = {https://arxiv.org/abs/1811.01457},
+  archivePrefix = {arXiv},
+}
+
+@misc{Knet2020,
+  author = {
+    Yuret, D. and
+    Gümeli, C. and
+    Lucibello, C. and
+    Onat, E. and
+    Akyürek, E. and
+    Emre Yurdakul, E. and
+    Ünal, E. and
+    Yolcu, E. and
+    Berk, E. and
+    Dayanık, E. and
+    Kesen, İ. and
+    Xu, K. and
+    Melike Softa, M. and
+    Innes, M. and
+    Kuru, O. and
+    Arkan Can, O. and
+    Kırnap, Ö. and
+    Nguyen, P. and
+    Donner, R. and
+    Besard, T. and
+    Shiwei, Z. 
+  },
+  title = {Knet.jl:  Koç University deep learning framework. },
+  year = {2020},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  url = {https://github.com/denizyuret/Knet.jl}
+}
+
+@misc{MLDataset2016,
+  author = {
+    Carlo L. and
+     Christof S.},
+  title = {MLDatasets.jl:},
+  year = {2016},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  url = {https://github.com/JuliaML/MLDatasets.jl}
 }
