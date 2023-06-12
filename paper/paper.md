@@ -24,49 +24,50 @@ bibliography: paper.bib
 
 # Summary
 
-We present two modules KnetNLPModels.jl and   FluxNLPModels.jl, which make a bridge (interface) between modules modelling deep neural networks, Knet.jl @Knet2020 and Flux.jl @Flux.jl-2018, and the JuliaSmoothOptimizers ecosystem.
-Concretely, a deep neural network is modelled as a standard smooth optimization problem, whose the minimization of the loss function by solvers from JSOSolvers @orban-siqueira-jsosolvers-2021 will train the deep neural network.
+`KnetNLPModels.jl` and `FluxNLPModels.jl` are Julia [@bezanson2017julia] modules design to bridges the gap between 
+deep neural networks modules: Flux.jl [@Flux.jl-2018] and Knet.jl [@Knet2020], and the JuliaSmoothOptimizers ecosystem.
+Both Flux.jl and Knet.jl allow a user to construct the architecture of a deep neural network, which can then be paired with a loss function and a dataset from MLDataset [@MLDataset2016] to apply state-of-the-art optimizers such as the: stochastic gradient descent [@lecun-bouttou-bengio-haffner1998], Nesterov acceleration [@Nesterov1983], Adagrad [@duchi-hazan-singer2011], or Adam [@kingma-ba2017].
 
-Among others things, they provide definition of neural layers: dense layers, convolutional layers or more complex layers, which can be difficult and error-prone to implement itself.
-In addition, they propose several loss functions, like the negative log likelihood, or allow the user to define its own loss function.  
-Knet.jl and Flux.jl support both CPU and GPU, providing weights respectfully as Vector or CUVector (only CUDA supported?) on which various floating-point systems are available.
-Moreover, they both support the training and test datasets from MLDatasets, they facilitate the definition of their minibatches as an iterator of a dataset and they provide a way to evaluate the neural network accuracy on the test dataset.
-Finally, they offer state-of-the-art optimizers: stochastic gradient descent @lecun-bouttou-bengio-haffner1998, Nesterov acceleration @Nesterov1983, Adagrad @duchi-hazan-singer2011, and Adam @kingma-ba2017 which all rely solely on first derivatives of the sampled loss.
+The triptych: architecture, dataset and loss function are gathered to model neural network training problem as a standard smooth optimization problem who's fulfilling the NLPModels.jl API [@orban-siqueira-nlpmodels-2020].
+As an NLPModel, it benefits from the tools developed in JuliaSmoothOptimizers, such as limited-memory quasi-Newton approximation of Hessian (LBFGS or LSR1) or the solvers from JSOSolvers [@orban-siqueira-jsosolvers-2021].
+The minimization of the loss function by a solver trains the deep neural network on the dataset specified.
+Additionally, it furnishes methods related specifically to neural network to ease the manipulation of neural network NLPModel, for example: evaluate the accuracy of the neural network or switch the sampled data considered.
 
-However, Knet.jl and Flux.jl, given their standalone nature and the traditional nature of stochastic algorithms, lack interfaces with general optimization frameworks such as JuliaSmoothOptimizers.
-Once the neural network is settled, the minimization of the loss function can be seen as a smooth optimization problem.
-Thus, it can be minimized by the tools furnished by the JuliaSmoothOptimizers ecosystem to train the neural network.
-KnetNLPModels.jl and FluxNLPModels.jl model a neural network training problem as an optimization model fulfilling the NLPModels.jl @orban-siqueira-nlpmodels-2020 API which can be then minimized by solvers from JSOSolvers.jl.
-KnetNLPModels.jl and FluxNLPModels.jl are designed to be user-friendly.
-Setting the affiliated NLPModel does not require much work once the neural network architecture, the loss function and its dataset are instantiated (see the Example section).
-Being fully integrated in the JuliaSmoothOptimizers ecosystem, the resulting model can be minimized directly, or enhanced to integrate a hessian approximation through a limited-memory quasi-Newton linear operator (LBFGS or LSR1).
-With these modules, we hope that users and researchers will be able to employ a wide variety of optimization solvers and tools not traditionally applied to deep neural network training (not available either in Knet.jl or Flux.jl).
+With these modules, we hope that users and researchers will be able to employ a wide variety of optimization solvers and tools not traditionally applied to deep neural network training (neither available in Knet.jl nor in Flux.jl).
+
+# Statement of need
+
+Knet.jl and Flux.jl, given their standalone nature, lack interfaces with general optimization frameworks such as JuliaSmoothOptimizers.
+However, they ease the architecture definition by providing definition of neural layers: dense layers, convolutional layers or more complex layers, initialized with a uniform distribution, which can be difficult and error-prone to implement itself.
+In addition, they propose several loss functions, like the negative log likelihood, or allow the user to define its own loss function.
+Knet.jl and Flux.jl may be run on both CPU and GPU, providing weights respectfully as a Vector or a CUVector (only CUDA supported?) supporting various floating-point systems.
+Moreover, they both support the training and test datasets from MLDatasets, they facilitate the definition of their minibatches as an iterator of a dataset, and they provide a way to evaluate the neural network accuracy on the test dataset.
+The optimizers provided by Knet.jl and Flux.jl all rely solely on first derivatives of the sampled loss.
+We are interested in using the tools of JuliaSmoothOptimizers to enable a line search or a trust-region using a quasi-Newton approximation second derivatives or methods dedicated to smooth problems.
 
 # Training a neural network with R2
 
-This section details how to model a deep neural network from Knet.jl, define a NLPModel from it, and how it can be trained using the `R2` solver from JSOSOlvers.jl.
-First, we model a simplified LeNet model @lecun-bouttou-bengio-haffner1998 paired with a negative log likelihood loss function using Knet.jl :
 ```julia
 using Knet
 # Define a convolutional layer
 struct Conv
-  w
-  b
-  f
+  weight
+  bias
+  activation_function
 end
-(c::Conv)(x) = c.f.(pool(conv4(c.w, x) .+ c.b))
-Conv(w1, w2, cx, cy, f = relu) = Conv(param(w1, w2, cx, cy), param0(1, 1, cy, 1), f)
+(c::Conv)(x) = c.activation_function.(pool(conv4(c.weight, x) .+ c.bias))
+Conv(w1, w2, cx, cy, activation_function = relu) = Conv(param(w1, w2, cx, cy), param0(1, 1, cy, 1), activation_function)
 
 # Define a dense layer
 struct Dense
-  w
-  b
-  f
-  p
+  weight
+  bias
+  activation_function
 end
-(d::Dense)(x) = d.f.(d.w * mat(dropout(x, d.p)) .+ d.b)
-Dense(i::Int, o::Int, f = sigm; pdrop = 0.0) = Dense(param(o, i), param0(o), f, pdrop)
+(d::Dense)(x) = d.activation_function.(d.weight * mat(x) .+ d.bias)
+Dense(input::Int, output::Int, activation_function = sigm) = Dense(param(output, input), param0(output), activation_function)
 
+using KnetNLPModels
 # A chain of layers ended by a negative log likelihood loss function
 struct Chainnll <: KnetNLPModels.Chain
   layers
@@ -76,15 +77,14 @@ end
   x = l(x)
 end;
 x)
-(c::Chainnll)(x, y) = Knet.nll(c(x), y)  # nécessaire
+(c::Chainnll)(x, y) = Knet.nll(c(x), y)
 (c::Chainnll)(data::Tuple{T1, T2}) where {T1, T2} = c(first(data, 2)...)
 (c::Chainnll)(d::Knet.Data) = Knet.nll(c; data = d, average = true)
 
-lenet = Chainnll(Conv(4,4,1,6), Conv(4,4,6,16), Dense(124, 84), Dense(84,10))
-nlp_lenet = KnetNLPModel(lenet; data_train = (xtrn, ytrn), data_test = (xtst, ytst))
+LeNet = Chainnll(Conv(4,4,1,6), Conv(4,4,6,8), Dense(128, 84), Dense(84,10))
 ```
 This LeNet architecture is designed to distinguish 10 classes.
-Therefore, we chose to use the MNIST dataset @lecun-bouttou-bengio-haffner1998 from MLDataset @MLDataset2016:
+Therefore, we chose to use the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
 ```julia
 using MLDatasets 
 
@@ -95,21 +95,15 @@ xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
 ytrn[ytrn.==0] .= 10 # re-arrange indices
 xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
 ytst[ytst.==0] .= 10 # re-arrange indices
-
-# define the minibtaches for both training and test dataset.
-data_train = minibatch(xtrn, ytrn, 100; xsize=(size(xtrn, 1), size(xtrn, 2), 1, :)) # training minibatch
-data_test = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # test minibatch
 ```
 
-From these elements, we transfer the Knet model to a KnetNLPModel:
+From these elements, we transfer the Knet model to a `KnetNLPModel`:
 ```julia 
-using KnetNLPModels
-
 minibatchSize = 100
 LeNetNLPModel = KnetNLPModel(
         LeNet;
-        data_train,
-        data_test,
+        data_train=(xtrn, ytrn),
+        data_test=(xtst, ytst),
         size_minibatch = minibatchSize,
     )
 ```
@@ -121,26 +115,61 @@ using JSOSolvers
 
 solver_stats = R2(
         LeNetNLPModel;
-        callback = # PaRay to do, 
-        # change the minibtach at iteration, and retrieve the accuracy if needed
+        # change the minibatch at each iteration
+        callback = (nlp, solver, stats) -> (KnetNLPModels.minibatch_next_train!(nlp)), 
+        max_time=300.
     )
-```
-Being implemented as a determinist optimization method, the mini-batch data or sophisticate stopping criteria are managed through a callback method passed to the R2 solver.
 
-The accuracy of a neural network can be checked with:
+final_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
+```
+Being implemented as a deterministic optimization method, the mini-batch data or sophisticate stopping criteria are managed through a callback method passed to the R2 solver.
+
+Why not being implemented to train neural network, the LBFGS linesearch of JSOSolvers.jl may also be used to train `LeNetNLPModel`
 ```julia
-acc = NLPModels.accuracy(LeNetNLPModel)
+LeNet = Chainnll(Conv(4,4,1,6), Conv(4,4,6,8), Dense(128, 84), Dense(84,10))
+LeNetNLPModel = KnetNLPModel(
+        LeNet;
+        data_train=(xtrn, ytrn),
+        data_test=(xtst, ytst),
+        size_minibatch = minibatchSize,
+    )
+
+solver_stats = lbfgs(
+        LeNetNLPModel;
+        # change the minibatch at each iteration
+        callback = (nlp, solver, stats) -> (KnetNLPModels.minibatch_next_train!(nlp)), 
+        max_time=300.
+    )
+
+final_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
 ```
 
-An enhanced LBFGS model may define as
+`LeNetNLPModel` may be enhanced by a LBFGS approximation of the Hessian which can be fed to `trunk`, a quadratic trust-region with a back-tracking line-search.
 ```julia
+using NLPModelsModifiers
+
+LeNet = Chainnll(Conv(4,4,1,6), Conv(4,4,6,8), Dense(128, 84), Dense(84,10))
+LeNetNLPModel = KnetNLPModel(
+        LeNet;
+        data_train=(xtrn, ytrn),
+        data_test=(xtst, ytst),
+        size_minibatch = minibatchSize,
+    )
+
 lbfgs_LeNet = NLPModelsModifiers.LBFGSModel(LeNetNLPModel)
+
+solver_stats = trunk(
+        lbfgs_LeNet;
+        # change the minibatch at each iteration
+        callback = (nlp, solver, stats) -> (KnetNLPModels.minibatch_next_train!(nlp.model)), 
+        max_time=300.
+        # It may retrieve the accuracy if needed
+    )
+
+final_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
 ```
 
-Add numerical graph.
-
-# Statement of need
-
+To do: Add numerical graph (maybe).
 
 # Acknowledgements
 
