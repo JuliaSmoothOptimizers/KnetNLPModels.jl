@@ -245,7 +245,8 @@ function create_batch(args)
   return train_loader, test_loader
 end
 
-
+device = cpu
+train_loader, test_loader = create_batch(args)
 ```
 #### Loss Function 
 We can define any loss function that we need, here we use Flux build-in logitcrossentropy function. 
@@ -307,11 +308,6 @@ model =
 #### Transfering to FluxNLPModels
 
 ```julia
-
-  device = cpu
-  train_loader, test_loader = create_batch(args)
-
-
   # now we set the model to FluxNLPModel
   nlp = FluxNLPModel(model, train_loader, test_loader; loss_f = loss)
 ```
