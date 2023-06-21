@@ -311,7 +311,7 @@ mutable struct StochasticR2Data
   state
 end
 
-function callback(nlp, stats, train_loader, device, data::StochasticR2Data;)
+function callback(nlp, stats, train_loader, device, data::StochasticR2Data)
 
 iter = train_loader
   if data.i == 0
