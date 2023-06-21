@@ -49,7 +49,9 @@ KnetNLPModels.jl and FluxNLPModels.jl aim to expand the range of optimization me
 # Training a neural network with JuliaSmoothOptimizers solvers
 
 In the following example, we build a simplified LeNet architecture [@lecun-bouttou-bengio-haffner1998], which is designed to distinguish 10 picture classes.
+
 ## KnetNLPModels.jl
+
 The first step is to define the neural network architecture using Knet.jl.
 
 
