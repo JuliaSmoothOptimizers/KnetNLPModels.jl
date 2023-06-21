@@ -311,7 +311,7 @@ mutable struct StochasticR2Data
   state
 end
 
-function cb(nlp, stats, train_loader, device, data::StochasticR2Data;)
+function callback(nlp, stats, train_loader, device, data::StochasticR2Data;)
 
 iter = train_loader
   if data.i == 0
@@ -336,7 +336,7 @@ stochastic_data = StochasticR2Data(0, atol, nothing)
 solver_stats = JSOSolvers.R2(
   nlp;
   callback = (nlp, solver, stats) 
-  -> cb(nlp, stats, train_loader, device, stochastic_data),
+  -> callback(nlp, stats, train_loader, device, stochastic_data),
 )
 
 ## Report on train and test
