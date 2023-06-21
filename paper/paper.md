@@ -111,24 +111,15 @@ LeNet = Chainnll(Conv(4,4,1,6), Conv(4,4,6,8), Dense(128, 84), Dense(84,output_c
 Accordingly to the architecture, we chose the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
 ```julia
 using MLDatasets 
+function get_MNIST()
+ xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:] 
+ xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:] 
+ return xtrain, ytrain, xtest, ytest
+ end
 
-function getdata(args; T = Float32) #T for types
-  ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
-
-  # Loading Dataset	
-  xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
-  xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
-
-  # Reshape Data in order to flatten each image into a linear array
-  xtrain = Flux.flatten(xtrain)
-  xtest = Flux.flatten(xtest)
-
-  # One-hot-encode the labels
-  ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
-  return xtrain, ytrain, xtest, ytest
-end
-
-xtrn, ytrn, xtst, ytst = getdata(args)
+xtrn, ytrn, xtst, ytst = getdata()
+ytrn[ytrn.==0] .= output_classes # re-arrange indices
+ytst[ytst.==0] .= output_classes # re-arrange indices
 data_train = (xtrn, ytrn)
 data_test = (xtst, ytst)
 ```
@@ -236,17 +227,31 @@ using JSOSolvers
 In this section, we will cover the process of loading datasets and defining minibatches for training your model using Flux. 
 To donwnload and load MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
 ```julia
+function getdata(;T = Float32) #T for types
+  ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
-function create_batch(args)
-  # Create DataLoaders (mini-batch iterators)
-  xtrain, ytrain, xtest, ytest = getdata(args) #getdata is from KnetNlPModels section
-  train_loader = DataLoader((xtrain, ytrain), batchsize = args.batchsize, shuffle = true)
-  test_loader = DataLoader((xtest, ytest), batchsize = args.batchsize)
-  return train_loader, test_loader
+  # Loading Dataset	
+  xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
+  xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
+
+  # Reshape Data in order to flatten each image into a linear array
+  xtrain = Flux.flatten(xtrain)
+  xtest = Flux.flatten(xtest)
+
+  # One-hot-encode the labels
+  ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
+  return xtrain, ytrain, xtest, ytest
 end
 
-device = cpu
-train_loader, test_loader = create_batch(args)
+function create_batch(;batchsize=128)
+  # Create DataLoaders (mini-batch iterators)
+  xtrain, ytrain, xtest, ytest = getdata() 
+  train_loader = DataLoader((xtrain, ytrain), batchsize = batchsize, shuffle = true)
+  test_loader = DataLoader((xtest, ytest), batchsize = batchsize)
+  return train_loader, test_loader
+end
+train_loader, test_loader = create_batch()
+
 ```
 #### Loss Function 
 We can define any loss function that we need, here we use Flux build-in logitcrossentropy function. 
@@ -274,19 +279,6 @@ function loss_and_accuracy(data_loader, model, device; T=Float32)
   return ls / num, acc / num
 end
 ```
-#### Parameters 
-Here are some of the parameters that we use.
-
-   ```julia 
-      @kwdef mutable struct Args
-        batchsize::Int = 128    # batch size
-        epochs::Int = 10        # number of epochs
-        use_cuda::Bool = true   # use gpu (if cuda and gpu available)
-        verbose_freq = 10       # logging for every verbose_freq iterations
-      end
-      args = Args() # collect options in a struct for convenience
-      
-  ``` 
 #### Neural Network - Lenet
 ```julia 
 ## Construct Nural Network model
