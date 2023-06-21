@@ -32,7 +32,7 @@ Both Flux.jl and Knet.jl allow users to construct the architecture of a deep neu
 
 By utilizing these solvers, the loss function can be minimized to train the deep neural network using optimization methods different from those embedded in Knet.jl or Flux.jl. Additionally, KnetNLPModels.jl and FluxNLPModels.jl provide methods to facilitate the manipulation of neural network NLPModels. For instance, users can evaluate the accuracy of the neural network or switch the sampled data considered by the loss function.
 
-These modules enable users and researchers to leverage a wide variety of optimization solvers and tools that are not traditionally employed in deep neural network training, such as R2[@birgin2017worst], [@birgin-gardenghi-martinez-santos-toint-2017], quasi-Newton trust-region methods, or quasi-Newton line search, which are not available in Knet.jl or Flux.jl.
+These modules enable users and researchers to leverage a wide variety of optimization solvers and tools that are not traditionally employed in deep neural network training, such as R2[@birgin2017worst]; [@birgin-gardenghi-martinez-santos-toint-2017], quasi-Newton trust-region methods, or quasi-Newton line search, which are not available in Knet.jl or Flux.jl.
 
 # Statement of Need
 
@@ -49,7 +49,9 @@ KnetNLPModels.jl and FluxNLPModels.jl aim to expand the range of optimization me
 # Training a neural network with JuliaSmoothOptimizers solvers
 
 In the following example, we build a simplified LeNet architecture [@lecun-bouttou-bengio-haffner1998], which is designed to distinguish 10 picture classes.
+
 ## KnetNLPModels.jl
+
 The first step is to define the neural network architecture using Knet.jl.
 
 
