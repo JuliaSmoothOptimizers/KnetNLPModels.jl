@@ -112,14 +112,23 @@ Accordingly to the architecture, we chose the MNIST dataset [@lecun-bouttou-beng
 ```julia
 using MLDatasets 
 
-# download the dataset without the user intervention
-ENV["DATADEPS_ALWAYS_ACCEPT"] = true  
+function getdata(args; T = Float32) #T for types
+  ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
 
-xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
-ytrn[ytrn.==0] .= output_classes # re-arrange indices
-xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
-ytst[ytst.==0] .= output_classes # re-arrange indices
+  # Loading Dataset	
+  xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
+  xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
 
+  # Reshape Data in order to flatten each image into a linear array
+  xtrain = Flux.flatten(xtrain)
+  xtest = Flux.flatten(xtest)
+
+  # One-hot-encode the labels
+  ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
+  return xtrain, ytrain, xtest, ytest
+end
+
+xtrn, ytrn, xtst, ytst = getdata(args)
 data_train = (xtrn, ytrn)
 data_test = (xtst, ytst)
 ```
@@ -224,34 +233,19 @@ using JSOSolvers
 
 
 #### Loading Data
-In this section, we will cover the process of loading datasets and defining minibatches for training your model using Flux. Loading and preprocessing data is an essential step in machine learning, as it allows you to train your model on real-world examples.
-
-We will specifically focus on loading the MNIST dataset. We will divide the data into training and testing sets, ensuring that we have separate data for model training and evaluation.
-
-Additionally, we will define minibatches, which are subsets of the dataset that are used during the training process. Minibatches enable efficient training by processing a small batch of examples at a time, instead of the entire dataset. This technique helps in managing memory resources and improving convergence speed.
+In this section, we will cover the process of loading datasets and defining minibatches for training your model using Flux. 
 To donwnload and load MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
 ```julia
 
-function getdata(args; T = Float32) #T for types
-  ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
-
-  # Loading Dataset	
-  xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
-  xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
-
-  # Reshape Data in order to flatten each image into a linear array
-  xtrain = Flux.flatten(xtrain)
-  xtest = Flux.flatten(xtest)
-
-  # One-hot-encode the labels
-  ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
-
+function create_batch(args)
   # Create DataLoaders (mini-batch iterators)
+  xtrain, ytrain, xtest, ytest = getdata(args) #getdata is from KnetNlPModels section
   train_loader = DataLoader((xtrain, ytrain), batchsize = args.batchsize, shuffle = true)
   test_loader = DataLoader((xtest, ytest), batchsize = args.batchsize)
-  @info "The type is " typeof(xtrain)
   return train_loader, test_loader
 end
+
+
 ```
 #### Loss Function 
 We can define any loss function that we need, here we use Flux build-in logitcrossentropy function. 
@@ -305,7 +299,7 @@ model =
     Flux.flatten,
     Dense(256 => 120, relu),
     Dense(120 => 84, relu),
-    Dense(84 => nclasses)
+    Dense(84 => 10)
   ) |> device
 
 ```
@@ -315,7 +309,8 @@ model =
 ```julia
 
   device = cpu
-  train_loader, test_loader = getdata(args)
+  train_loader, test_loader = create_batch(args)
+
 
   # now we set the model to FluxNLPModel
   nlp = FluxNLPModel(model, train_loader, test_loader; loss_f = loss)
@@ -327,42 +322,32 @@ First we need to define a callback function that changes the mini-batch and we n
 
 # used in the callback of R2 for training deep learning model 
 mutable struct StochasticR2Data
-  epoch::Int
   i::Int
-  max_epoch::Int
-  ϵ::Float64 #TODO Fix with type T
+  ϵ::Float64 
   state
 end
 
 function cb(nlp, stats, train_loader, device, data::StochasticR2Data;)
 
-  # Max epoch
-  if data.epoch == data.max_epoch
-    stats.status = :user
-    return
-  end
-  iter = train_loader
+iter = train_loader
   if data.i == 0
     next = iterate(iter)
   else
     next = iterate(iter, data.state)
   end
-  data.i += 1 #flag to see if we are at first
+  data.i += 1 
 
-  if next === nothing #one epoch is finished
-    @info "Epoch", data.epoch
-    data.i = 0
-    data.epoch += 1
+  if next === nothing 
     return
   end
   (item, data.state) = next
-  nlp.current_training_minibatch = device(item) # move to cpu or gpu
+  nlp.current_training_minibatch = device(item) 
 end
 ```
 Now we can train using R2 and change the mini-batch according to our callback
 
 ```julia
-stochastic_data = StochasticR2Data(0, 0, args.epochs, atol, nothing) 
+stochastic_data = StochasticR2Data(0, atol, nothing) 
 
 solver_stats = JSOSolvers.R2(
   nlp;
@@ -370,6 +355,9 @@ solver_stats = JSOSolvers.R2(
   -> cb(nlp, stats, train_loader, device, stochastic_data),
 )
 
+## Report on train and test
+train_loss, train_acc = loss_and_accuracy(train_loader, nlp.chain, device)
+test_loss, test_acc = loss_and_accuracy(test_loader, nlp.chain, device)
 
 ```
 
