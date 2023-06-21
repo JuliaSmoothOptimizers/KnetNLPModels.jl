@@ -259,11 +259,7 @@ We can define any loss function that we need, here we use Flux build-in logitcro
 ```julia
 const loss = logitcrossentropy
 ```
-We also definethe loss function `loss_and_accuracy`. It expects the following arguments:
-* ADataLoader object.
-* The `build_model` function we defined above.
-* A device object (in case we have a GPU available).
-  
+We also definethe loss function `loss_and_accuracy`.  
 ```julia
 function loss_and_accuracy(data_loader, model, device; T=Float32)
   acc = T(0)
