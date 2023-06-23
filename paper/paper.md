@@ -60,6 +60,95 @@ They achieve this through the tools provided by JSO, enabling users to explore a
 
 In the following example, we build a simplified LeNet architecture [@lecun-bouttou-bengio-haffner1998], which is designed to distinguish 10 picture classes.
 
+## FluxNLPModels.jl
+We will define the neural network architecture using Flux.jl, specifically the LeNet architecture [@lecun1998gradient]. First, we define some methods to assist with calculations of accuracy, data loading, and training arguments such as the number of epochs and batch size.
+These methods are inspired by Flux-zoo [@flux_model_zoo].
+```julia
+using FluxNLPModels
+using CUDA, Flux, NLPModels
+using Statistics
+using Flux.Data: DataLoader
+using Flux: onehotbatch, onecold, @epochs
+using Flux.Losses: logitcrossentropy
+using MLDatasets
+using JSOSolvers
+```
+
+
+#### Loading Data
+In this section, we will cover the process of loading datasets and defining minibatches for training your model using Flux.
+To donwnload and load MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
+```julia
+function getdata(; T = Float32) #T for types
+  ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
+  # Loading Dataset	
+  xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
+  xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
+  # Reshape Data in order to flatten each image into a linear array
+  xtrain = Flux.flatten(xtrain)
+  xtest = Flux.flatten(xtest)
+  # One-hot-encode the labels
+  ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
+  return xtrain, ytrain, xtest, ytest
+end
+
+function create_batch(; batchsize = 128)
+  # Create DataLoaders (mini-batch iterators)
+  xtrain, ytrain, xtest, ytest = getdata()
+  xtrain = reshape(xtrain, 28,28,1,:)
+  xtest = reshape(xtest, 28,28,1,:)
+  train_loader = DataLoader((xtrain, ytrain), batchsize = batchsize, shuffle = true)
+  test_loader = DataLoader((xtest, ytest), batchsize = batchsize)
+  return train_loader, test_loader
+end
+
+train_loader, test_loader = create_batch()
+
+```
+#### Loss Function 
+We can define any loss function that we need, here we use Flux build-in logitcrossentropy function.
+
+```julia
+const loss = logitcrossentropy
+```
+### Neural Network - Lenet
+```julia 
+## Construct Nural Network model
+model =
+  Chain(
+    Conv((5, 5), 1 => 6, relu),
+    MaxPool((2, 2)),
+    Conv((5, 5), 6 => 16, relu),
+    MaxPool((2, 2)),
+    Flux.flatten,
+    Dense(256 => 120, relu),
+    Dense(120 => 84, relu),
+    Dense(84 => 10),
+  ) |> cpu
+```
+
+#### Transfering to FluxNLPModels
+
+To transfer the Lenet model, we use FluxNLPModel function, we need to define the model, the train and test data. Loss function can also be customized. 
+```julia
+  nlp = FluxNLPModel(model, train_loader, test_loader; loss_f = loss)
+```
+
+#### Train with R2 
+First we need to define a callback function that changes the mini-batch and we need a data struct to keep track of the epochs and changes:
+```julia
+
+callback = (nlp, solver, stats) -> FluxNLPModels.minibatch_next_train!(nlp)
+solver_stats = JSOSolvers.R2(nlp; callback = callback)
+
+## Report on train and test
+train_acc = FluxNLPModels.accuracy(nlp; data_loader = train_loader)
+test_acc = FluxNLPModels.accuracy(nlp) #on the test data
+```
+
+
+
+
 ## KnetNLPModels.jl
 
 The first step is to define the neural network architecture using Knet.jl.
@@ -188,144 +277,6 @@ callbacklsr1 = (nlp, solver, stats) -> KnetNLPModels.minibatch_next_train!(nlp.m
 solver_stats = trunk(lsr1_LeNet; callback = callbacklsr1, max_time)
 
 final_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
-```
-
-## FluxNLPModels.jl
-We will define the neural network architecture using Flux.jl, specifically the LeNet architecture [@lecun1998gradient]. First, we define some methods to assist with calculations of accuracy, data loading, and training arguments such as the number of epochs and batch size.
-These methods are inspired by Flux-zoo [@flux_model_zoo].
-```julia
-using FluxNLPModels
-using CUDA, Flux, NLPModels
-using Statistics
-using Flux.Data: DataLoader
-using Flux: onehotbatch, onecold, @epochs
-using Flux.Losses: logitcrossentropy
-using Base: @kwdef
-using MLDatasets
-using JSOSolvers
-```
-
-
-#### Loading Data
-In this section, we will cover the process of loading datasets and defining minibatches for training your model using Flux.
-To donwnload and load MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
-```julia
-function getdata(;T = Float32) #T for types
-  ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
-
-  # Loading Dataset	
-  xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
-  xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
-
-  # Reshape Data in order to flatten each image into a linear array
-  xtrain = Flux.flatten(xtrain)
-  xtest = Flux.flatten(xtest)
-
-  # One-hot-encode the labels
-  ytrain, ytest = onehotbatch(ytrain, 0:9), onehotbatch(ytest, 0:9)
-  return xtrain, ytrain, xtest, ytest
-end
-
-function create_batch(;batchsize=128)
-  # Create DataLoaders (mini-batch iterators)
-  xtrain, ytrain, xtest, ytest = getdata() 
-  train_loader = DataLoader((xtrain, ytrain), batchsize = batchsize, shuffle = true)
-  test_loader = DataLoader((xtest, ytest), batchsize = batchsize)
-  return train_loader, test_loader
-end
-train_loader, test_loader = create_batch()
-
-```
-#### Loss Function 
-We can define any loss function that we need, here we use Flux build-in logitcrossentropy function.
-
-```julia
-const loss = logitcrossentropy
-```
-We also definethe loss function `loss_and_accuracy`.  
-```julia
-function loss_and_accuracy(data_loader, model, device; T=Float32)
-  acc = T(0)
-  ls = T(0.0f0)
-  num = T(0)
-  for (x, y) in data_loader
-    x, y = device(x), device(y)
-    ŷ = model(x)
-    ls += loss(ŷ, y, agg = sum)
-    acc += sum(onecold(ŷ) .== onecold(y)) ## Decode the output of the model
-    num += size(x)[end]
-  end
-  return ls / num, acc / num
-end
-```
-#### Neural Network - Lenet
-```julia 
-## Construct Nural Network model
-device = cpu # or GPU
-model =
-  Chain(
-    Conv((5, 5), 1 => 6, relu),
-    MaxPool((2, 2)),
-    Conv((5, 5), 6 => 16, relu),
-    MaxPool((2, 2)),
-    Flux.flatten,
-    Dense(256 => 120, relu),
-    Dense(120 => 84, relu),
-    Dense(84 => 10)
-  ) |> device
-
-```
-
-#### Transfering to FluxNLPModels
-
-```julia
-  # now we set the model to FluxNLPModel
-  nlp = FluxNLPModel(model, train_loader, test_loader; loss_f = loss)
-```
-
-#### Train with R2 
-First we need to define a callback function that changes the mini-batch and we need a data struct to keep track of the epochs and changes:
-```julia
-
-# used in the callback of R2 for training deep learning model 
-mutable struct StochasticR2Data
-  i::Int
-  ϵ::Float64 
-  state
-end
-
-function callback(nlp, stats, train_loader, device, data::StochasticR2Data)
-
-iter = train_loader
-  if data.i == 0
-    next = iterate(iter)
-  else
-    next = iterate(iter, data.state)
-  end
-  data.i += 1 
-
-  if next === nothing 
-    return
-  end
-  (item, data.state) = next
-  nlp.current_training_minibatch = device(item) 
-end
-```
-Now we can train using R2 and change the mini-batch according to our callback
-
-```julia
-stochastic_data = StochasticR2Data(0, atol, nothing) 
-
-solver_stats = JSOSolvers.R2(
-  nlp;
-  callback = (nlp, solver, stats) 
-  -> callback(nlp, stats, train_loader, device, stochastic_data),
-)
-
-## Report on train and test
-train_loss, train_acc = loss_and_accuracy(train_loader, nlp.chain, device)
-test_loss, test_acc = loss_and_accuracy(test_loader, nlp.chain, device)
-
 ```
 
 # Acknowledgements
