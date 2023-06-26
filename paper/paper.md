@@ -141,11 +141,7 @@ const loss = logitcrossentropy
 LeNetNLPModel = FluxNLPModel(LeNet, train_loader, test_loader; loss_f = loss)
 ```
 
-Once these steps are completed, you can use a solver from JSOSolvers to minimize the loss of `LeNetNLPModel`.
-These solvers are originally designed for deterministic optimization.
-While FluxNLPModel.jl (and KnetNLPModels.jl) manages the loss function to apply it to sampled data, the training minibatch needs to be changed between iterations.
-This can be achieved using the callback mechanism integrated in JSOSolvers, which executes a predefined function, `callback`, at the end of each iteration.
-For more details, refer to the JSOSolvers documentation [@jso].
+After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel. These solvers have been primarily designed for deterministic optimization. In the case of FluxNLPModel.jl (and KnetNLPModels.jl), the loss function is managed to ensure its application to sampled data. However, it is essential to modify the training minibatch between iterations. This objective can be accomplished by leveraging the callback mechanism incorporated in JSOSolvers. This mechanism executes a pre-defined function, known as a callback, at the conclusion of each iteration. For more comprehensive information, please consult the documentation provided by JSOSolvers [@jso].
 
 In the following code snippet, we demonstrate the execution of the R2 solver with a `callback` that changes the training minibatch at each iteration:
 ```julia
@@ -165,8 +161,8 @@ solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
 test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
 ```
 
-Finally, the `LeNetNLPModel` can be enhanced by using an LSR1 (or LBFGS) approximation of the Hessian, which can be fed to the `trunk` solver, a quadratic trust-region method with a backtracking line search.
-To incorporate the LSR1 approximation and `trunk` into the training process, you can modify the code as follows:
+To enhance the `LeNetNLPModel`, an `LSR1` (or `LBFGS`) approximation of the Hessian can be employed and fed into the `trunk` solver. The trunk solver utilizes a quadratic trust-region method with a backtracking line search. To integrate the LSR1 approximation and trunk into the training process, the code can be modified as outlined below:
+
 ```julia
 using NLPModelsModifiers # define also LBFGSModel
 
