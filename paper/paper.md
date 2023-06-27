@@ -28,18 +28,20 @@ bibliography: paper.bib
 They are designed to bridge the gap between JSO optimization solvers and deep neural network modules, specifically Flux.jl [@Flux.jl-2018] and Knet.jl [@Knet2020].
 
 Both Flux.jl and Knet.jl allow users to construct the architecture of a deep neural network, which can then be combined with a loss function and a dataset from MLDataset [@MLDataset2016].
-These frameworks support various usual stochastic optimizers, such as stochastic gradient descent [@lecun-bouttou-bengio-haffner1998], Nesterov acceleration [@Nesterov1983], Adagrad [@duchi-hazan-singer2011], and Adam [@kingma-ba2017].
+These frameworks support various usual stochastic optimizers, such as stochastic gradient [@lecun-bouttou-bengio-haffner1998], Nesterov acceleration [@Nesterov1983], Adagrad [@duchi-hazan-singer2011], and Adam [@kingma-ba2017].
 
 `FluxNLPModels.jl` and `KnetNLPModels.jl` adopt the triptych of architecture, dataset, and loss function to model a neural network training problem as an unconstrained smooth optimization problem, conforming to the NLPModels.jl API [@orban-siqueira-nlpmodels-2020].
-Consequently, these modules can be solved using the solvers from JSOSolvers [@orban-siqueira-jsosolvers-2021], which offer various optimization methods, including limited-memory quasi-Newton approximations of the Hessian such as LBFGS or LSR1 [@byrd-nocedal-schnabel-1994; @lu-1996; @liu-nocedal1989], that enforce a decrease of the merit function.
+Consequently, these models can be solved using the solvers from JSOSolvers [@orban-siqueira-jsosolvers-2021], which include gradient-based first and second-order methods.
+Limited-memory quasi-Newton methods [@byrd-nocedal-schnabel-1994; @lu-1996; @liu-nocedal1989] can be used transparently by way of NLPModelModifiers [@orban-siqueira-nlpmodelsmodifiers-2021].
+All methods enforce decrease of a certain merit function.
 
 <!-- By utilizing these solvers, the loss function can be minimized to train the deep neural network using optimization methods different from those embedded in Knet.jl or Flux.jl.
 The optimization frameworks as JSOSolvers.jl include solvers in which descent of a certain objective is enforced. -->
 <!-- This approach allows users to leverage the interfaces provided by the deep learning libraries, including standard training and test datasets, predefined or user-defined loss functions, the ability to partition datasets into user-defined minibatches, GPU/CPU support, use of various floating-point systems, weight initialization routines, and data preprocessing capabilities. 
 PR : already in the Statement of need, this section focus how what FluxNLPModel and KnetNLPModel do -->
 
-While it is possible to integrate solvers directly into deep learning frameworks like Flux or Knet, separating them into standalone packages offers several advantages in terms of modularity, flexibility, ecosystem interoperability, and performance optimization.
-Leveraging existing solver packages within the Julia ecosystem allows developers to tap into a broader range of optimization techniques, while deep learning frameworks can focus on their core purpose of building and training neural networks.
+While it is possible to integrate solvers directly into like Flux.jl or Knet.jl, separating them into standalone packages offers advantages in terms of modularity, flexibility and ecosystem interoperability.
+Leveraging existing solver packages within the Julia ecosystem allows developers to tap into a broader range of optimization techniques.
 
 We hope the decoupling of the modeling tool from the optimization solvers will allow users and researchers to employ a wide variety of optimization solvers, including a range of existing solvers not traditionally applied to deep network training such as R2 [@birgin2017worst ; @birgin-gardenghi-martinez-santos-toint-2017], quasi-Newton trust-region methods [@ranganath-deguchy-singhal-marcia2021], or quasi-Newton line search [@byrd-hansen-nocedal-singer2016], which are not available in Knet.jl or Flux.jl and have shown promising results [@ranganath-deguchy-singhal-marcia2021 ; @byrd-hansen-nocedal-singer2016].
 
@@ -48,21 +50,20 @@ We hope the decoupling of the modeling tool from the optimization solvers will a
 Flux.jl and Knet.jl, as standalone frameworks, do not have built-in interfaces with general optimization frameworks like JSO [@jso].
 However, they offer convenient features for defining neural network architectures.
 These frameworks provide pre-defined neural layers, such as dense layers, convolutional layers, and other complex layers.
-Additionally, they allow users to initialize the weights using various methods, including uniform distribution.
-By providing these pre-defined layers and weight initialization options, Flux.jl and Knet.jl simplify the process of defining neural network architectures.
-This eliminates the need for users to manually implement these layers, which can be error-prone and time-consuming.
+Additionally, they allow users to initialize the weights using various methods, such as uniform distribution.
 
-Both Flux.jl and Knet.jl offer a wide range of loss functions, including the negative log likelihood, and provide the flexibility for users to define their own loss functions according to their specific needs.
+Both offer a wide range of loss functions, e.g., negative log likelihood, and provide the flexibility for users to define their own loss functions according to their specific needs.
 These frameworks support efficient evaluation of neural network architectures on both CPU and GPU, allowing the weights to be represented as either a Vector (for CPU) or a CUVector (for GPU) with support for various floating-point systems.
 In addition, Flux.jl and Knet.jl simplify the handling of training and testing datasets by providing support for MLDatasets.
 They facilitate the definition of minibatches as iterators over the dataset, enabling efficient batch processing during training.
-Moreover, Flux.jl and Knet.jl offer convenient methods for evaluating the accuracy of the trained neural network on the test dataset, allowing users to assess the model's capability.
+The callback mechanism integrated in JSO solvers exploits this feature by changing the training minibatch at each iteration, allowing solvers to pass over the entire training dataset.
+Finally, Flux.jl and Knet.jl offer convenient methods for evaluating the accuracy of the trained neural network on the test dataset, allowing users to assess the model's capability.
 
-While there are some differences between Flux.jl and Knet.jl in terms of how architectures are defined, the supported floating-point systems, and the level of community activity, both frameworks rely on the first derivative of the sampled loss function for their optimization algorithms.
+While there are differences between Flux.jl and Knet.jl in terms of how architectures are defined, the floating-point systems supported, and the level of community activity, both frameworks rely on the first derivative of the sampled loss function for their optimization algorithms.
 
-To expand the range of optimization methods available for training neural networks defined in Flux.jl and Knet.jl, the FluxNLPModels.jl and KnetNLPModels.jl modules have been developed.
+The FluxNLPModels.jl and KnetNLPModels.jl modules have been developed to expand the range of optimization methods available for training neural networks defined in Flux.jl and Knet.jl.
 These modules leverage the tools provided by JSO to enable the use of a broader set of optimization techniques without the need for users to reimplement them specifically for Knet or Flux architectures.
-This integration allows researchers and users to explore and apply advanced optimization methods to train their neural networks effectively.
+This integration allows researchers and users from the deep learning community to benefit from advances in optimization.
 
 # Training a neural network with JuliaSmoothOptimizers solvers
 
