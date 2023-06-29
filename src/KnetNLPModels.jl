@@ -14,7 +14,7 @@ abstract type Chain end
 abstract type AbstractKnetNLPModel{T, S} <: AbstractNLPModel{T, S} end
 
 """
-    KnetNLPModel{T, S, C <: Chain} <: AbstractNLPModel{T, S}
+    KnetNLPModel{T, S, C} <: AbstractNLPModel{T, S}
 
 Data structure that makes the interfaces between neural networks defined with [Knet.jl](https://github.com/denizyuret/Knet.jl) and [NLPModels](https://github.com/JuliaSmoothOptimizers/NLPModels.jl).
 A KnetNLPModel has fields
@@ -32,7 +32,7 @@ A KnetNLPModel has fields
 * `layers_g` is a nested array used for internal purposes;
 * `nested_array` is a vector of `Array{T,N}`; its shape matches that of `chain`.
 """
-mutable struct KnetNLPModel{T, S, C <: Chain, V} <: AbstractKnetNLPModel{T, S}
+mutable struct KnetNLPModel{T, S, C, V} <: AbstractKnetNLPModel{T, S}
   meta::NLPModelMeta{T, S}
   chain::C
   counters::Counters
@@ -72,7 +72,7 @@ function KnetNLPModel(
     ytst[ytst .== 0] .= 10
     (xtst, ytst)
   end,
-) where {T <: Chain}
+) where {T}
   x0 = vector_params(chain_ANN)
   n = length(x0)
   meta = NLPModelMeta(n, x0 = x0)
