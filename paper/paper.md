@@ -164,7 +164,9 @@ solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
 test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
 ```
 
-To `LeNetNLPModel`, an `LSR1` approximation of the Hessian can be employed and fed into the `trunk` solver. The trunk solver utilizes a trust-region method with a backtracking line search. To integrate the LSR1 approximation and trunk into the training process, the code can be modified as:
+To exploit any non-convexity present in `LeNetNLPModel`, an `LSR1` approximation of the Hessian can be employed and fed into the `trunk` solver.
+The trunk solver utilizes a trust-region method with a backtracking line search.
+To integrate the LSR1 approximation and trunk into the training process, the code can be modified as:
 
 ```julia
 using NLPModelsModifiers # define also LSR1Model
