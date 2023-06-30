@@ -72,13 +72,13 @@ In the following section, we illustrate how to train a LeNet architecture [@lecu
 The example is divided in two, depending on whether one chooses to specify the neural network architecture with Flux.jl or Knet.jl.
 
 ## FluxNLPModels.jl
-The model architecture is defined as LeNet [@lecun1998gradient] in Flux.jl using the build-in methods such as Dense, Conv and MaxPool.
+
 ```julia 
 using CUDA
 using Flux
 using Statistics
 
-## Construct Neural Network model
+device = cpu # or gpu
 LeNet =
   Chain(
     Conv((5, 5), 1 => 6, relu),
@@ -89,11 +89,11 @@ LeNet =
     Dense(256 => 120, relu),
     Dense(120 => 84, relu),
     Dense(84 => 10),
-  ) |> cpu
+  ) |> device
 ```
 
-Next, we cover the process of loading datasets and defining minibatches for training your model using Flux.
-To download and load the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset, you can use the following steps:
+We will discuss the process of loading datasets and defining minibatches for model training using the Flux framework. To download and load the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset, follow these steps:
+
 ```julia
 using MLDatasets
 using Flux.Data: DataLoader
@@ -105,10 +105,9 @@ function get_MNIST(;T = Float32)
   return xtrain, ytrain, xtest, ytest
 end
 
-function getdata(; T = Float32) #T for types
+function get_data(; T = Float32)
   ENV["DATADEPS_ALWAYS_ACCEPT"] = "true"
-  # Loading Dataset	
-  xtrain, ytrain, xtest, ytest = get_MNIST(;T)
+  xtrain, ytrain, xtest, ytest = get_MNIST(;T=T)
   # Reshape Data in order to flatten each image into a linear array
   xtrain = Flux.flatten(xtrain)
   xtest = Flux.flatten(xtest)
@@ -119,7 +118,7 @@ end
 
 function create_batch(; batchsize = 128)
   # Create DataLoaders (mini-batch iterators)
-  xtrain, ytrain, xtest, ytest = getdata()
+  xtrain, ytrain, xtest, ytest = get_data()
   xtrain = reshape(xtrain, 28,28,1,:)
   xtest = reshape(xtest, 28,28,1,:)
   train_loader = DataLoader((xtrain, ytrain), batchsize = batchsize, shuffle = true)
@@ -130,9 +129,10 @@ end
 train_loader, test_loader = create_batch()
 ```
 
-To transfer the LeNet model using the FluxNLPModel constructor, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
+To construct the LeNet model as a FluxNLPModel, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
 Flux.jl allows flexibility to define any loss function we need.
-In this example, we will use the built-in `Flux.logitcrossentropy` function as our loss function. 
+We will use the built-in `Flux.logitcrossentropy`.
+
 ```julia
 using FluxNLPModels
 
@@ -140,37 +140,38 @@ using Flux.Losses: logitcrossentropy
 const loss = logitcrossentropy
 
 LeNetNLPModel = FluxNLPModel(LeNet, train_loader, test_loader; loss_f = loss)
+
 ```
 
-After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel. These solvers have been primarily designed for deterministic optimization. In the case of FluxNLPModel.jl (and KnetNLPModels.jl), the loss function is managed to ensure its application to sampled data. However, it is essential to modify the training minibatch between iterations. This objective can be accomplished by leveraging the callback mechanism incorporated in JSOSolvers. This mechanism executes a pre-defined function, known as a callback, at the conclusion of each iteration. For more comprehensive information, please consult the documentation provided by JSOSolvers [@jso].
+After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel. These solvers have been primarily designed for deterministic optimization. In the case of FluxNLPModel.jl (and KnetNLPModels.jl), the loss function is managed to ensure its application to sampled data. However, it is essential to modify the training minibatch between iterations. This can be accomplished by leveraging the callback mechanism incorporated in JSOSolvers. This mechanism executes a pre-defined function, known as a callback, at the conclusion of each iteration. For more comprehensive information, please consult the JSOSolvers [@jso] documentation.
 
 In the following code snippet, we demonstrate the execution of the R2 solver with a `callback` that changes the training minibatch at each iteration:
 ```julia
-max_time = 300. # run at most 5min
-callback = (nlpmodel, solver, stats) -> FluxNLPModels.minibatch_next_train!(nlpmodel)
+using JSOSolvers
 
-solver_stats = JSOSolvers.R2(LeNetNLPModel; callback, max_time)
+max_time = 300. # run at most 5min
+callback = (LeNetNLPModel, solver, stats) -> FluxNLPModels.minibatch_next_train!(LeNetNLPModel)
+
+solver_stats = R2(LeNetNLPModel; callback, max_time)
 
 ## Report on test data
-test_accuracy = FluxNLPModels.accuracy(nlp)
-```
-
-Another choice to train `LeNetNLPModel` is the LBFGS linesearch solver of JSOSolvers.jl:
-```julia
-solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
-
 test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
 ```
 
-To enhance the `LeNetNLPModel`, an `LSR1` (or `LBFGS`) approximation of the Hessian can be employed and fed into the `trunk` solver. The trunk solver utilizes a quadratic trust-region method with a backtracking line search. To integrate the LSR1 approximation and trunk into the training process, the code can be modified as outlined below:
+Another choice to train `LeNetNLPModel` is the LBFGS linesearch solver:
+```julia
+solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
+test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
+```
+
+To `LeNetNLPModel`, an `LSR1` approximation of the Hessian can be employed and fed into the `trunk` solver. The trunk solver utilizes a trust-region method with a backtracking line search. To integrate the LSR1 approximation and trunk into the training process, the code can be modified as:
 
 ```julia
-using NLPModelsModifiers # define also LBFGSModel
+using NLPModelsModifiers # define also LSR1Model
 
 lsr1_LeNet = NLPModelsModifiers.LSR1Model(LeNetNLPModel)
-
 callback_lsr1 = 
-  (sr1_nlpmodel, solver, stats) -> FluxNLPModels.minibatch_next_train!(sr1_nlpmodel.model)
+  (lsr1_LeNet, solver, stats) -> FluxNLPModels.minibatch_next_train!(lsr1_LeNet)
 
 solver_stats = trunk(lsr1_LeNet; callback = callback_lsr1, max_time)
 
