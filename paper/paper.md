@@ -171,7 +171,9 @@ using NLPModelsModifiers # define also LSR1Model
 
 lsr1_LeNet = NLPModelsModifiers.LSR1Model(LeNetNLPModel)
 callback_lsr1 = 
-  (lsr1_LeNet, solver, stats) -> FluxNLPModels.minibatch_next_train!(lsr1_LeNet)
+  (lsr1_LeNet, solver, stats) -> FluxNLPModels.minibatch_next_train!(
+                                                 lsr1_LeNet.model
+                                               )
 
 solver_stats = trunk(lsr1_LeNet; callback = callback_lsr1, max_time)
 
