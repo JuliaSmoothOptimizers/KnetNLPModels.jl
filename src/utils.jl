@@ -25,12 +25,12 @@ function create_minibatch(x_data, y_data, minibatch_size; _reshape::Bool = flag_
 end
 
 """
-    vector_params(chain :: C) where C <: Chain
+    vector_params(chain :: Chain) where Chain
     vector_params(nlp :: AbstractKnetNLPModel)
 
 Retrieve the variables within `chain` or `nlp.chain` as a vector.
 """
-vector_params(chain::C) where {C <: Chain} = Array(vcat_arrays_vector(params(chain)))
+vector_params(chain::Chain) where {Chain} = Array(vcat_arrays_vector(params(chain)))
 vector_params(nlp::AbstractKnetNLPModel) = nlp.w
 
 """
@@ -154,7 +154,7 @@ end
 
 """
     nested_array = build_nested_array_from_vec(model::AbstractKnetNLPModel{T, S}, v::AbstractVector{T}) where {T <: Number, S}
-    nested_array = build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {C <: Chain, T <: Number}
+    nested_array = build_nested_array_from_vec(chain_ANN::C, v::AbstractVector{T}) where {C, T <: Number}
     nested_array = build_nested_array_from_vec(nested_array::AbstractVector{<:AbstractArray{T,N} where {N}}, v::AbstractVector{T}) where {T <: Number}
 
 Build a vector of `AbstractArray` from `v` similar to `Knet.params(model.chain)`, `Knet.params(chain_ANN)` or `nested_array`.
@@ -167,9 +167,9 @@ build_nested_array_from_vec(
 ) where {T <: Number, S} = build_nested_array_from_vec(model.chain, v)
 
 function build_nested_array_from_vec(
-  chain_ANN::C,
+  chain_ANN::Chain,
   v::AbstractVector{T},
-) where {C <: Chain, T <: Number}
+) where {Chain, T <: Number}
   param_chain = params(chain_ANN) # :: Param
   size_param = mapreduce((var_layer -> reduce(*, size(var_layer))), +, param_chain)
   size_param == length(v) || error(
@@ -217,7 +217,7 @@ end
 
 """
     set_vars!(model::AbstractKnetNLPModel{T,S}, new_w::AbstractVector{T}) where {T<:Number, S}
-    set_vars!(chain_ANN :: C, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {C <: Chain, T <: Number}
+    set_vars!(chain_ANN :: Chain, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}}) where {Chain, T <: Number}
     set_vars!(vars :: Vector{Param}, nested_w :: AbstractVector{<:AbstractArray{T,N} where {N}})
 )
 
@@ -232,9 +232,9 @@ set_vars!(
 ) where {T <: Number} = map(i -> vars[i].value .= nested_w[i], 1:length(vars))
 
 set_vars!(
-  chain_ANN::C,
+  chain_ANN::Chain,
   nested_w::AbstractVector{<:AbstractArray{T, N} where {N}},
-) where {C <: Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
+) where {Chain, T <: Number} = set_vars!(params(chain_ANN), nested_w)
 
 function set_vars!(
   model::AbstractKnetNLPModel{T, S},

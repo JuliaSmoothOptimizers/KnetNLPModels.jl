@@ -20,7 +20,7 @@ using KnetNLPModels
   (d::Dense)(x) = d.f.(d.w * mat(dropout(x, d.p)) .+ d.b)
   Dense(i::Int, o::Int, f = sigm; pdrop = 0.0) = Dense(param(o, i), param0(o), f, pdrop)
 
-  struct Chainnll <: KnetNLPModels.Chain
+  struct Chainnll
     layers
     Chainnll(layers...) = new(layers)
   end

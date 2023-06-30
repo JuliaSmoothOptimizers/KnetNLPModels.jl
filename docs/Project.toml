@@ -1,10 +1,18 @@
 [deps]
 CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
 Documenter = "e30172f5-a6a5-5a46-863b-614d45cd2de4"
+JSOSolvers = "10dff2fc-5484-5881-a0e0-c90441020f8a"
 Knet = "1902f260-5fb4-5aff-8c31-6271790ab950"
 KnetNLPModels = "9601d21a-7b1e-4fc7-9dab-5c3f545997d5"
 MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
 NLPModels = "a4795742-8479-5a88-8948-cc11e1c8c1a6"
+NLPModelsModifiers = "e01155f1-5c6f-4375-a9d8-616dd036575f"
 
 [compat]
 Documenter = "~0.25"
+JSOSolvers = "0.10.0"
+Knet = "1.4.9"
+MLDatasets = "0.7.11"
+NLPModels = "0.20"
+NLPModelsModifiers = "0.6.5"
+julia = "^1.6.0"
