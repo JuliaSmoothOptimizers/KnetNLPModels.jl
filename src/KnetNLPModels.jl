@@ -9,7 +9,7 @@ export reset_minibatch_test!, rand_minibatch_test!, minibatch_next_test!
 export build_nested_array_from_vec, build_nested_array_from_vec!
 export create_minibatch, set_vars!, vcat_arrays_vector
 
-abstract type Chain end
+# abstract type Chain end
 
 abstract type AbstractKnetNLPModel{T, S} <: AbstractNLPModel{T, S} end
 

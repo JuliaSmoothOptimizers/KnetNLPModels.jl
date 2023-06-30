@@ -19,14 +19,15 @@ end
 # define a dense layer with input size i and output size o
 Dense(i :: Int, o :: Int, f=sigm) = Dense(param(o, i), param0(o), f)
 ```
-More layer types can be defined.
+More sophisticated layers may be defined.
 Once again, see the [Knet.jl tutorial](https://github.com/denizyuret/Knet.jl/tree/master/tutorial) for more details.
 
-### Definition of the chained structure that evaluates the network and the loss function (negative log likelihood)
+### Definition of the loss function (negative log likelihood)
+Next, we define a chain that stacks layer, to evaluate them successively.
 ```@example KnetNLPModel
 using KnetNLPModels
 
-struct ChainNLL <: Chain # must derive from KnetNLPModels.Chain
+struct ChainNLL
   layers
   ChainNLL(layers...) = new(layers)
 end
@@ -34,39 +35,36 @@ end
 (c :: ChainNLL)(x, y) = Knet.nll(c(x), y) # compute the loss function given input x and expected output y
 (c :: ChainNLL)(data :: Tuple{T1,T2}) where {T1,T2} = c(first(data,2)...) # evaluate loss given data inputs (x,y)
 (c :: ChainNLL)(d :: Knet.Data) = Knet.nll(c; data=d, average=true) # evaluate loss using a minibatch iterator d
+
+DenseNet = ChainNLL(Dense(784, 200), Dense(200, 50), Dense(50, 10))
 ```
-The chained structure that defines the neural network must be a subtype of `KnetNLPModels.Chain`.
 
 ### Load datasets and define minibatch
-In this example, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stable/datasets/MNIST/) dataset from [MLDatasets.jl](https://github.com/JuliaML/MLDatasets.jl.git).
+In this example, and to fit the architecture proposed, we use the [MNIST](https://juliaml.github.io/MLDatasets.jl/stable/datasets/MNIST/) dataset from [MLDatasets.jl](https://github.com/JuliaML/MLDatasets.jl.git).
 ```@example KnetNLPModel
 using MLDatasets
 
 # download datasets without user intervention
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true 
 
-xtrn, ytrn = MNIST.traindata(Float32) # MNIST training dataset
-ytrn[ytrn.==0] .= 10 # re-arrange indices
-xtst, ytst = MNIST.testdata(Float32) # MNIST test dataset
-ytst[ytst.==0] .= 10 # re-arrange indices
+T = Float32
+xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:] 
+xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:] 
+ytrain[ytrain.==0] .= 10 # re-arrange indices
+xtest, ytest = MNIST.testdata(Float32) # MNIST test dataset
+ytest[ytest.==0] .= 10 # re-arrange indices
 
-dtrn = minibatch(xtrn, ytrn, 100; xsize=(size(xtrn, 1), size(xtrn, 2), 1, :)) # training minibatch
-dtst = minibatch(xtst, ytst, 100; xsize=(size(xtst, 1), size(xtst, 2), 1, :)) # test minibatch
+dtrn = minibatch(xtrain, ytrain, 100; xsize=(size(xtrain, 1), size(xtrain, 2), 1, :)) # training minibatch
+dtst = minibatch(xtest, ytest, 100; xsize=(size(xtest, 1), size(xtest, 2), 1, :)) # test minibatch
 ```
 
 ## Definition of the neural network and KnetNLPModel
-The following code defines `DenseNet`, a neural network composed of 3 dense layers, embedded in a `ChainNLL`.
-```@example KnetNLPModel
-DenseNet = ChainNLL(Dense(784, 200), Dense(200, 50), Dense(50, 10))
-```
-Next, we define the `KnetNLPModel` from the neural network.
+Finally, we define the `KnetNLPModel` from the neural network.
 By default, the size of each minibatch is 1% of the corresponding dataset offered by MNIST.
 ```@example KnetNLPModel
-DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrn, ytrn), data_test=(xtst, ytst))
+DenseNetNLPModel = KnetNLPModel(DenseNet; size_minibatch=100, data_train=(xtrain, ytrain), data_test=(xtest, ytest))
 ```
-
-`DenseNetNLPModel` will be either a `KnetNLPModelCPU` if the code runs on a CPU or a `KnetNLPModelGPU` if it runs on a GPU.
-All the methods are defined for both `KnetNLPModelCPU` and `KnetNLPModelGPU`.
+All the methods provided by KnetNLPModels.jl support both `CPU` and `GPU`.
 
 ## Tools associated with a KnetNLPModel
 The problem dimension `n`, where `w` ∈ ℝⁿ:
