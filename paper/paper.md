@@ -129,7 +129,7 @@ end
 train_loader, test_loader = create_batch()
 ```
 
-To construct the LeNet model as a FluxNLPModel, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
+To cast the LeNet model as an FluxNLPModel, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
 Flux.jl allows flexibility to define any loss function we need.
 We will use the built-in `Flux.logitcrossentropy`.
 
