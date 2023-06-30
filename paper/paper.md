@@ -135,7 +135,6 @@ We will use the built-in `Flux.logitcrossentropy`.
 
 ```julia
 using FluxNLPModels
-
 using Flux.Losses: logitcrossentropy
 const loss = logitcrossentropy
 
