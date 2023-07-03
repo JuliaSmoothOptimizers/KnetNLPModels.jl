@@ -30,7 +30,7 @@ They are designed to bridge the gap between JSO optimization solvers and deep ne
 Both Flux.jl and Knet.jl allow users to model deep neural network architectures and combine them with a loss function and a dataset from MLDataset [@MLDataset2016].
 These frameworks support various usual stochastic optimizers, such as stochastic gradient [@lecun-bouttou-bengio-haffner1998], Nesterov acceleration [@Nesterov1983], Adagrad [@duchi-hazan-singer2011], and Adam [@kingma-ba2017].
 
-`FluxNLPModels.jl` and `KnetNLPModels.jl` adopt the triptych of architecture, dataset, and loss function to model a neural network training problem as an unconstrained smooth optimization problem conforming to the NLPModels.jl API [@orban-siqueira-nlpmodels-2020].
+FluxNLPModels.jl and KnetNLPModels.jl adopt the triptych of architecture, dataset, and loss function to model a neural network training problem as an unconstrained smooth optimization problem conforming to the NLPModels.jl API [@orban-siqueira-nlpmodels-2020].
 Consequently, these models can be solved using solvers from, e.g., JSOSolvers [@orban-siqueira-jsosolvers-2021], which include gradient-based first and second-order methods.
 Limited-memory quasi-Newton methods [@byrd-nocedal-schnabel-1994; @lu-1996; @liu-nocedal1989] can be used transparently by way of NLPModelModifiers [@orban-siqueira-nlpmodelsmodifiers-2021].
 Contrary to usual stochastic optimizers, all methods in JSOSolvers enforce decrease of a certain merit function.
@@ -62,9 +62,10 @@ Finally, Flux.jl and Knet.jl offer convenient methods for evaluating the accurac
 
 <!-- While there are differences between Flux.jl and Knet.jl in terms of how architectures are defined, the floating-point systems supported, and the level of community activity, both frameworks rely on the first derivative of the sampled loss function for their optimization algorithms. -->
 
-The FluxNLPModels.jl and KnetNLPModels.jl modules have been developed to expand the range of optimization methods available for training neural networks defined with Flux.jl and Knet.jl.
+The FluxNLPModels.jl and KnetNLPModels.jl modules have been developed to expand the range of optimization methods available for training neural networks defined with Flux.jl and Knet.jl, which are the two most downloaded neural network frameworks in Julia.
 These modules leverage the tools provided by JSO to enable the use of a broader set of optimization techniques without the need for users to reimplement them specifically for Flux.jl or Knet.jl.
-This integration allows researchers and users from the deep learning community to benefit from advances in optimization, and researchers in optimization to benefit from advances in modeling network structures.
+This integration allows researchers and users from the deep learning community of Julia to benefit from advances in optimization.
+On the other side, researchers in optimization will benefit from advances in modeling network developed simultaneously by Flux.jl and Knet.jl communities.
 
 # Training a neural network with JuliaSmoothOptimizers solvers
 
@@ -184,74 +185,9 @@ test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
 ## KnetNLPModels.jl
 
 The following code differs from the FluxNLPModel.jl example in the way it defines the neural network architecture.
-To define the same neural network architecture, you must define the layers you need: convolutionnal and dense layers (facilitated by Knet.jl):
-```julia
-using Knet
-
-struct ConvolutionnalLayer
-  weight
-  bias
-  activation_function
-end
-# evaluation of a ConvolutionnalLayer layer given an input x
-(c::ConvolutionnalLayer)(x) = c.activation_function.(pool(conv4(c.weight, x) .+ c.bias))
-# Constructor of a ConvolutionnalLayer structure
-ConvolutionnalLayer(kernel_width, kernel_height, channel_input, 
-  channel_output, activation_function = relu) = 
-  ConvolutionnalLayer(
-    param(kernel_width, kernel_height, channel_input, channel_output), 
-    param0(1, 1, channel_output, 1), 
-    activation_function
-  )
-
-struct DenseLayer
-  weight
-  bias
-  activation_function
-end
-# evaluation of a DenseLayer given an input x
-(d::DenseLayer)(x) = d.activation_function.(d.weight * mat(x) .+ d.bias)
-# Constructor of a DenseLayer structure
-DenseLayer(input::Int, output::Int, activation_function = sigm) =
-  DenseLayer(param(output, input), param0(output), activation_function)
-
-# A chain of layers ended by a negative log likelihood loss function
-struct Chainnll
-  layers
-  Chainnll(layers...) = new(layers) # Chainnll constructor
-end
-# Evaluate successively each layer
-# A layer's input is the precedent layer's output
-(c::Chainnll)(x) = (for l in c.layers
-  x = l(x)
-end;
-x)
-# Apply the negative log likelihood function 
-# on the result of the neural network forward pass
-(c::Chainnll)(x, y) = Knet.nll(c(x), y)
-(c::Chainnll)(data::Tuple{T1, T2}) where {T1, T2} = c(first(data, 2)...)
-(c::Chainnll)(d::Knet.Data) = Knet.nll(c; data = d, average = true)
-
-output_classes = 10
-
-LeNet = Chainnll(ConvolutionnalLayer(5,5,1,6), 
-                 ConvolutionnalLayer(5,5,6,16),
-                 DenseLayer(256, 120),
-                 DenseLayer(120, 84),
-                 DenseLayer(84,output_classes)
-                )
-```
-
-Accordingly to LeNet architecture, we chose the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
-```julia
-xtrain, ytrain, xtest, ytest = get_MNIST(; T=Float32)
-ytrain[ytrain.==0] .= output_classes # re-arrange indices
-ytest[ytest.==0] .= output_classes # re-arrange indices
-data_train = (xtrain, ytrain)
-data_test = (xtest, ytest)
-```
-
-From these elements, we transfer the Knet.jl architecture to a `KnetNLPModel`:
+To build a Knet.jl architecture, you must define the layers you need: convolutional and dense layers and link them properly.
+Both topics, LeNet architecture and the MNIST dataset loading, were covered similarly during the Flux.jl example, thus, we gathered everything in the `LeNet` [training documentation](https://jso.dev/KnetNLPModels.jl/stable/LeNet_Training/) from KnetNLPModels.jl.
+After defining `LeNet` and the datasets, we instantiate `KnetNLPModel`:
 ```julia 
 using KnetNLPModels
 
@@ -277,16 +213,17 @@ test_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
 ```
 The other solvers defined for FluxNLPModel may also be applied for any KnetNLPModel:
 ```julia
-# lbfgs
 solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
 
-test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
-
-# trunk(LSR1Model(LetNLPModel))
+test_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
+callback_lsr1 = 
+  (lsr1_LeNet, solver, stats) -> KnetNLPModels.minibatch_next_train!(
+                                                 lsr1_LeNet.model
+                                               )
 lsr1_LeNet = NLPModelsModifiers.LSR1Model(LeNetNLPModel)
 solver_stats = trunk(lsr1_LeNet; callback = callback_lsr1, max_time)
 
-test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
+test_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)
 ```
 
 # Acknowledgements
