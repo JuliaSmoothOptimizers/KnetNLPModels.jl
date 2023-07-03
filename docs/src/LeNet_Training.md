@@ -62,7 +62,7 @@ LeNet = Chainnll(ConvolutionnalLayer(5,5,1,6),
 ```
 
 ## MNIST dataset loading
-Accordingly to LeNet architecture, we chose the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset:
+Accordingly to LeNet architecture, we chose the MNIST dataset from MLDataset:
 ```@example LeNetTraining
 using MLDatasets
 ENV["DATADEPS_ALWAYS_ACCEPT"] = true 
