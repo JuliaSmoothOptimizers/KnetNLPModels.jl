@@ -72,7 +72,7 @@ On the other side, researchers in optimization will benefit from advances in mod
 In the following section, we illustrate how to train a LeNet architecture [@lecun-bouttou-bengio-haffner1998] using JSO solvers.
 
 We assume that a `LeNet` model is defined in Flux.jl and the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset has been downloaded, loaded, and minibatch loaders have been created as `train_loader, test_loader`.
-To view an example, please refer to [LeNet-MNIST example](https://github.com/Farhad-phd/FluxNLPModels.jl/blob/main/example/MNIST_cnn.jl) from the 'example' folder of FluxNLPModels.jl.
+To view an example, please refer to [LeNet-MNIST example](https://github.com/JuliaSmoothOptimizers/FluxNLPModels.jl/blob/main/example/MNIST_cnn.jl) from the 'example' folder of FluxNLPModels.jl.
 ```
 
 To cast the LeNet model as an FluxNLPModel, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
@@ -137,7 +137,7 @@ callback_lsr1 =
                                                )
 solver_stats = trunk(lsr1_LeNet; callback = callback_lsr1, max_time)
 ```
-W
+For more details on KnetNLPModels, we refer the reader to the KnetNLPModels [documentation](https://jso.dev/KnetNLPModels.jl/stable/)
 
 # Acknowledgements
 
