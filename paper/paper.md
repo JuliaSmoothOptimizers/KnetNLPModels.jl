@@ -113,7 +113,7 @@ Another choice to train `LeNetNLPModel` is the LBFGS solver with linesearch:
 solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
 ```
 
-To exploit any non-convexity present in `LeNetNLPModel`, an `LSR1` approximation of the Hessian which can be employed and fed into the `trunk` solver, utilizes a trust-region method with a backtracking linesearch.
+To exploit any non-convexity present in `LeNetNLPModel`, an `LSR1` approximation of the Hessian which can be employed and fed into the `trunk` solver, which utilizes a trust-region method with a backtracking linesearch.
 To integrate the LSR1 approximation and trunk into the training process, the code can be modified as:
 
 ```julia
