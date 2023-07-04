@@ -74,7 +74,9 @@ The example is divided in two, depending on whether one chooses to specify the n
 
 ## FluxNLPModels.jl
 
-We assume that the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset has been downloaded, loaded, and a minibatch loader has been created. Additionally, we presume that a LeNet model is defined in Flux.jl. To view an example, please refer to the 'example' folder of FluxNLPModels.jl or check out this [link](https://github.com/Farhad-phd/FluxNLPModels.jl/blob/main/example/MNIST_cnn.jl). <!-- TODO change the link to JSO ? -->
+We assume that a `LeNet` model is defined in Flux.jl and the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset has been downloaded, loaded, and minibatch loaders have been created as `train_loader, test_loader`.
+To view an example, please refer to [LeNet-MNIST example](https://github.com/Farhad-phd/FluxNLPModels.jl/blob/main/example/MNIST_cnn.jl) from the 'example' folder of FluxNLPModels.jl.
+```
 
 To cast the LeNet model as an FluxNLPModel, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
 Flux.jl allows flexibility to define any loss function we need.
