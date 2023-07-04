@@ -137,7 +137,8 @@ callback_lsr1 =
                                                )
 solver_stats = trunk(lsr1_LeNet; callback = callback_lsr1, max_time)
 ```
-For more details on KnetNLPModels, we refer the reader to the KnetNLPModels [documentation](https://jso.dev/KnetNLPModels.jl/stable/)
+The same example exists also for KnetNLPModels.jl, and we refer the reader to the [LeNet training](https://jso.dev/KnetNLPModels.jl/stable/LeNet_Training/) documentation for more details.
+
 
 # Acknowledgements
 
