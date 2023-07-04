@@ -63,7 +63,6 @@ However, the integrated callback mechanism allows the user to change the trainin
 Finally, Flux.jl and Knet.jl offer convenient methods for evaluating the accuracy of the trained neural network on the test dataset.
 
 The FluxNLPModels.jl and KnetNLPModels.jl modules have been developed to expand the range of optimization methods available for training neural networks defined with Flux.jl and Knet.jl.
-
 They leverage the tools provided by JSO to enable the use of a broader set of optimization techniques without the need for users to reimplement them specifically for Flux.jl or Knet.jl.
 This integration allows researchers and users from the deep learning community of Julia to benefit from advances in optimization.
 On the other side, researchers in optimization will benefit from advances in modeling network developed by either of the Flux.jl and Knet.jl communities.
