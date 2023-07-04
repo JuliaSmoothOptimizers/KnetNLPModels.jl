@@ -54,7 +54,9 @@ These frameworks provide pre-defined neural layers, such as dense layers, convol
 Additionally, they allow users to initialize the weights using various methods, such as uniform distribution.
 
 Both offer a wide range of loss functions, e.g., negative log likelihood, and provide the flexibility for users to define their own loss functions according to their specific needs.
-These frameworks enable efficient evaluation of the sampled loss and its derivatives, as well as the neural network output, on both CPU and GPU. This flexibility allows the weights to be represented as either a Vector (for CPU) or a CUVector (for GPU), with support for multiple floating-point systems. They facilitate the definition of minibatches as iterators over the dataset, enabling efficient batch processing during training.
+These frameworks enable efficient evaluation of the sampled loss and its derivatives, as well as the neural network output, on both CPU and GPU. 
+This flexibility allows the weights to be represented as either a Vector (for CPU) or a CUVector (for GPU), with support for multiple floating-point systems.
+They facilitate the definition of minibatches as iterators over the dataset, enabling efficient batch processing during training.
 
 The solvers in JSOSolvers are deterministic.
 However, the integrated callback mechanism allows the user to change the training minibatch and its size at each iteration, which effectively produces stochastic solvers.
