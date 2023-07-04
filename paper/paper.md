@@ -100,7 +100,9 @@ In the following code snippet, we demonstrate the execution of the R2 solver wit
 using JSOSolvers
 
 max_time = 300. # run at most 5min
-callback = (LeNetNLPModel, solver, stats) -> FluxNLPModels.minibatch_next_train!(LeNetNLPModel)
+callback = (LeNetNLPModel, 
+                   solver, 
+                   stats) -> FluxNLPModels.minibatch_next_train!(LeNetNLPModel)
 
 solver_stats = R2(LeNetNLPModel; callback, max_time) # We collect the status of Solver run
 test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
