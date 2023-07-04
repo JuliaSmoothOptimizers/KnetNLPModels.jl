@@ -5,14 +5,14 @@ tags:
   - Machine learning
   - Smooth optimization
 authors:
-  - name: Paul Raynaud^[corresponding author]
-    orcid: 0000-0000-0000-0001
-    equal-contrib: true
-    affiliation: "1, 2"
   - name: Farhad Rahbarnia
-    orcid: 0000-0000-0000-0002
+    orcid: 0009-0009-8843-7963
     equal-contrib: true
     affiliation: 1
+  - name: Paul Raynaud^[corresponding author]
+    orcid: 0009-0006-5857-7605
+    equal-contrib: true
+    affiliation: "1, 2"
 affiliations:
  - name: GERAD and Department of Mathematics and Industrial Engineering, Polytechnique Montréal, QC, Canada.
    index: 1
