@@ -70,10 +70,8 @@ On the other side, researchers in optimization will benefit from advances in mod
 # Training a neural network with JuliaSmoothOptimizers solvers
 
 In the following section, we illustrate how to train a LeNet architecture [@lecun-bouttou-bengio-haffner1998] using JSO solvers.
-
 We assume that a `LeNet` model is defined in Flux.jl and the MNIST dataset [@lecun-bouttou-bengio-haffner1998] from MLDataset has been downloaded, loaded, and minibatch loaders have been created as `train_loader, test_loader`.
 To view an example, please refer to [LeNet-MNIST example](https://github.com/JuliaSmoothOptimizers/FluxNLPModels.jl/blob/main/example/MNIST_cnn.jl) from the 'example' folder of FluxNLPModels.jl.
-```
 
 To cast the LeNet model as an FluxNLPModel, one needs to pass the model that was defined in Flux, the loss function, as well as the train and test data loaders.
 Flux.jl allows flexibility to define any loss function we need.
@@ -84,20 +82,6 @@ using FluxNLPModels
 
 LeNetNLPModel = FluxNLPModel(LeNet, train_loader, test_loader; loss_f = Flux.logitcrossentropy)
 ```
-
-Or to build a Knet.jl architecture, you must define the layers you need: convolutional and dense layers and link them properly.
-Both topics, LeNet architecture and the MNIST dataset loading, we gathered everything in the `LeNet` [training documentation](https://jso.dev/KnetNLPModels.jl/stable/LeNet_Training/) from KnetNLPModels.jl.
-After defining `LeNet` and the datasets, we instantiate `KnetNLPModel`:
-```julia 
-using KnetNLPModels
-
-LeNetNLPModel = KnetNLPModel(
-        LeNet;
-        data_train,
-        data_test,
-    )
-```
-
 
 After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel.
 These solvers have been primarily designed for deterministic optimization. In the case of FluxNLPModel.jl (and KnetNLPModels.jl), the loss function is managed to ensure its application to sampled data.
