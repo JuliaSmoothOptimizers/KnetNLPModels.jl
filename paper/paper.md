@@ -80,7 +80,10 @@ We will use the built-in `Flux.logitcrossentropy`.
 ```julia
 using FluxNLPModels
 
-LeNetNLPModel = FluxNLPModel(LeNet, train_loader, test_loader; loss_f = Flux.logitcrossentropy)
+LeNetNLPModel = FluxNLPModel(LeNet,
+                             train_loader,
+                             test_loader;
+                             loss_f = Flux.logitcrossentropy)
 ```
 
 After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel.
@@ -99,7 +102,7 @@ callback = (LeNetNLPModel,
                    solver, 
                    stats) -> FluxNLPModels.minibatch_next_train!(LeNetNLPModel)
 
-solver_stats = R2(LeNetNLPModel; callback, max_time) # We collect the status of Solver run
+solver_stats = R2(LeNetNLPModel; callback, max_time)
 test_accuracy = FluxNLPModels.accuracy(LeNetNLPModel)
 ```
 
