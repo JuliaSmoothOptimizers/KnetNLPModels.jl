@@ -88,7 +88,12 @@ using FluxNLPModels
 LeNetNLPModel = FluxNLPModel(LeNet, train_loader, test_loader; loss_f = Flux.logitcrossentropy)
 ```
 
-After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel. These solvers have been primarily designed for deterministic optimization. In the case of FluxNLPModel.jl (and KnetNLPModels.jl), the loss function is managed to ensure its application to sampled data. However, it is essential to modify the training minibatch between iterations. This can be accomplished by leveraging the callback mechanism incorporated in JSOSolvers. This mechanism executes a pre-defined callback at the conclusion of each iteration. For more comprehensive information, we refere the readers to the JSOSolvers documentation.
+After completing the necessary steps, one can utilize a solver from JSOSolvers to minimize the loss of LeNetNLPModel.
+These solvers have been primarily designed for deterministic optimization. In the case of FluxNLPModel.jl (and KnetNLPModels.jl), the loss function is managed to ensure its application to sampled data.
+However, it is essential to modify the training minibatch between iterations.
+This can be accomplished by leveraging the callback mechanism incorporated in JSOSolvers.
+This mechanism executes a pre-defined callback at the conclusion of each iteration.
+For more comprehensive information, we refer the reader to the JSOSolvers documentation.
 
 In the following code snippet, we demonstrate the execution of the R2 solver with a `callback` that changes the training minibatch at each iteration:
 ```julia
