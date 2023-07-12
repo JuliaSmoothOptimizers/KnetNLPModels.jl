@@ -125,7 +125,6 @@ function minibatch_next_test!(nlp::AbstractKnetNLPModel)
   end
 
   return nlp.i_test
-
 end
 
 """
