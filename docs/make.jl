@@ -10,7 +10,12 @@ makedocs(
     prettyurls = get(ENV, "CI", nothing) == "true",
   ),
   sitename = "KnetNLPModels.jl",
-  pages = Any["Home" => "index.md", "Tutorial" => "tutorial.md", "Reference" => "reference.md", "LeNet training" => "LeNet_Training.md"],
+  pages = Any[
+    "Home" => "index.md",
+    "Tutorial" => "tutorial.md",
+    "Reference" => "reference.md",
+    "LeNet training" => "LeNet_Training.md",
+  ],
 )
 
 deploydocs(
