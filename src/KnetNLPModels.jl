@@ -63,12 +63,12 @@ function KnetNLPModel(
   chain_ANN::T;
   size_minibatch::Int = 100,
   data_train = begin
-    (xtrn, ytrn) = MNIST.traindata(Float32)
+    (xtrn, ytrn) = MNIST(split=:train)[:]
     ytrn[ytrn .== 0] .= 10
     (xtrn, ytrn)
   end,
   data_test = begin
-    (xtst, ytst) = MNIST.testdata(Float32)
+    (xtst, ytst) = MNIST(split=:test)[:]
     ytst[ytst .== 0] .= 10
     (xtst, ytst)
   end,
