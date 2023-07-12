@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>LeNet training · KnetNLPModels.jl</title><link href="https://fonts.googleapis.com/css?family=Lato|Roboto+Mono" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.0/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.11.1/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL=".."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../assets/documenter.js"></script><script src="../siteinfo.js"></script><script src="../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-dark.css" data-theme-name="documenter-dark"/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../assets/themeswap.js"></script><link href="../assets/style.css" rel="stylesheet" type="text/css"/></head><body><div id="documenter"><nav class="docs-sidebar"><a class="docs-logo" href="../"><img src="../assets/logo.png" alt="KnetNLPModels.jl logo"/></a><div class="docs-package-name"><span class="docs-autofit">KnetNLPModels.jl</span></div><form class="docs-search" action="../search/"><input class="docs-search-query" id="documenter-search-query" name="q" type="text" placeholder="Search docs"/></form><ul class="docs-menu"><li><a class="tocitem" href="../">Home</a></li><li><a class="tocitem" href="../tutorial/">Tutorial</a></li><li><a class="tocitem" href="../reference/">Reference</a></li><li class="is-active"><a class="tocitem" href>LeNet training</a><ul class="internal"><li><a class="tocitem" href="#Neural-network-architecture"><span>Neural network architecture</span></a></li><li><a class="tocitem" href="#MNIST-dataset-loading"><span>MNIST dataset loading</span></a></li><li><a class="tocitem" href="#KnetNLPModel-instantiation"><span>KnetNLPModel instantiation</span></a></li></ul></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><nav class="breadcrumb"><ul class="is-hidden-mobile"><li class="is-active"><a href>LeNet training</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>LeNet training</a></li></ul></nav><div class="docs-right"><a class="docs-edit-link" href="https://github.com/JuliaSmoothOptimizers/KnetNLPModels.jl/blob/master/docs/src/LeNet_Training.md" title="Edit on GitHub"><span class="docs-icon fab"></span><span class="docs-label is-hidden-touch">Edit on GitHub</span></a><a class="docs-settings-button fas fa-cog" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-sidebar-button fa fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a></div></header><article class="content" id="documenter-page"><h1 id="Training-a-LeNet-architecture-with-JSO-optimizers"><a class="docs-heading-anchor" href="#Training-a-LeNet-architecture-with-JSO-optimizers">Training a LeNet architecture with JSO optimizers</a><a id="Training-a-LeNet-architecture-with-JSO-optimizers-1"></a><a class="docs-heading-anchor-permalink" href="#Training-a-LeNet-architecture-with-JSO-optimizers" title="Permalink"></a></h1><h2 id="Neural-network-architecture"><a class="docs-heading-anchor" href="#Neural-network-architecture">Neural network architecture</a><a id="Neural-network-architecture-1"></a><a class="docs-heading-anchor-permalink" href="#Neural-network-architecture" title="Permalink"></a></h2><p>Define the layer Julia structures, how these structures are linked and evaluated. We choose the negative log likelihood loss function.</p><pre><code class="language-julia">using Knet
+
+struct ConvolutionnalLayer
+  weight
+  bias
+  activation_function
+end
+# evaluation of a ConvolutionnalLayer layer given an input x
+(c::ConvolutionnalLayer)(x) = c.activation_function.(pool(conv4(c.weight, x) .+ c.bias))
+# Constructor of a ConvolutionnalLayer structure
+ConvolutionnalLayer(kernel_width, kernel_height, channel_input,
+  channel_output, activation_function = relu) =
+  ConvolutionnalLayer(
+    param(kernel_width, kernel_height, channel_input, channel_output),
+    param0(1, 1, channel_output, 1),
+    activation_function
+  )
+
+struct DenseLayer
+  weight
+  bias
+  activation_function
+end
+# evaluation of a DenseLayer given an input x
+(d::DenseLayer)(x) = d.activation_function.(d.weight * mat(x) .+ d.bias)
+# Constructor of a DenseLayer structure
+DenseLayer(input::Int, output::Int, activation_function = sigm) =
+  DenseLayer(param(output, input), param0(output), activation_function)
+
+# A chain of layers ended by a negative log likelihood loss function
+struct Chainnll
+  layers
+  Chainnll(layers...) = new(layers) # Chainnll constructor
+end
+# Evaluate successively each layer
+# A layer&#39;s input is the precedent layer&#39;s output
+(c::Chainnll)(x) = (for l in c.layers
+  x = l(x)
+end;
+x)
+# Apply the negative log likelihood function
+# on the result of the neural network forward pass
+(c::Chainnll)(x, y) = Knet.nll(c(x), y)
+(c::Chainnll)(data::Tuple{T1, T2}) where {T1, T2} = c(first(data, 2)...)
+(c::Chainnll)(d::Knet.Data) = Knet.nll(c; data = d, average = true)
+
+output_classes = 10
+
+LeNet = Chainnll(ConvolutionnalLayer(5,5,1,6),
+                 ConvolutionnalLayer(5,5,6,16),
+                 DenseLayer(256, 120),
+                 DenseLayer(120, 84),
+                 DenseLayer(84,output_classes)
+                )</code></pre><pre class="documenter-example-output">Main.var&quot;ex-LeNetTraining&quot;.Chainnll((Main.var&quot;ex-LeNetTraining&quot;.ConvolutionnalLayer(P(Array{Float32, 4}(5,5,1,6)), P(Array{Float32, 4}(1,1,6,1)), Knet.Ops20.relu), Main.var&quot;ex-LeNetTraining&quot;.ConvolutionnalLayer(P(Array{Float32, 4}(5,5,6,16)), P(Array{Float32, 4}(1,1,16,1)), Knet.Ops20.relu), Main.var&quot;ex-LeNetTraining&quot;.DenseLayer(P(Matrix{Float32}(120,256)), P(Vector{Float32}(120)), Knet.Ops20.sigm), Main.var&quot;ex-LeNetTraining&quot;.DenseLayer(P(Matrix{Float32}(84,120)), P(Vector{Float32}(84)), Knet.Ops20.sigm), Main.var&quot;ex-LeNetTraining&quot;.DenseLayer(P(Matrix{Float32}(10,84)), P(Vector{Float32}(10)), Knet.Ops20.sigm)))</pre><h2 id="MNIST-dataset-loading"><a class="docs-heading-anchor" href="#MNIST-dataset-loading">MNIST dataset loading</a><a id="MNIST-dataset-loading-1"></a><a class="docs-heading-anchor-permalink" href="#MNIST-dataset-loading" title="Permalink"></a></h2><p>Accordingly to LeNet architecture, we chose the MNIST dataset from MLDataset:</p><pre><code class="language-julia">using MLDatasets
+ENV[&quot;DATADEPS_ALWAYS_ACCEPT&quot;] = true
+
+T = Float32
+xtrain, ytrain = MLDatasets.MNIST(Tx = T, split = :train)[:]
+xtest, ytest = MLDatasets.MNIST(Tx = T, split = :test)[:]
+
+ytrain[ytrain.==0] .= output_classes # re-arrange indices
+ytest[ytest.==0] .= output_classes # re-arrange indices
+
+data_train = (xtrain, ytrain)
+data_test = (xtest, ytest)</code></pre><pre class="documenter-example-output">([0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;; … ;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0;;; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0; … ; 0.0 0.0 … 0.0 0.0; 0.0 0.0 … 0.0 0.0], [7, 2, 1, 10, 4, 1, 4, 9, 5, 9  …  7, 8, 9, 10, 1, 2, 3, 4, 5, 6])</pre><h2 id="KnetNLPModel-instantiation"><a class="docs-heading-anchor" href="#KnetNLPModel-instantiation">KnetNLPModel instantiation</a><a id="KnetNLPModel-instantiation-1"></a><a class="docs-heading-anchor-permalink" href="#KnetNLPModel-instantiation" title="Permalink"></a></h2><p>From these elements, we transfer the Knet.jl architecture to a <code>KnetNLPModel</code>:</p><pre><code class="language-julia">using KnetNLPModels
+
+size_minibatch = 100
+LeNetNLPModel = KnetNLPModel(
+        LeNet;
+        data_train,
+        data_test,
+        size_minibatch,
+    )</code></pre><pre class="documenter-example-output">KnetNLPModel{Float32, Vector{Float32}, Main.var&quot;ex-LeNetTraining&quot;.Chainnll, Vector{Array{Float32}}}
+  Problem name: Generic
+   All variables: ████████████████████ 44426  All constraints: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            free: ████████████████████ 44426             free: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                lower: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                upper: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              low/upp: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                fixed: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+          infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               infeas: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+            nnzh: (  0.00% sparsity)   986856951          linear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                    nonlinear: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+                                                         nnzj: (------% sparsity)         
+
+  Counters:
+             obj: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 grad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 cons: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+        cons_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0             cons_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 jcon: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jgrad: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                  jac: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0              jac_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+         jac_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                jprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0            jprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+       jprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jtprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0           jtprod_lin: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+      jtprod_nln: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                 hess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0                hprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+           jhess: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0               jhprod: ⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅ 0     
+</pre><p>which will instantiate automatically the mandatory data-structures as <code>Vector</code> or <code>CuVector</code> if the code is launched either on a CPU or on a GPU.</p><p>The following code snippet executes the R2 solver with a <code>callback</code> that changes the training minibatch at each iteration:</p><pre><code class="language-julia">using JSOSolvers
+
+max_time = 30.
+callback = (nlp, solver, stats) -&gt; KnetNLPModels.minibatch_next_train!(nlp)
+solver_stats = R2(LeNetNLPModel; callback, max_time)
+
+test_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)</code></pre><pre class="documenter-example-output">0.1028</pre><p>Other solvers may also be applied for any KnetNLPModel:</p><pre><code class="language-julia">solver_stats = lbfgs(LeNetNLPModel; callback, max_time)
+
+test_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)</code></pre><pre class="documenter-example-output">0.3991</pre><p>In the last case, <code>LeNetNLPModel</code> is wrapped with a LSR1 approximation of loss Hessian to define a <code>lsr1_LeNet</code> NLPModel. The callback must be adapted to work on <code>LeNetNLPModel</code> which is accessible from <code>lsr1_LeNet.model</code>.</p><pre><code class="language-julia">using NLPModelsModifiers
+
+lsr1_LeNet = NLPModelsModifiers.LSR1Model(LeNetNLPModel)
+
+callback_lsr1 = (lsr1_nlpmodel, solver, stats) -&gt; KnetNLPModels.minibatch_next_train!(lsr1_nlpmodel.model)
+solver_stats = trunk(lsr1_LeNet; callback = callback_lsr1, max_time)
+
+test_accuracy = KnetNLPModels.accuracy(LeNetNLPModel)</code></pre><pre class="documenter-example-output">0.3889</pre></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../reference/">« Reference</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> on <span class="colophon-date" title="Wednesday 12 July 2023 14:42">Wednesday 12 July 2023</span>. Using Julia version 1.9.2.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
