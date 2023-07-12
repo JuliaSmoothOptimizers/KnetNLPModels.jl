@@ -1,7 +1,7 @@
 name = "KnetNLPModels"
 uuid = "9601d21a-7b1e-4fc7-9dab-5c3f545997d5"
 authors = ["Paul Raynaud <paul.raynaud@polymtl.ca>"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 Knet = "1902f260-5fb4-5aff-8c31-6271790ab950"
