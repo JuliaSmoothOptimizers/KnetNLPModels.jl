@@ -32,7 +32,7 @@ A KnetNLPModel has fields
 * `layers_g` is a nested array used for internal purposes;
 * `nested_array` is a vector of `Array{T,N}`; its shape matches that of `chain`.
 """
-mutable struct KnetNLPModel{T, S, C, V} <: AbstractKnetNLPModel{T, S}
+mutable struct KnetNLPModel{T, S, C, V, Z} <: AbstractKnetNLPModel{T, S}
   meta::NLPModelMeta{T, S}
   chain::C
   counters::Counters
@@ -44,7 +44,7 @@ mutable struct KnetNLPModel{T, S, C, V} <: AbstractKnetNLPModel{T, S}
   current_training_minibatch
   current_test_minibatch
   w::S
-  layers_g::Vector{Param}
+  layers_g::Z
   nested_array::V
   i_train::Int
   i_test::Int
@@ -87,7 +87,7 @@ function KnetNLPModel(
   current_test_minibatch = rand(test_minibatch_iterator)
 
   nested_array = build_nested_array_from_vec(chain_ANN, x0)
-  layers_g = similar(params(chain_ANN)) # create a Vector of layer variables
+  layers_g = similar.(params(chain_ANN)) # create a Vector of layer variables
 
   return KnetNLPModel(
     meta,

@@ -34,12 +34,12 @@ vector_params(chain::Chain) where {Chain} = Array(vcat_arrays_vector(params(chai
 vector_params(nlp::AbstractKnetNLPModel) = nlp.w
 
 """
-    vcat_arrays_vector(arrays_vector::AbstractVector{Param})
+    vcat_arrays_vector(nested_vectors::AbstractVector{Param})
 
-Flatten a vector of arrays `arrays_vector` to a vector.
+Flatten a vector of arrays `nested_vectors` to a vector.
 It concatenates the vectors produced by the application of `Knet.cat1d` to each array.
 """
-vcat_arrays_vector(arrays_vector::AbstractVector{Param}) = vcat(Knet.cat1d.(arrays_vector)...)
+vcat_arrays_vector(nested_vectors::AbstractVector{P}) where P = vcat(Knet.cat1d.(nested_vectors)...)
 
 """
     reset_minibatch_train!(nlp::AbstractKnetNLPModel)
