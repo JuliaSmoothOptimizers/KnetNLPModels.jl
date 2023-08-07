@@ -39,7 +39,8 @@ vector_params(nlp::AbstractKnetNLPModel) = nlp.w
 Flatten a vector of arrays `nested_vectors` to a vector.
 It concatenates the vectors produced by the application of `Knet.cat1d` to each array.
 """
-vcat_arrays_vector(nested_vectors::AbstractVector{P}) where P = vcat(Knet.cat1d.(nested_vectors)...)
+vcat_arrays_vector(nested_vectors::AbstractVector{P}) where {P} =
+  vcat(Knet.cat1d.(nested_vectors)...)
 
 """
     reset_minibatch_train!(nlp::AbstractKnetNLPModel)
