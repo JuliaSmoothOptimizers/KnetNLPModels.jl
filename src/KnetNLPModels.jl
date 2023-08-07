@@ -63,12 +63,12 @@ function KnetNLPModel(
   chain_ANN::T;
   size_minibatch::Int = 100,
   data_train = begin
-    (xtrn, ytrn) = MLDatasets.MNIST(split=:train)[:]
+    (xtrn, ytrn) = MLDatasets.MNIST(split = :train)[:]
     ytrn[ytrn .== 0] .= 10
     (xtrn, ytrn)
   end,
   data_test = begin
-    (xtst, ytst) = MLDatasets.MNIST(split=:test)[:]
+    (xtst, ytst) = MLDatasets.MNIST(split = :test)[:]
     ytst[ytst .== 0] .= 10
     (xtst, ytst)
   end,
@@ -79,7 +79,7 @@ function KnetNLPModel(
 
   (xtrn, ytrn) = data_train
   (xtst, ytst) = data_test
-   
+
   training_minibatch_iterator = create_minibatch(xtrn, ytrn, size_minibatch)
   test_minibatch_iterator = create_minibatch(xtst, ytst, size_minibatch)
   current_training_minibatch = rand(training_minibatch_iterator)
