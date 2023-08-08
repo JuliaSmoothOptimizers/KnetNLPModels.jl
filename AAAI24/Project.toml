@@ -1,0 +1,8 @@
+[deps]
+CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+IterTools = "c8e1da08-722c-5040-9ed9-7db0dc04731e"
+Knet = "1902f260-5fb4-5aff-8c31-6271790ab950"
+KnetNLPModels = "9601d21a-7b1e-4fc7-9dab-5c3f545997d5"
+MLDatasets = "eb30cadb-4394-5ae3-aed4-317e484a6458"
+Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
