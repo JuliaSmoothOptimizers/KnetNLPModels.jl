@@ -156,7 +156,7 @@ function PS_deduction(c; dp=no_dropout(c))
 	Dep
 end
 
-PS(c::T) = PS_deduction(precompile_ps_struct(c))
+PS(c) = PS_deduction(precompile_ps_struct(c))
 
 
 build_listes_indices(chain) = build_listes_indices(PS(chain))

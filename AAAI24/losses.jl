@@ -142,6 +142,38 @@ function PSLDP2(scores,labels::AbstractArray{<:Integer}; dims=1, average=true)
 	average ? (losses / length(labels)) : (losses, length(labels))
 end
 
+#PSLDP3
+mutable struct Chain_PSLDP3
+	layers
+	Chain_PSLDP3(layers...) = new(layers)
+end
+(c::Chain_PSLDP3)(x) = (for l in c.layers; x = l(x); end; x)
+(c::Chain_PSLDP3)(x,y) = PSLDP3(c(x),y)
+(c::Chain_PSLDP3)(data :: Tuple{T1,T2}) where {T1,T2} = _PSLDP3(c; data=data, average=true)
+(c::Chain_PSLDP3)(d::Knet.Data) = PSLDP3(c; data=d, average=true)
+function PSLDP3(model; data, dims=1, average=true, o...)	
+	sum = cnt = 0
+	for (x,y) in data
+		(z,n) = PSLDP3(model(x; o...), y; dims=dims, average=false) 
+		sum += z; cnt += n
+	end
+	average ? sum / cnt : (sum, cnt)
+end
+function _PSLDP3(model; data, dims=1, average=true, o...)	
+	sum = cnt = 0
+	(x,y) = data
+	(z,n) = PSLDP3(model(x; o...), y; dims=dims, average=false) 
+	sum += z; cnt += n
+	average ? sum / cnt : (sum, cnt)
+end
+function PSLDP3(scores,labels::AbstractArray{<:Integer}; dims=1, average=true)
+	indices = findindices(scores,labels,dims=dims)
+	scores = ((x -> .- log(x.^2) .+ exp(x).^2).(scores .- reshape(scores[indices],1, length(indices))))
+	# absence de garantie < 1
+	acc = sum(scores)
+	average ? (acc / length(labels)) : (acc, length(labels))
+end
+
 index_indices(index, size_NN_output) = Int(((index - 1 - (index-1) % size_NN_output)) / size_NN_output +1 )
 scalar_factor(index, size_NN_output, indices) = indices[index_indices(index, size_NN_output)] == index ? 2 : 1
 

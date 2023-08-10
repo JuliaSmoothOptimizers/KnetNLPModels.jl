@@ -30,8 +30,8 @@ layer_PS = [24,15,1] # individual score neurons composing the successive searabl
 
 LeNet_NLL = () -> Chain_NLL(Conv(5,5,1,6; pool_option=1), Conv(5,5,6,16; pool_option=1), Dense(256,120), Dense(120,84), Dense(84,10,identity))
 LeNet_PSLDP = () -> Chain_PSLDP(Conv(5,5,1,6; pool_option=1), Conv(5,5,6,16; pool_option=1), Dense(256,120), Dense(120,84), Dense(84,10,identity))
-PSNet_NLL = () -> Chain_NLL(Conv(5,5,1,40; pool_option=1), Conv(5,5,40,30; pool_option=1), SL(480, C, Layer_PS[1]), SL(C*layer_PS[1], C, Layer_PS[2]), SL(C*layer_PS[2], C, Layer_PS[3]; f=identity))
-PSNet_PSLDP = () -> Chain_PSLDP(Conv(5,5,1,40; pool_option=1), Conv(5,5,40,30; pool_option=1), SL(480, C, Layer_PS[1]), SL(C*layer_PS[1], C, Layer_PS[2]), SL(C*layer_PS[2], C, Layer_PS[3]; f=identity))
+PSNet_NLL = () -> Chain_NLL(Conv(5,5,1,40; pool_option=1), Conv(5,5,40,30; pool_option=1), SL(480, C, layer_PS[1]), SL(C*layer_PS[1], C, layer_PS[2]), SL(C*layer_PS[2], C, layer_PS[3]; f=identity))
+PSNet_PSLDP = () -> Chain_PSLDP(Conv(5,5,1,40; pool_option=1), Conv(5,5,40,30; pool_option=1), SL(480, C, layer_PS[1]), SL(C*layer_PS[1], C, layer_PS[2]), SL(C*layer_PS[2], C, layer_PS[3]; f=identity))
 # LeNet 44426 # length(vector_params(LeNet_NLL()))
 # PSNet 53780 # length(vector_params(PSNet_PSLDP()))
 # every raw score depends only on 6340 weights # length(PS(PSNet_PSLDP())[1])
@@ -61,8 +61,8 @@ layer_PS = [35,15,1]
 element_function_indices[1,1]
 LeNet_NLL = () -> Chain_NLL(Conv(5,5,3,6; pool_option=1), Conv(5,5,6,16; pool_option=1), Dense(400,200), Dense(200,100), Dense(100,10,identity))
 LeNet_PSLDP = () -> Chain_PSLDP(Conv(5,5,1,6; pool_option=1), Conv(5,5,6,16; pool_option=1), Dense(400,200), Dense(200,100), Dense(100,10,identity))
-PSNet_NLL = () -> Chain_NLL(Conv(5,5,3,60; pool_option=1), Conv(5,5,60,30; pool_option=1), SL(750, C, Layer_PS[1]), SL(C*layer_PS[1], C, Layer_PS[2]), SL(C*layer_PS[2], C, Layer_PS[3]; f=identity))
-PSNet_PSLDP = () -> Chain_PSLDP(Conv(5,5,3,60; pool_option=1), Conv(5,5,60,30; pool_option=1), SL(750, C, Layer_PS[1]), SL(C*layer_PS[1], C, Layer_PS[2]), SL(C*layer_PS[2], C, Layer_PS[3]; f=identity))
+PSNet_NLL = () -> Chain_NLL(Conv(5,5,3,60; pool_option=1), Conv(5,5,60,30; pool_option=1), SL(750, C, layer_PS[1]), SL(C*layer_PS[1], C, layer_PS[2]), SL(C*layer_PS[2], C, layer_PS[3]; f=identity))
+PSNet_PSLDP = () -> Chain_PSLDP(Conv(5,5,3,60; pool_option=1), Conv(5,5,60,30; pool_option=1), SL(750, C, layer_PS[1]), SL(C*layer_PS[1], C, layer_PS[2]), SL(C*layer_PS[2], C, layer_PS[3]; f=identity))
 # LeNet 103882 # length(vector_params(LeNet_NLL()))
 # PSNet 81750 # length(vector_params(PSNet_PSLDP()))
 # every raw score depends only on 12279 weights # length(PS(PSNet_PSLDP())[1])
